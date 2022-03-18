@@ -1,4 +1,4 @@
-package it.polimi.softeng;
+package it.polimi.softeng.model;
 
 import java.util.EnumMap;
 

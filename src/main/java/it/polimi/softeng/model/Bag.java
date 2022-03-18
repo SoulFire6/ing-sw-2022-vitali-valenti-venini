@@ -1,7 +1,6 @@
-package it.polimi.softeng;
+package it.polimi.softeng.model;
 
-import java.util.EnumMap;
-import java.util.Random;
+import java.util.*;
 
 public class Bag {
     EnumMap<Colour,Integer> contents;

@@ -1,4 +1,4 @@
-package it.polimi.softeng;
+package it.polimi.softeng.model;
 
 public class Player {
     String name;
