@@ -32,7 +32,13 @@ public enum Colour {
     }
 
     public static Colour parseChosenColour(String input) {
-        return Enum.valueOf(Colour.class,input.toUpperCase());
+        try {
+            return Enum.valueOf(Colour.class,input.toUpperCase());
+        }
+        catch(Exception e) {
+            System.out.println("Invalid input");
+            return null;
+        }
     }
 
     public static Colour getRandomColour() {
