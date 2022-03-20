@@ -1,25 +1,24 @@
 package it.polimi.softeng.model;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.Random;
 
 public enum Colour {
     YELLOW,BLUE,GREEN,RED,PURPLE;
+
     public static EnumMap<Colour,Integer> genStudentMap() {
         EnumMap<Colour,Integer> studentMap=new EnumMap<>(Colour.class);
-        studentMap.put(Colour.YELLOW,0);
-        studentMap.put(Colour.BLUE,0);
-        studentMap.put(Colour.GREEN,0);
-        studentMap.put(Colour.RED,0);
-        studentMap.put(Colour.PURPLE,0);
+        for (Colour c: Colour.values()) {
+            studentMap.put(c,0);
+        }
         return studentMap;
     }
+
     public static EnumMap<Colour,Boolean> genProfessorMap() {
         EnumMap<Colour,Boolean> professorMap=new EnumMap<>(Colour.class);
-        professorMap.put(Colour.YELLOW,false);
-        professorMap.put(Colour.BLUE,false);
-        professorMap.put(Colour.GREEN,false);
-        professorMap.put(Colour.RED,false);
-        professorMap.put(Colour.PURPLE,false);
+        for (Colour c: Colour.values()) {
+            professorMap.put(c,false);
+        }
         return professorMap;
     }
 

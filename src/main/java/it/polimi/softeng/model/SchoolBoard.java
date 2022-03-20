@@ -1,15 +1,16 @@
 package it.polimi.softeng.model;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.ArrayList;
 
 public class SchoolBoard {
-    Integer maxEntranceSlots;
-    EnumMap<Colour,Integer> entrance;
-    EnumMap<Colour,Integer> diningRoom;
-    EnumMap<Colour,Boolean> professorTable;
-    Integer towers;
-    Integer coins;
-    ArrayList<AssistantCard> hand;
+    private Integer maxEntranceSlots;
+    private EnumMap<Colour,Integer> entrance;
+    private EnumMap<Colour,Integer> diningRoom;
+    private EnumMap<Colour,Boolean> professorTable;
+    private Integer towers;
+    private Integer coins;
+    private ArrayList<AssistantCard> hand;
 
     public SchoolBoard() {
         this.maxEntranceSlots=7; //TODO set to 9 during 3 player game on setup

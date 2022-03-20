@@ -3,13 +3,13 @@ package it.polimi.softeng.model;
 import java.util.EnumMap;
 
 public class Island {
-    String IslandID;
-    Boolean motherNature;
-    Integer towers;
-    Team team;
-    Island next;
-    Island prev;
-    EnumMap<Colour,Integer> contents;
+    private String IslandID;
+    private Boolean motherNature;
+    private Integer towers;
+    private Team team;
+    private Island next;
+    private Island prev;
+    private EnumMap<Colour,Integer> contents;
 
     public Island(String id) {
         this.IslandID=id;

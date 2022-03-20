@@ -3,9 +3,9 @@ package it.polimi.softeng.model;
 import java.util.EnumMap;
 
 public class Cloud {
-    String CloudID;
-    Integer maxSlots;
-    EnumMap<Colour,Integer> contents;
+    private String CloudID;
+    private Integer maxSlots;
+    private EnumMap<Colour,Integer> contents;
 
     public Cloud(String id) {
         this.CloudID=id;

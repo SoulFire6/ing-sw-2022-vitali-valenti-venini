@@ -1,12 +1,15 @@
 package it.polimi.softeng.model;
 
-import java.util.*;
+import java.util.EnumMap;
 
 public class Bag {
-    EnumMap<Colour,Integer> contents;
+    private EnumMap<Colour,Integer> contents;
 
     public Bag() {
         this.contents=Colour.genStudentMap();
+    }
+    public EnumMap<Colour,Integer> getContents() {
+        return this.contents;
     }
     public void addColourToBag(Colour c,Integer i) {
         this.contents.put(c,this.contents.get(c)+i);

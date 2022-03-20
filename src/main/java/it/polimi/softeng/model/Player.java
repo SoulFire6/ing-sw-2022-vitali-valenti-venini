@@ -1,10 +1,10 @@
 package it.polimi.softeng.model;
 
 public class Player {
-    String name;
-    Player teamMate=null;
-    boolean currentTurn;
-    SchoolBoard schoolBoard;
+    private String name;
+    private Player teamMate=null;
+    private boolean currentTurn;
+    private SchoolBoard schoolBoard;
 
     //Player constructor
     public Player(String name) {
