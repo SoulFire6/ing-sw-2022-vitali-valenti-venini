@@ -1,15 +1,12 @@
 package it.polimi.softeng.model;
 
-import java.util.EnumMap;
-
-public class Island {
+public class Island extends Tile {
     private String IslandID;
     private Boolean motherNature;
     private Integer towers;
     private Team team;
     private Island next;
     private Island prev;
-    private EnumMap<Colour,Integer> contents;
 
     public Island(String id) {
         this.IslandID=id;
@@ -18,7 +15,6 @@ public class Island {
         this.team=null;
         this.next=null;
         this.prev=null;
-        this.contents=Colour.genStudentMap();
     }
     public Boolean getMotherNature() {
         return this.motherNature;
@@ -31,12 +27,6 @@ public class Island {
     }
     public void setTowers(Integer value) {
         this.towers=value;
-    }
-    public EnumMap<Colour,Integer>  getContents() {
-        return this.contents;
-    }
-    public void addStudent(Colour c) {
-        this.contents.put(c,this.contents.get(c)+1);
     }
     public void calculateInfluence() {
         //TODO add when players and teams are introduced

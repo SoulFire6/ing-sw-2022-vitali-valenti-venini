@@ -8,7 +8,7 @@ public class BagTest {
     @Test()
     public void testBagConstructor() {
         Integer initValue=0;
-        Bag b=new Bag();
+        Bag b=new Bag(initValue);
         for (Colour c: Colour.values()) {
             assertEquals("Bag was not initialised correctly",initValue,b.getContents().get(c));
         }
