@@ -8,6 +8,12 @@ public class Bag {
     public Bag() {
         this.contents=Colour.genStudentMap();
     }
+    public Bag(Integer num) {
+        this.contents=Colour.genStudentMap();
+        for (Colour c: Colour.values()) {
+            this.contents.put(c,num);
+        }
+    }
     public EnumMap<Colour,Integer> getContents() {
         return this.contents;
     }

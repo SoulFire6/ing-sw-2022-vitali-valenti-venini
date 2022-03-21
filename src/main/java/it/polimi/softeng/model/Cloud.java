@@ -1,5 +1,6 @@
 package it.polimi.softeng.model;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 
 public class Cloud {
@@ -7,12 +8,38 @@ public class Cloud {
     private Integer maxSlots;
     private EnumMap<Colour,Integer> contents;
 
-    public Cloud(String id) {
+    public Cloud(String id, Integer maxSlots) {
         this.CloudID=id;
-        this.maxSlots=3; //TODO changes to 4 with 3 players during setup
+        this.maxSlots=maxSlots;
         this.contents=Colour.genStudentMap();
     }
-
+    public static ArrayList<Cloud> genClouds(Integer playerNum) {
+        ArrayList<Cloud> res=new ArrayList<>();
+        Integer num;
+        Integer max;
+        switch (playerNum) {
+            case 2:
+                num=2;
+                max=3;
+                break;
+            case 3:
+                num=3;
+                max=4;
+                break;
+            case 4:
+                num=4;
+                max=3;
+                break;
+            default:
+                num=2;
+                max=3;
+                break;
+        }
+        for (int i=0; i<num; i++) {
+            res.add(new Cloud(String.valueOf(i),max));
+        }
+        return res;
+    }
     public EnumMap<Colour,Integer> emptyCloud() {
         EnumMap<Colour,Integer> res=this.contents;
         for(Colour c: Colour.values()) {
