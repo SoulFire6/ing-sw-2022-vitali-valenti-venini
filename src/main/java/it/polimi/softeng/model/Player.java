@@ -4,7 +4,7 @@ public class Player {
     private String name;
     private Player teamMate=null;
     private boolean currentTurn;
-    private SchoolBoard schoolBoard;
+    private SchoolBoard_Tile schoolBoard;
 
     //Player constructor
     public Player(String name) {
@@ -23,7 +23,7 @@ public class Player {
         return currentTurn;
     }
 
-    public SchoolBoard getSchoolBoard() {
+    public SchoolBoard_Tile getSchoolBoard() {
         return schoolBoard;
     }
 }

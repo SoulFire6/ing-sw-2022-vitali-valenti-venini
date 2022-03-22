@@ -3,17 +3,16 @@ package it.polimi.softeng.model;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
-public class Cloud extends Tile {
-    private String CloudID;
+public class Cloud_Tile extends Tile {
     private Integer maxSlots;
 
-    public Cloud(String id, Integer max) {
-        this.CloudID=id;
+    public Cloud_Tile(String id, Integer max) {
+        this.setTileID(id);
         this.maxSlots=max;
     }
     //Generates 2-4 clouds based on player number, with corresponding maxSlots value
-    public static ArrayList<Cloud> genClouds(Integer playerNum) {
-        ArrayList<Cloud> res=new ArrayList<>();
+    public static ArrayList<Cloud_Tile> genClouds(Integer playerNum) {
+        ArrayList<Cloud_Tile> res=new ArrayList<>();
         Integer num;
         Integer max;
         switch (playerNum) {
@@ -35,11 +34,11 @@ public class Cloud extends Tile {
                 break;
         }
         for (int i=0; i<num; i++) {
-            res.add(new Cloud(String.valueOf(i),max));
+            res.add(new Cloud_Tile(String.valueOf(i),max));
         }
         return res;
     }
-    public void fillCloud(Bag b) {
+    public void fillCloud(Bag_Tile b) {
         EnumMap<Colour,Integer> contents=this.getContents();
         EnumMap<Colour,Integer> cloudContents=b.drawStudents(this.maxSlots-this.getFillAmount());
         for(Colour c: Colour.values()) {

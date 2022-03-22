@@ -10,8 +10,8 @@ public class Game {
     private Integer playerNum;
     private ArrayList<Player> players;
     private EnumMap<Team,ArrayList<String>> teams;
-    private Bag bag;
-    private ArrayList<Cloud> clouds;
+    private Bag_Tile bag;
+    private ArrayList<Cloud_Tile> clouds;
     private Boolean expertMode;
     private ArrayList<CharacterCard> characterCards;
     //TODO: decide if splitting for expertMode is better
@@ -22,8 +22,8 @@ public class Game {
         this.playerNum=players.size();
         this.players=players;
         this.teams=Team.genTeams(players,playerNum);
-        this.bag=new Bag(26);
-        this.clouds=Cloud.genClouds(this.playerNum);
+        this.bag=new Bag_Tile(26);
+        this.clouds=Cloud_Tile.genClouds(this.playerNum);
         this.expertMode=expertMode;
         this.characterCards=CharacterCard.genCharacterCards();
     }
@@ -43,7 +43,7 @@ public class Game {
         return this.expertMode;
     }
     public ArrayList<CharacterCard> getCharacterCards() {
-        if (expertMode) {
+        if (this.expertMode) {
             return this.characterCards;
         } else {
             System.out.println("Game is not in expert mode");

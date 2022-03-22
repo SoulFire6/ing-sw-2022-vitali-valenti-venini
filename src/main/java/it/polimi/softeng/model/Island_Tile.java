@@ -1,14 +1,14 @@
 package it.polimi.softeng.model;
 
-public class Island extends Tile {
+public class Island_Tile extends Tile {
     private String IslandID;
     private Boolean motherNature;
     private Integer towers;
     private Team team;
-    private Island next;
-    private Island prev;
+    private Island_Tile next;
+    private Island_Tile prev;
 
-    public Island(String id) {
+    public Island_Tile(String id) {
         this.IslandID=id;
         this.motherNature=false;
         this.towers=0;

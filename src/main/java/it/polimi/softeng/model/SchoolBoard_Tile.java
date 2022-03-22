@@ -3,7 +3,7 @@ package it.polimi.softeng.model;
 import java.util.EnumMap;
 import java.util.ArrayList;
 
-public class SchoolBoard extends Tile{
+public class SchoolBoard_Tile extends Tile{
     private Integer maxEntranceSlots;
     private EnumMap<Colour,Integer> entrance;
     private EnumMap<Colour,Integer> diningRoom;
@@ -12,7 +12,7 @@ public class SchoolBoard extends Tile{
     private Integer coins;
     private ArrayList<AssistantCard> hand;
 
-    public SchoolBoard(Integer maxEntranceSlots, Integer towers, Integer coins) {
+    public SchoolBoard_Tile(Integer maxEntranceSlots, Integer towers, Integer coins) {
         this.setTileID("");
         this.maxEntranceSlots=maxEntranceSlots;
         this.diningRoom=Colour.genStudentMap();
@@ -22,7 +22,7 @@ public class SchoolBoard extends Tile{
         this.hand=AssistantCard.genHand();
     }
     //The entrance is represented by the generic contents attribute
-    public void fillEntrance(Cloud cloud) {
+    public void fillEntrance(Cloud_Tile cloud) {
         EnumMap<Colour,Integer> entrance=this.getContents();
         EnumMap<Colour,Integer> newStudents=cloud.getContents();
         for(Colour c: Colour.values()) {
@@ -45,7 +45,7 @@ public class SchoolBoard extends Tile{
 
     }
     //Moves student to cloud
-    public void moveStudentToCloud(Colour c, Cloud cloud) {
+    public void moveStudentToCloud(Colour c, Cloud_Tile cloud) {
         this.removeColour(c,1);
         cloud.addColour(c,1);
     }

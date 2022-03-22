@@ -41,7 +41,7 @@ public enum Team {
     public static EnumMap<Team,ArrayList<String>> twoTeamGame(ArrayList<String> playerNames) {
         EnumMap<Team,ArrayList<String>> teams=new EnumMap<>(Team.class);
         ArrayList<String> whiteTeam = new ArrayList<>(Arrays.asList(playerNames.get(0)));
-        ArrayList<String> blackTeam = new ArrayList<>(Arrays.asList(playerNames.get(0)));
+        ArrayList<String> blackTeam = new ArrayList<>(Arrays.asList(playerNames.get(1)));
         if (playerNames.size()==4) {
             whiteTeam.add(playerNames.get(2));
             blackTeam.add(playerNames.get(3));
