@@ -10,34 +10,15 @@ public class Cloud_Tile extends Tile {
         this.setTileID(id);
         this.maxSlots=max;
     }
-    //Generates 2-4 clouds based on player number, with corresponding maxSlots value
-    public static ArrayList<Cloud_Tile> genClouds(Integer playerNum) {
-        ArrayList<Cloud_Tile> res=new ArrayList<>();
-        Integer num;
-        Integer max;
-        switch (playerNum) {
-            case 2:
-                num=2;
-                max=3;
-                break;
-            case 3:
-                num=3;
-                max=4;
-                break;
-            case 4:
-                num=4;
-                max=3;
-                break;
-            default:
-                num=2;
-                max=3;
-                break;
-        }
-        for (int i=0; i<num; i++) {
-            res.add(new Cloud_Tile(String.valueOf(i),max));
-        }
-        return res;
+    //returns the maxSlots attribute
+    public Integer getMaxSlots() {
+        return this.maxSlots;
     }
+    //sets the maxSlots attribute
+    public void setMaxSlots(Integer maxSlots) {
+        this.maxSlots=maxSlots;
+    }
+    //Fills cloud by drawing from the bag
     public void fillCloud(Bag_Tile b) {
         EnumMap<Colour,Integer> contents=this.getContents();
         EnumMap<Colour,Integer> cloudContents=b.drawStudents(this.maxSlots-this.getFillAmount());
@@ -45,5 +26,13 @@ public class Cloud_Tile extends Tile {
             contents.put(c,contents.get(c)+cloudContents.get(c));
         }
         this.setContents(contents);
+    }
+    //Generates clouds for the game class
+    public static ArrayList<Cloud_Tile> genClouds(Integer num, Integer max) {
+        ArrayList<Cloud_Tile> res=new ArrayList<>();
+        for (int i=0; i<num; i++) {
+            res.add(new Cloud_Tile("Cloud_"+String.valueOf(i+1),max));
+        }
+        return res;
     }
 }

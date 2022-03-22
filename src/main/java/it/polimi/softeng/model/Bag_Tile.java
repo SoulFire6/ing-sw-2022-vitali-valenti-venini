@@ -4,7 +4,7 @@ import java.util.EnumMap;
 
 public class Bag_Tile extends Tile {
     public Bag_Tile(Integer num) {
-        this.setTileID("Bag"); //TODO: Consider actual naming system for ids
+        this.setTileID("Bag");
         this.addStudents(num);
     }
     public EnumMap<Colour,Integer> drawStudents(Integer num) {

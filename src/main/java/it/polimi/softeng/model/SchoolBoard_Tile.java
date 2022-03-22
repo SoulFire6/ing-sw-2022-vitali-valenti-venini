@@ -5,15 +5,16 @@ import java.util.ArrayList;
 
 public class SchoolBoard_Tile extends Tile{
     private Integer maxEntranceSlots;
-    private EnumMap<Colour,Integer> entrance;
     private EnumMap<Colour,Integer> diningRoom;
     private EnumMap<Colour,Boolean> professorTable;
     private Integer towers;
+    private Integer maxTowers;
     private Integer coins;
     private ArrayList<AssistantCard> hand;
+    private AssistantCard lastUsedCard;
 
-    public SchoolBoard_Tile(Integer maxEntranceSlots, Integer towers, Integer coins) {
-        this.setTileID("");
+    public SchoolBoard_Tile(String playerName, Integer maxEntranceSlots, Integer towers, Integer coins) {
+        this.setTileID(playerName+"'s_schoolboard");
         this.maxEntranceSlots=maxEntranceSlots;
         this.diningRoom=Colour.genStudentMap();
         this.professorTable=Colour.genProfessorMap();
@@ -25,12 +26,19 @@ public class SchoolBoard_Tile extends Tile{
     public void fillEntrance(Cloud_Tile cloud) {
         EnumMap<Colour,Integer> entrance=this.getContents();
         EnumMap<Colour,Integer> newStudents=cloud.getContents();
-        for(Colour c: Colour.values()) {
-            entrance.put(c,entrance.get(c)+newStudents.get(c));
-            newStudents.put(c,0);
+        if ((this.getFillAmount()+cloud.getFillAmount())==this.maxEntranceSlots) {
+            for(Colour c: Colour.values()) {
+                entrance.put(c,entrance.get(c)+newStudents.get(c));
+                newStudents.put(c,0);
+            }
+            this.setContents(entrance);
+            cloud.setContents(newStudents);
+        } else {
+            System.out.println("Error filling schoolboard entrance");
         }
-        this.setContents(entrance);
-        cloud.setContents(newStudents);
+    }
+    public Integer getDiningRoomAmount(Colour c) {
+        return this.diningRoom.get(c);
     }
     //Returns boolean depending on success of moving student to dining room
     public boolean moveStudentToDiningRoom(Colour c) {
@@ -49,24 +57,37 @@ public class SchoolBoard_Tile extends Tile{
         this.removeColour(c,1);
         cloud.addColour(c,1);
     }
+    public Boolean getProfessor(Colour c) {
+        return this.professorTable.get(c);
+    }
+    public void setProfessor(Colour c, Boolean value) {
+        this.professorTable.put(c,value);
+    }
     //Alters tower number based on input, returns false if outside normal values
     public boolean modifyTowers(Integer num) {
-        if (this.towers+num>=0 && this.towers+num<=8) {
+        if (this.towers+num>=0 && this.towers+num<=this.maxTowers) {
             this.towers+=num;
             return true;
         } else {
             return false;
         }
     }
-    public AssistantCard playAssistantCard(String id) {
-        AssistantCard res=null;
+    public Integer getTowers() {
+        return this.towers;
+    }
+    public void playAssistantCard(String id) {
         for (int i = 0; i < hand.size(); i++) {
             if (hand.get(i).getCardID().equals(id)) {
-                res=hand.get(i);
+                this.lastUsedCard=hand.get(i);
                 hand.remove(i);
                 break;
             }
         }
-        return res;
+    }
+    public Integer getCoins() {
+        return this.coins;
+    }
+    public void setCoins(Integer value) {
+        this.coins=value;
     }
 }

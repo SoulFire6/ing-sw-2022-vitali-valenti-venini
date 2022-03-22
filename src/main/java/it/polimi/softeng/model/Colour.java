@@ -21,15 +21,6 @@ public enum Colour {
         }
         return professorMap;
     }
-
-    public static Integer currentlyFilledSlots(EnumMap<Colour,Integer> contents) {
-        Integer res=0;
-        for(Colour c: Colour.values()) {
-            res+=contents.get(c);
-        }
-        return res;
-    }
-
     public static Colour parseChosenColour(String input) {
         try {
             return Enum.valueOf(Colour.class,input.toUpperCase());
