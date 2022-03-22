@@ -1,0 +1,11 @@
+cardID,turnValue,motherNatureValue,cost
+Cheetah,1,1
+Ostrich,2,1
+Cat,3,2
+Eagle,4,2
+Fox,5,3
+Lizard,6,3
+Octopus,7,4
+Dog,8,4
+Elephant,9,5
+Turtle,10,5
