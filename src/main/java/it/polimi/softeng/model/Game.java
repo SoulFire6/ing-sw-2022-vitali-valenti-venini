@@ -1,5 +1,6 @@
 package it.polimi.softeng.model;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Random;
@@ -15,7 +16,7 @@ public class Game {
     private ArrayList<CharacterCard> characterCards;
     //TODO: decide if splitting for expertMode is better
 
-    public Game(ArrayList<Player> players, Boolean expertMode) {
+    public Game(ArrayList<Player> players, Boolean expertMode) throws FileNotFoundException {
         Random rand=new Random();
         this.gameID=(Integer.valueOf(rand.nextInt())).toString();
         this.playerNum=players.size();
