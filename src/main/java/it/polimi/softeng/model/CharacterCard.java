@@ -3,9 +3,11 @@ package it.polimi.softeng.model;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 public class CharacterCard {
+    private static final String CARD_DATA_PATH="src/main/resources/CardData/CharacterCards.csv";
     private String cardID;
     private Integer cost;
 
@@ -22,17 +24,27 @@ public class CharacterCard {
     public void incrementCost() {
         this.cost+=1;
     }
-    public static ArrayList<CharacterCard> genCharacterCards() throws FileNotFoundException {
-        //TODO: randomly pick 3 cards
-        //TODO: import from csv
-        Scanner scanner = new Scanner(new File("src/main/resources/CardData/AssistantCards.csv"));
-        scanner.useDelimiter(",");
-        while(scanner.hasNext()){
-            System.out.print(scanner.next()+",");
-        }
-        scanner.close();
+    public static ArrayList<CharacterCard> genCharacterCards(Integer num) {
+        Random rand=new Random();
         ArrayList<CharacterCard> res=new ArrayList<>();
-        res.add(new CharacterCard("Example",0));
+        String[] card;
+        try {
+            Scanner scanner = new Scanner(new File(CARD_DATA_PATH));
+            scanner.useDelimiter("\n");
+            //Skipping header of csv file
+            scanner.next();
+            while(scanner.hasNext()){
+                card=scanner.next().split(",");
+                res.add(new CharacterCard(card[0],Integer.valueOf(card[1])));
+            }
+            scanner.close();
+            //Removing excess cards
+            while (res.size()>num) {
+                res.remove(rand.nextInt(res.size()));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         return res;
     }
 }

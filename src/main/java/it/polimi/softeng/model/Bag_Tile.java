@@ -4,8 +4,8 @@ import java.util.EnumMap;
 
 public class Bag_Tile extends Tile {
     public Bag_Tile(Integer num) {
+        super(num);
         this.setTileID("Bag");
-        this.addStudents(num);
     }
     public EnumMap<Colour,Integer> drawStudents(Integer num) {
         EnumMap<Colour,Integer> contents=this.getContents();

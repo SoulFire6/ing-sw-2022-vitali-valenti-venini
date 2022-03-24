@@ -55,13 +55,12 @@ public class Island_Tile extends Tile {
     public void setNoEntry(Boolean value) {
         this.noEntry=value;
     }
-    public static ArrayList<Island_Tile> genIslands() {
-        Integer num=12;
+    public static ArrayList<Island_Tile> genIslands(Integer num) {
         //TODO: initialise mother nature and students on separate isles randomly
         ArrayList<Island_Tile> islands=new ArrayList<>();
         for (int i=0; i<num; i++) {
 
-            islands.add(new Island_Tile("Island_"+String.valueOf(i+1)));
+            islands.add(new Island_Tile("Island_"+(i+1)));
         }
         for (int i=0; i<num-1; i++) {
             islands.get(i).setNext(islands.get(i+1));

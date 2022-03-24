@@ -9,6 +9,10 @@ public abstract class Tile {
     public Tile() {
         this.contents=Colour.genStudentMap();
     }
+    public Tile(Integer num) {
+        this.contents=Colour.genStudentMap();
+        this.addStudents(num);
+    }
     public void setTileID(String id) {
         this.tileID = id;
     }

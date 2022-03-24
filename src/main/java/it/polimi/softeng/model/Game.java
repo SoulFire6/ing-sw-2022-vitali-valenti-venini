@@ -9,22 +9,30 @@ public class Game {
     private final Integer playerNum;
     private final ArrayList<Player> players;
     //TODO: fix how teams are handled
-    private final EnumMap<Team,ArrayList<String>> teams;
+    private EnumMap<Team,ArrayList<String>> teams;
     private Bag_Tile bag;
-    //Clouds are initialised from controller once
     private ArrayList<Cloud_Tile> clouds;
     private ArrayList<Island_Tile> islands;
-    private Boolean expertMode;
+    private boolean expertMode;
+    private Integer coins;
     private ArrayList<CharacterCard> characterCards;
 
-    public Game(String id, ArrayList<Player> players, Boolean expertMode) {
-        this.gameID=id;
+    public Game(String gameID, ArrayList<Player> players, Integer bagFill, Integer cloudNum, Integer cloudMax, Integer islandNum) {
+        this.gameID=gameID;
         this.playerNum=players.size();
         this.players=players;
         this.teams=Team.genTeams(players,playerNum);
-        this.bag=new Bag_Tile(24);
-        this.islands=Island_Tile.genIslands();
-        this.expertMode=expertMode;
+        this.bag=new Bag_Tile(bagFill);
+        this.clouds=Cloud_Tile.genClouds(cloudNum,cloudMax);
+        this.islands=Island_Tile.genIslands(islandNum);
+        this.expertMode=false;
+    }
+
+    public Game(String gameID, ArrayList<Player> players,Integer bagFill, Integer cloudNum, Integer cloudMax,Integer islandNum, Integer coins, Integer charCardNum) {
+        this(gameID,players,bagFill,cloudNum,cloudMax,islandNum);
+        this.expertMode=true;
+        this.coins=coins;
+        this.characterCards=CharacterCard.genCharacterCards(charCardNum);
     }
     public String getGameID() {
         return this.gameID;
@@ -47,8 +55,22 @@ public class Game {
     public ArrayList<Cloud_Tile> getClouds() {
         return this.clouds;
     }
+    public ArrayList<Island_Tile> getIslands() {
+        return this.islands;
+    }
     public Boolean getExpertMode() {
         return this.expertMode;
+    }
+    public Integer getCoins() {
+        if (this.expertMode) {
+            return this.coins;
+        } else {
+            System.out.println("Game is not in expert mode");
+            return null;
+        }
+    }
+    public void setCoins(Integer coins) {
+        this.coins=coins;
     }
     public ArrayList<CharacterCard> getCharacterCards() {
         if (this.expertMode) {
