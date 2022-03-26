@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 
 public class AssistantCardTest {
+    //TODO finish tests
     @Test
     public void testGenCharacterCards() {
         Integer num=3;

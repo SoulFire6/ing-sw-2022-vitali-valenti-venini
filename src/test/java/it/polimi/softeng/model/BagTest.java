@@ -5,7 +5,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class BagTest {
-    @Test()
+    //TODO finish tests
+    @Test
     public void testBagConstructor() {
         Integer initValue=0;
         Bag_Tile b=new Bag_Tile(initValue);

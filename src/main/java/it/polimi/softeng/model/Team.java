@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
-import java.util.InputMismatchException;
 
 public enum Team {
     WHITE,BLACK,GREY;
@@ -14,7 +13,7 @@ public enum Team {
         ArrayList<Player> players=new ArrayList<>();
         Integer playerNum=playerNames.size();
         if (playerNum<2 || playerNum>4) {
-            throw new InputMismatchException("Could not generate teams\nExpected players: 2-4\nActual: "+playerNum);
+            throw new IllegalArgumentException("Could not generate teams\nExpected players: 2-4\nActual: "+playerNum);
         }
         //Randomises what teams each player gets by shuffling their names
         for (int i=0; i<playerNum; i++) {
