@@ -3,34 +3,26 @@ package it.polimi.softeng.model;
 public class Player {
     private String name;
     private Team team;
-    private Player teamMate=null;
-    private boolean currentTurn;
+    private Player teamMate;
     private SchoolBoard_Tile schoolBoard;
 
     //Player constructor
-    public Player(String name, Team team, SchoolBoard_Tile schoolBoard) {
+    public Player(String name, Team team) {
         this.name=name;
         this.team=team;
-        this.currentTurn=false;
-        this.schoolBoard=schoolBoard;
     }
-    //Deprecated constructor to be removed
-    public Player(String name) {
-        this.name=name;
-    }
-
     public String getName() {
         return name;
     }
-
+    public Team getTeam() {
+        return this.team;
+    }
     public Player getTeamMate() {
         return teamMate;
     }
-
-    public boolean isCurrentTurn() {
-        return currentTurn;
+    public void setTeamMate(Player teamMate) {
+        this.teamMate=teamMate;
     }
-
     public SchoolBoard_Tile getSchoolBoard() {
         return schoolBoard;
     }

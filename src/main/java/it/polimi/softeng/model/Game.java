@@ -8,8 +8,7 @@ public class Game {
     private final String gameID;
     private final Integer playerNum;
     private final ArrayList<Player> players;
-    //TODO: fix how teams are handled
-    private EnumMap<Team,ArrayList<String>> teams;
+    private ArrayList<Team> teams;
     private Bag_Tile bag;
     private ArrayList<Cloud_Tile> clouds;
     private ArrayList<Island_Tile> islands;
@@ -17,17 +16,19 @@ public class Game {
     private Integer coins;
     private ArrayList<CharacterCard> characterCards;
 
+    //Normal game constructor
     public Game(String gameID, ArrayList<Player> players, Integer bagFill, Integer cloudNum, Integer cloudMax, Integer islandNum) {
         this.gameID=gameID;
         this.playerNum=players.size();
         this.players=players;
-        this.teams=Team.genTeams(players,playerNum);
+        this.teams=Team.getTeams(this.players);
         this.bag=new Bag_Tile(bagFill);
         this.clouds=Cloud_Tile.genClouds(cloudNum,cloudMax);
         this.islands=Island_Tile.genIslands(islandNum);
         this.expertMode=false;
     }
 
+    //Expert game constructor
     public Game(String gameID, ArrayList<Player> players,Integer bagFill, Integer cloudNum, Integer cloudMax,Integer islandNum, Integer coins, Integer charCardNum) {
         this(gameID,players,bagFill,cloudNum,cloudMax,islandNum);
         this.expertMode=true;
@@ -43,7 +44,7 @@ public class Game {
     public ArrayList<Player> getPlayers() {
         return this.players;
     }
-    public EnumMap<Team,ArrayList<String>> getTeams() {
+    public ArrayList<Team> getTeams() {
         return this.teams;
     }
     public Boolean isExpertMode() {
