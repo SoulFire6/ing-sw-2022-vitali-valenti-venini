@@ -23,6 +23,9 @@ public class Player {
     public void setTeamMate(Player teamMate) {
         this.teamMate=teamMate;
     }
+    public void setSchoolBoard(SchoolBoard_Tile schoolBoard) {
+        this.schoolBoard=schoolBoard;
+    }
     public SchoolBoard_Tile getSchoolBoard() {
         return schoolBoard;
     }
