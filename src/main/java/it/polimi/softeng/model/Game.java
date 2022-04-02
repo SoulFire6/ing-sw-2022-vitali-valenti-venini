@@ -1,8 +1,6 @@
 package it.polimi.softeng.model;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.Random;
 
 public class Game {
     private final String gameID;
@@ -63,7 +61,7 @@ public class Game {
         if (this.expertMode) {
             return this.coins;
         } else {
-            System.out.println("Game is not in expert mode");
+            //System.out.println("Game is not in expert mode");
             return null;
         }
     }
@@ -74,7 +72,7 @@ public class Game {
         if (this.expertMode) {
             return this.characterCards;
         } else {
-            System.out.println("Game is not in expert mode");
+            //System.out.println("Game is not in expert mode");
             return null;
         }
     }
