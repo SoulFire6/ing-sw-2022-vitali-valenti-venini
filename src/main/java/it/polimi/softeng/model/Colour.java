@@ -25,8 +25,8 @@ public enum Colour {
         try {
             return Enum.valueOf(Colour.class,input.toUpperCase());
         }
-        catch(Exception e) {
-            System.out.println("Invalid input");
+        catch(IllegalArgumentException e) {
+            //System.out.println("Invalid input");
             return null;
         }
     }
