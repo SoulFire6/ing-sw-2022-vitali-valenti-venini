@@ -33,8 +33,18 @@ public abstract class Tile {
     //Removes a specified amount from one colour
     //Sets it to zero if the removed amount is higher
     //than the current amount
-    public void removeColour(Colour c, Integer num) {
+    public Boolean removeColour(Colour c, Integer num) {
+        boolean value=false;
+        //returns null if num is invalid
+        if (num<0) {
+            return null;
+        }
+        //returns true if the amount removed is equal to wanted, false otherwise
+        if (this.contents.get(c)-num>=0) {
+            value=true;
+        }
         this.contents.put(c,Math.max(0,this.contents.get(c)-num));
+        return value;
     }
     //Adds the same amount to every colour
     public void addStudents(Integer num) {

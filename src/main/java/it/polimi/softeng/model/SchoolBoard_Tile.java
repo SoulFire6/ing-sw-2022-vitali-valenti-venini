@@ -9,20 +9,30 @@ public class SchoolBoard_Tile extends Tile{
     private EnumMap<Colour,Boolean> professorTable;
     private Integer towers;
     private Integer maxTowers;
-    private Integer coins;
     private ArrayList<AssistantCard> hand;
     private AssistantCard lastUsedCard;
+    private Integer coins;
 
-    public SchoolBoard_Tile(String playerName, Integer maxEntranceSlots, Integer towers, Integer coins) {
+    public SchoolBoard_Tile(String playerName, Integer maxEntranceSlots, Integer towers, Integer maxTowers, Integer coins) {
         this.setTileID(playerName+"'s_schoolboard");
         this.maxEntranceSlots=maxEntranceSlots;
         this.diningRoom=Colour.genStudentMap();
         this.professorTable=Colour.genProfessorMap();
         this.towers=towers;
-        this.coins=coins;
+        this.maxTowers=maxTowers;
         this.hand=AssistantCard.genHand();
+        this.coins=coins;
+    }
+    public Integer getMaxExntranceSlots() {
+        return this.maxEntranceSlots;
+    }
+    public Integer getMaxTowers() {
+        return this.maxTowers;
     }
     //The entrance is represented by the generic contents attribute
+    public void fillEntrance(Bag_Tile bag) {
+        this.setContents(bag.drawStudents(this.maxEntranceSlots));
+    }
     public void fillEntrance(Cloud_Tile cloud) {
         EnumMap<Colour,Integer> entrance=this.getContents();
         EnumMap<Colour,Integer> newStudents=cloud.getContents();
@@ -53,9 +63,14 @@ public class SchoolBoard_Tile extends Tile{
 
     }
     //Moves student to cloud
-    public void moveStudentToCloud(Colour c, Cloud_Tile cloud) {
-        this.removeColour(c,1);
-        cloud.addColour(c,1);
+    public boolean moveStudentToIsland(Colour c, Island_Tile island) {
+        if (this.removeColour(c,1)) {
+            island.addColour(c,1);
+            return true;
+        } else {
+            return false;
+        }
+
     }
     public Boolean getProfessor(Colour c) {
         return this.professorTable.get(c);
@@ -75,6 +90,9 @@ public class SchoolBoard_Tile extends Tile{
     public Integer getTowers() {
         return this.towers;
     }
+    public ArrayList<AssistantCard> getHand() {
+        return this.hand;
+    }
     public void playAssistantCard(String id) {
         for (int i = 0; i < hand.size(); i++) {
             if (hand.get(i).getCardID().equals(id)) {
@@ -83,6 +101,9 @@ public class SchoolBoard_Tile extends Tile{
                 break;
             }
         }
+    }
+    public AssistantCard getLastUsedCard() {
+        return this.lastUsedCard;
     }
     public Integer getCoins() {
         return this.coins;
