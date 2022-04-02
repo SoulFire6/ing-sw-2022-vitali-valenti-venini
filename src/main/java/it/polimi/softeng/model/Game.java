@@ -47,9 +47,6 @@ public class Game {
     public ArrayList<Team> getTeams() {
         return this.teams;
     }
-    public Boolean isExpertMode() {
-        return this.expertMode;
-    }
     public Bag_Tile getBag() {
         return this.bag;
     }
@@ -59,7 +56,7 @@ public class Game {
     public ArrayList<Island_Tile> getIslands() {
         return this.islands;
     }
-    public Boolean getExpertMode() {
+    public Boolean isExpertMode() {
         return this.expertMode;
     }
     public Integer getCoins() {
