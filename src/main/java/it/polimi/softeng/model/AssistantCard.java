@@ -19,6 +19,12 @@ public class AssistantCard {
     public String getCardID() {
         return this.cardID;
     }
+    public Integer getTurnValue() {
+        return this.turnValue;
+    }
+    public Integer getMotherNatureValue() {
+        return this.motherNatureValue;
+    }
     public static ArrayList<AssistantCard> genHand() {
         ArrayList<AssistantCard> res=new ArrayList<>();
         String[] card;
