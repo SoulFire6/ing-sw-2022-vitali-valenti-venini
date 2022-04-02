@@ -31,8 +31,10 @@ public abstract class Tile {
         this.contents.put(c,this.contents.get(c)+num);
     }
     //Removes a specified amount from one colour
+    //Sets it to zero if the removed amount is higher
+    //than the current amount
     public void removeColour(Colour c, Integer num) {
-        this.contents.put(c,this.contents.get(c)-num);
+        this.contents.put(c,Math.max(0,this.contents.get(c)-num));
     }
     //Adds the same amount to every colour
     public void addStudents(Integer num) {
