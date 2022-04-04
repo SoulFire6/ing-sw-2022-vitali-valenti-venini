@@ -61,8 +61,19 @@ public class IslandTest {
     }
     @Test
     public void testGenIslands() {
-        Integer num=12;
+        int num=12;
+        int sum=0;
+        int motherNatureNum=0;
         ArrayList<Island_Tile> islands=Island_Tile.genIslands(num);
-        assertEquals(num.intValue(),islands.size());
+        assertEquals(num,islands.size());
+        for (Island_Tile island: islands) {
+            if (island.getMotherNature()) {
+                assertEquals(0,island.getFillAmount().intValue());
+                motherNatureNum++;
+            }
+            sum+=island.getFillAmount();
+        }
+        assertEquals(1,motherNatureNum);
+        assertEquals(num-2,sum);
     }
 }

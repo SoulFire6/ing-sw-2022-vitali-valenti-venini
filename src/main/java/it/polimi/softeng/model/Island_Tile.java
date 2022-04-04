@@ -1,6 +1,7 @@
 package it.polimi.softeng.model;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Island_Tile extends Tile {
     private Boolean motherNature;
@@ -56,18 +57,48 @@ public class Island_Tile extends Tile {
         this.noEntry=value;
     }
     public static ArrayList<Island_Tile> genIslands(Integer num) {
-        //TODO: initialise mother nature and students on separate isles randomly
         ArrayList<Island_Tile> islands=new ArrayList<>();
-        for (int i=0; i<num; i++) {
-
-            islands.add(new Island_Tile("Island_"+(i+1)));
+        ArrayList<String> initialisedIslands=new ArrayList<>();
+        Bag_Tile bag=new Bag_Tile((int)Math.ceil((num-2.0)/Colour.values().length));
+        Island_Tile head=new Island_Tile("Island_1");
+        Island_Tile curr=head;
+        islands.add(head);
+        for (int i=1; i<num; i++) {
+            islands.add(curr.next=new Island_Tile("Island_"+(i+1)));
+            curr.next.prev=curr;
+            curr=curr.next;
         }
-        for (int i=0; i<num-1; i++) {
-            islands.get(i).setNext(islands.get(i+1));
-            islands.get(i+1).setPrev(islands.get(i));
+        curr.next=head;
+        head.prev=curr;
+        Random rand=new Random();
+        Integer randIsland=Math.max(1,rand.nextInt(num));
+        Integer opposite=((num/2)+randIsland);
+        if (opposite>num) {
+            opposite%=num;
         }
-        islands.get(0).setPrev(islands.get(num-1));
-        islands.get(num-1).setNext(islands.get(0));
+        boolean foundMNISLE=false;
+        boolean foundOpposite=false;
+        for (Island_Tile island: islands) {
+            if (island.getTileID().equals("Island_"+randIsland)) {
+                island.setMotherNature(true);
+                initialisedIslands.add(island.getTileID());
+                foundMNISLE=true;
+            }
+            if (island.getTileID().equals("Island_"+opposite)) {
+                initialisedIslands.add(island.getTileID());
+                foundOpposite=true;
+            }
+            if (foundMNISLE && foundOpposite) {
+                break;
+            }
+        }
+        //Puts a student on every island except the one with mother nature and the one opposite
+        for (Island_Tile island: islands) {
+            if (!initialisedIslands.contains(island.getTileID())) {
+                island.setContents(bag.drawStudents(1));
+                initialisedIslands.add(island.getTileID());
+            }
+        }
         return islands;
     }
 }
