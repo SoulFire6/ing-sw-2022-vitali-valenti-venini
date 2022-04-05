@@ -3,11 +3,10 @@ package it.polimi.softeng.model;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
 
 public class CharacterCard {
     private static final String CARD_DATA_PATH="src/main/resources/CardData/CharacterCards.csv";
-    private String cardID;
+    private final String cardID;
     private Integer cost;
 
     public CharacterCard(String id,Integer cost) {
@@ -29,7 +28,7 @@ public class CharacterCard {
         String[] card;
         String cardValue;
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(new File(CARD_DATA_PATH)));
+            BufferedReader reader = new BufferedReader(new FileReader(CARD_DATA_PATH));
             //Skipping header of csv file
             reader.readLine();
 
