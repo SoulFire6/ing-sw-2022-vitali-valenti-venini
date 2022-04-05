@@ -1,7 +1,6 @@
 package it.polimi.softeng.model;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -28,21 +27,23 @@ public class CharacterCard {
         Random rand=new Random();
         ArrayList<CharacterCard> res=new ArrayList<>();
         String[] card;
+        String cardValue;
         try {
-            Scanner scanner = new Scanner(new File(CARD_DATA_PATH));
-            scanner.useDelimiter("\n");
+            BufferedReader reader = new BufferedReader(new FileReader(new File(CARD_DATA_PATH)));
             //Skipping header of csv file
-            scanner.next();
-            while(scanner.hasNext()){
-                card=scanner.next().split(",");
-                res.add(new CharacterCard(card[0],Integer.valueOf(card[1])));
+            reader.readLine();
+
+            while((cardValue= reader.readLine())!=null){
+                card = cardValue.split(",");
+
+                res.add(new CharacterCard(card[0],Integer.parseInt(card[1])));
             }
-            scanner.close();
+            reader.close();
             //Removing excess cards
             while (res.size()>num) {
                 res.remove(rand.nextInt(res.size()));
             }
-        } catch (FileNotFoundException e) {
+        } catch (NumberFormatException | IOException e) {
             e.printStackTrace();
         }
         return res;

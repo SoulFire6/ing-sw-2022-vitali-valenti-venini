@@ -1,7 +1,6 @@
 package it.polimi.softeng.model;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -28,17 +27,17 @@ public class AssistantCard {
     public static ArrayList<AssistantCard> genHand() {
         ArrayList<AssistantCard> res=new ArrayList<>();
         String[] card;
+        String cardValue;
         try {
-            Scanner scanner = new Scanner(new File(CARD_DATA_PATH));
-            scanner.useDelimiter("\n");
+            BufferedReader reader = new BufferedReader(new FileReader(new File(CARD_DATA_PATH)));
             //Skipping header of csv file
-            scanner.next();
-            while(scanner.hasNext()){
-                card=scanner.next().split(",");
+            reader.readLine();
+            while((cardValue= reader.readLine())!=null){
+                card=cardValue.split(",");
                 res.add(new AssistantCard(card[0],Integer.valueOf(card[1]),Integer.valueOf(card[2])));
             }
-            scanner.close();
-        } catch (FileNotFoundException e) {
+            reader.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return res;
