@@ -1,7 +1,7 @@
 # Software Engineering Project A.Y. 2021-2022
 
-## Simulation of the board game Eryantis
-<img src="https://www.craniocreations.it/wp-content/uploads/2021/06/Eriantys_scatolaFrontombra-300x300.png">
+## Simulation of the board game Eriantys
+<img src="https://www.craniocreations.it/wp-content/uploads/2021/06/Eriantys_scatolaFrontombra-300x300.png" alt="Eriantys' box cover">
 
 **Group GC33**:
 - [Marco Vitali](https://github.com/MarcoVitali0)
@@ -16,7 +16,7 @@
 
 ## Project specification
 
-The project consists of a Java application for the board game [Eryantis](https://www.craniocreations.it/prodotto/eriantys/)
+The project consists of a Java application for the board game [Eriantys](https://www.craniocreations.it/prodotto/eriantys/)
 
 The final version will include:
 - [ ] initial high level UML diagram
