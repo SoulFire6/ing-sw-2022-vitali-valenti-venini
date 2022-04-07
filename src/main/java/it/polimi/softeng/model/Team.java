@@ -11,7 +11,7 @@ public enum Team {
     public static ArrayList<Player> genTeams(ArrayList<String> playerNames) {
         Random rand=new Random();
         ArrayList<Player> players=new ArrayList<>();
-        Integer playerNum=playerNames.size();
+        int playerNum=playerNames.size();
         if (playerNum<2 || playerNum>4) {
             throw new IllegalArgumentException("Could not generate teams\nExpected players: 2-4\nActual: "+playerNum);
         }

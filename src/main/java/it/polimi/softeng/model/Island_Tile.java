@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Island_Tile extends Tile {
-    private Boolean motherNature;
-    private Integer towers;
+    private boolean motherNature;
+    private int towers;
     private Team team;
     private Island_Tile next;
     private Island_Tile prev;
-    private Boolean noEntry;
+    private boolean noEntry;
 
     public Island_Tile(String id) {
         this.setTileID(id);
@@ -26,10 +26,10 @@ public class Island_Tile extends Tile {
     public void setMotherNature(Boolean value) {
         this.motherNature=value;
     }
-    public Integer getTowers() {
+    public int getTowers() {
         return this.towers;
     }
-    public void setTowers(Integer value) {
+    public void setTowers(int value) {
         this.towers=value;
     }
     public Team getTeam() {
@@ -56,7 +56,7 @@ public class Island_Tile extends Tile {
     public void setNoEntry(Boolean value) {
         this.noEntry=value;
     }
-    public static ArrayList<Island_Tile> genIslands(Integer num) {
+    public static ArrayList<Island_Tile> genIslands(int num) {
         ArrayList<Island_Tile> islands=new ArrayList<>();
         ArrayList<String> initialisedIslands=new ArrayList<>();
         Bag_Tile bag=new Bag_Tile((int)Math.ceil((num-2.0)/Colour.values().length));
@@ -71,8 +71,8 @@ public class Island_Tile extends Tile {
         curr.next=head;
         head.prev=curr;
         Random rand=new Random();
-        Integer randIsland=Math.max(1,rand.nextInt(num));
-        Integer opposite=((num/2)+randIsland);
+        int randIsland=Math.max(1,rand.nextInt(num));
+        int opposite=((num/2)+randIsland);
         if (opposite>num) {
             opposite%=num;
         }

@@ -4,18 +4,18 @@ import java.util.ArrayList;
 
 public class Game {
     private final String gameID;
-    private final Integer playerNum;
+    private final int playerNum;
     private final ArrayList<Player> players;
     private ArrayList<Team> teams;
     private Bag_Tile bag;
     private ArrayList<Cloud_Tile> clouds;
     private ArrayList<Island_Tile> islands;
     private boolean expertMode;
-    private Integer coins;
+    private int coins;
     private ArrayList<CharacterCard> characterCards;
 
     //Normal game constructor
-    public Game(String gameID, ArrayList<Player> players, Integer bagFill, Integer cloudNum, Integer cloudMax, Integer islandNum) {
+    public Game(String gameID, ArrayList<Player> players, int bagFill, int cloudNum, int cloudMax, int islandNum) {
         this.gameID=gameID;
         this.playerNum=players.size();
         this.players=players;
@@ -27,7 +27,7 @@ public class Game {
     }
 
     //Expert game constructor
-    public Game(String gameID, ArrayList<Player> players,Integer bagFill, Integer cloudNum, Integer cloudMax,Integer islandNum, Integer coins, Integer charCardNum) {
+    public Game(String gameID, ArrayList<Player> players,int bagFill, int cloudNum, int cloudMax,int islandNum, int coins, int charCardNum) {
         this(gameID,players,bagFill,cloudNum,cloudMax,islandNum);
         this.expertMode=true;
         this.coins=coins;
@@ -36,7 +36,7 @@ public class Game {
     public String getGameID() {
         return this.gameID;
     }
-    public Integer getPlayerNum() {
+    public int getPlayerNum() {
         return this.playerNum;
     }
     public ArrayList<Player> getPlayers() {
@@ -57,15 +57,15 @@ public class Game {
     public Boolean isExpertMode() {
         return this.expertMode;
     }
-    public Integer getCoins() {
+    public int getCoins() {
         if (this.expertMode) {
             return this.coins;
         } else {
             //System.out.println("Game is not in expert mode");
-            return null;
+            return -1;
         }
     }
-    public void setCoins(Integer coins) {
+    public void setCoins(int coins) {
         this.coins=coins;
     }
     public ArrayList<CharacterCard> getCharacterCards() {

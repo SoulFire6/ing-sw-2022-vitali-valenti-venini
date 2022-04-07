@@ -4,16 +4,16 @@ import java.util.EnumMap;
 import java.util.ArrayList;
 
 public class SchoolBoard_Tile extends Tile{
-    private Integer maxEntranceSlots;
+    private int maxEntranceSlots;
     private EnumMap<Colour,Integer> diningRoom;
     private EnumMap<Colour,Boolean> professorTable;
-    private Integer towers;
-    private Integer maxTowers;
+    private int towers;
+    private int maxTowers;
     private ArrayList<AssistantCard> hand;
     private AssistantCard lastUsedCard;
-    private Integer coins;
+    private int coins;
 
-    public SchoolBoard_Tile(String playerName, Integer maxEntranceSlots, Integer towers, Integer maxTowers, Integer coins) {
+    public SchoolBoard_Tile(String playerName, int maxEntranceSlots, int towers, int maxTowers, int coins) {
         this.setTileID(playerName+"'s_schoolboard");
         this.maxEntranceSlots=maxEntranceSlots;
         this.diningRoom=Colour.genStudentMap();
@@ -23,10 +23,10 @@ public class SchoolBoard_Tile extends Tile{
         this.hand=AssistantCard.genHand();
         this.coins=coins;
     }
-    public Integer getMaxExntranceSlots() {
+    public int getMaxExntranceSlots() {
         return this.maxEntranceSlots;
     }
-    public Integer getMaxTowers() {
+    public int getMaxTowers() {
         return this.maxTowers;
     }
     //The entrance is represented by the generic contents attribute
@@ -47,7 +47,7 @@ public class SchoolBoard_Tile extends Tile{
             System.out.println("Error filling schoolboard entrance");
         }
     }
-    public Integer getDiningRoomAmount(Colour c) {
+    public int getDiningRoomAmount(Colour c) {
         return this.diningRoom.get(c);
     }
     //Returns boolean depending on success of moving student to dining room
@@ -72,14 +72,14 @@ public class SchoolBoard_Tile extends Tile{
         }
 
     }
-    public Boolean getProfessor(Colour c) {
+    public boolean getProfessor(Colour c) {
         return this.professorTable.get(c);
     }
     public void setProfessor(Colour c, Boolean value) {
         this.professorTable.put(c,value);
     }
     //Alters tower number based on input, returns false if outside normal values
-    public boolean modifyTowers(Integer num) {
+    public boolean modifyTowers(int num) {
         if (this.towers+num>=0 && this.towers+num<=this.maxTowers) {
             this.towers+=num;
             return true;
@@ -87,7 +87,7 @@ public class SchoolBoard_Tile extends Tile{
             return false;
         }
     }
-    public Integer getTowers() {
+    public int getTowers() {
         return this.towers;
     }
     public ArrayList<AssistantCard> getHand() {
@@ -105,10 +105,10 @@ public class SchoolBoard_Tile extends Tile{
     public AssistantCard getLastUsedCard() {
         return this.lastUsedCard;
     }
-    public Integer getCoins() {
+    public int getCoins() {
         return this.coins;
     }
-    public void setCoins(Integer value) {
+    public void setCoins(int value) {
         this.coins=value;
     }
 }

@@ -7,22 +7,22 @@ import java.util.Random;
 public class CharacterCard {
     private static final String CARD_DATA_PATH="src/main/resources/CardData/CharacterCards.csv";
     private final String cardID;
-    private Integer cost;
+    private int cost;
 
-    public CharacterCard(String id,Integer cost) {
+    public CharacterCard(String id,int cost) {
         this.cardID=id;
         this.cost=cost;
     }
     public String getCardID() {
         return this.cardID;
     }
-    public Integer getCost() {
+    public int getCost() {
         return this.cost;
     }
     public void incrementCost() {
         this.cost+=1;
     }
-    public static ArrayList<CharacterCard> genCharacterCards(Integer num) {
+    public static ArrayList<CharacterCard> genCharacterCards(int num) {
         Random rand=new Random();
         ArrayList<CharacterCard> res=new ArrayList<>();
         String[] card;

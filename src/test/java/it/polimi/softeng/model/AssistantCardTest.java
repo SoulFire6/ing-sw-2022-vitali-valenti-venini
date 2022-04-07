@@ -1,6 +1,5 @@
 package it.polimi.softeng.model;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -11,8 +10,8 @@ public class AssistantCardTest {
     @Test
     public void testAssistantCardConstructor() {
         String testID="test";
-        Integer testTurn=3;
-        Integer testMN=5;
+        int testTurn=3;
+        int testMN=5;
         AssistantCard testCard=new AssistantCard(testID,testTurn,testMN);
         assertEquals(testCard.getCardID(),testID);
         assertEquals(testCard.getTurnValue(),testTurn);

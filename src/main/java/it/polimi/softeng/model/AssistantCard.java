@@ -7,10 +7,10 @@ import java.util.Scanner;
 public class AssistantCard {
     private static final String CARD_DATA_PATH="src/main/resources/CardData/AssistantCards.csv";
     private String cardID;
-    private Integer turnValue;
-    private Integer motherNatureValue;
+    private int turnValue;
+    private int motherNatureValue;
 
-    public AssistantCard(String id, Integer turn, Integer motherNature) {
+    public AssistantCard(String id, int turn, int motherNature) {
         this.cardID=id;
         this.turnValue=turn;
         this.motherNatureValue=motherNature;
@@ -18,10 +18,10 @@ public class AssistantCard {
     public String getCardID() {
         return this.cardID;
     }
-    public Integer getTurnValue() {
+    public int getTurnValue() {
         return this.turnValue;
     }
-    public Integer getMotherNatureValue() {
+    public int getMotherNatureValue() {
         return this.motherNatureValue;
     }
     public static ArrayList<AssistantCard> genHand() {
@@ -29,7 +29,7 @@ public class AssistantCard {
         String[] card;
         String cardValue;
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(new File(CARD_DATA_PATH)));
+            BufferedReader reader = new BufferedReader(new FileReader(CARD_DATA_PATH));
             //Skipping header of csv file
             reader.readLine();
             while((cardValue= reader.readLine())!=null){

@@ -12,7 +12,7 @@ public class TileTest {
         private Test_Tile() {
             super();
         }
-        private Test_Tile(Integer num) {
+        private Test_Tile(int num) {
             super(num);
         }
     }
@@ -20,13 +20,13 @@ public class TileTest {
     @Test
     public void testTileBaseConstructor() {
         Tile tile=new Test_Tile();
-        assertEquals(0,tile.getFillAmount().intValue());
+        assertEquals(0,tile.getFillAmount());
     }
     @Test
     public void testTileConstructorWithNum() {
         int num=5;
         Tile tile=new Test_Tile(num);
-        assertEquals(num*Colour.values().length,tile.getFillAmount().intValue());
+        assertEquals(num*Colour.values().length,tile.getFillAmount());
     }
     @Test
     public void testTileID() {
@@ -37,13 +37,13 @@ public class TileTest {
     }
     @Test
     public void testAddColour() {
-        Integer num=10;
+        int num=10;
         Colour randColour=Colour.getRandomColour();
         Tile tile=new Test_Tile();
         tile.addColour(randColour,num);
         for (Colour c: Colour.values()) {
             if (c==randColour) {
-                assertEquals(num,tile.getContents().get(c));
+                assertEquals(num,tile.getContents().get(c).intValue());
             } else {
                 assertEquals(0,tile.getContents().get(c).intValue());
             }
@@ -51,8 +51,8 @@ public class TileTest {
     }
     @Test
     public void testRemoveColour() {
-        Integer num=5;
-        Integer secondNum=3;
+        int num=5;
+        int secondNum=3;
         Colour randColour=Colour.getRandomColour();
         Tile tile=new Test_Tile(num);
         tile.removeColour(randColour,secondNum);
@@ -60,13 +60,13 @@ public class TileTest {
             if (c==randColour) {
                 assertEquals(num-secondNum,tile.getContents().get(c).intValue());
             } else {
-                assertEquals(num,tile.getContents().get(c));
+                assertEquals(num,tile.getContents().get(c).intValue());
             }
         }
     }
     @Test
     public void testRemoveColourWithValueHigherThanCurrent() {
-        Integer num=5;
+        int num=5;
         Colour randColour=Colour.getRandomColour();
         Tile tile=new Test_Tile(num);
         tile.removeColour(randColour,num+1);
@@ -74,13 +74,13 @@ public class TileTest {
             if (c==randColour) {
                 assertEquals(0,tile.getContents().get(c).intValue());
             } else {
-                assertEquals(num,tile.getContents().get(c));
+                assertEquals(num,tile.getContents().get(c).intValue());
             }
         }
     }
     @Test
     public void testContents() {
-        Integer idx=10;
+        int idx=10;
         Tile tile=new Test_Tile();
         EnumMap<Colour, Integer> testContents=Colour.genStudentMap();
         for (Colour c: Colour.values()) {
@@ -93,8 +93,8 @@ public class TileTest {
     }
     @Test
     public void testAddStudentsWithNum() {
-        Integer initialNum=10;
-        Integer addedNum=5;
+        int initialNum=10;
+        int addedNum=5;
         Tile tile=new Test_Tile(initialNum);
         tile.addStudents(addedNum);
         for (Colour c: Colour.values()) {
@@ -103,8 +103,8 @@ public class TileTest {
     }
     @Test
     public void testAddStudentsWithEnumMap() {
-        Integer idx=10;
-        Integer initialNum=5;
+        int idx=10;
+        int initialNum=5;
         EnumMap<Colour,Integer> testStudents=Colour.genStudentMap();
         Tile tile=new Test_Tile(initialNum);
         for (Colour c: Colour.values()) {

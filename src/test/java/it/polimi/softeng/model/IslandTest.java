@@ -13,7 +13,7 @@ public class IslandTest {
         Island_Tile island=new Island_Tile(testID);
         assertEquals(testID,island.getTileID());
         assertFalse(island.getMotherNature());
-        assertEquals(0,island.getTowers().intValue());
+        assertEquals(0,island.getTowers());
         assertNull(island.getTeam());
         assertNull(island.getNext());
         assertNull(island.getPrev());
@@ -27,7 +27,7 @@ public class IslandTest {
     }
     @Test
     public void testTower() {
-        Integer num=8;
+        int num=8;
         Island_Tile island=new Island_Tile("TowerTest");
         island.setTowers(num);
         assertEquals(num,island.getTowers());
@@ -68,7 +68,7 @@ public class IslandTest {
         assertEquals(num,islands.size());
         for (Island_Tile island: islands) {
             if (island.getMotherNature()) {
-                assertEquals(0,island.getFillAmount().intValue());
+                assertEquals(0,island.getFillAmount());
                 motherNatureNum++;
             }
             sum+=island.getFillAmount();

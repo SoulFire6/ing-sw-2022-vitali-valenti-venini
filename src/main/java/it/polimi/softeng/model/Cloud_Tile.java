@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 
 public class Cloud_Tile extends Tile {
-    private Integer maxSlots;
+    private int maxSlots;
 
-    public Cloud_Tile(String id, Integer max) {
+    public Cloud_Tile(String id, int max) {
         this.setTileID(id);
         this.maxSlots=max;
     }
     //returns the maxSlots attribute
-    public Integer getMaxSlots() {
+    public int getMaxSlots() {
         return this.maxSlots;
     }
     //sets the maxSlots attribute
-    public void setMaxSlots(Integer maxSlots) {
+    public void setMaxSlots(int maxSlots) {
         this.maxSlots=maxSlots;
     }
     //Fills cloud by drawing from the bag
@@ -28,10 +28,10 @@ public class Cloud_Tile extends Tile {
         this.setContents(contents);
     }
     //Generates clouds for the game class
-    public static ArrayList<Cloud_Tile> genClouds(Integer num, Integer max) {
+    public static ArrayList<Cloud_Tile> genClouds(int num, int max) {
         ArrayList<Cloud_Tile> res=new ArrayList<>();
         for (int i=0; i<num; i++) {
-            res.add(new Cloud_Tile("Cloud_"+String.valueOf(i+1),max));
+            res.add(new Cloud_Tile("Cloud_"+(i+1),max));
         }
         return res;
     }

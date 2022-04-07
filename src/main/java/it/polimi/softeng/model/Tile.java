@@ -9,7 +9,7 @@ public abstract class Tile {
     public Tile() {
         this.contents=Colour.genStudentMap();
     }
-    public Tile(Integer num) {
+    public Tile(int num) {
         this.contents=Colour.genStudentMap();
         this.addStudents(num);
     }
@@ -27,13 +27,13 @@ public abstract class Tile {
         this.contents=contents;
     }
     //Adds a specified amount of one colour
-    public void addColour(Colour c, Integer num) {
+    public void addColour(Colour c, int num) {
         this.contents.put(c,this.contents.get(c)+num);
     }
     //Removes a specified amount from one colour
     //Sets it to zero if the removed amount is higher
     //than the current amount
-    public Boolean removeColour(Colour c, Integer num) {
+    public Boolean removeColour(Colour c, int num) {
         boolean value=false;
         //returns null if num is invalid
         if (num<0) {
@@ -47,7 +47,7 @@ public abstract class Tile {
         return value;
     }
     //Adds the same amount to every colour
-    public void addStudents(Integer num) {
+    public void addStudents(int num) {
         for (Colour c: Colour.values()) {
             this.contents.put(c,this.contents.get(c)+num);
         }
@@ -67,8 +67,8 @@ public abstract class Tile {
         return res;
     }
     //Returns how many students are in contents
-    public Integer getFillAmount() {
-        Integer sum=0;
+    public int getFillAmount() {
+        int sum=0;
         for (Colour c: Colour.values()) {
             sum+=this.contents.get(c);
         }

@@ -3,11 +3,11 @@ package it.polimi.softeng.model;
 import java.util.EnumMap;
 
 public class Bag_Tile extends Tile {
-    public Bag_Tile(Integer num) {
+    public Bag_Tile(int num) {
         super(num);
         this.setTileID("Bag");
     }
-    public EnumMap<Colour,Integer> drawStudents(Integer num) {
+    public EnumMap<Colour,Integer> drawStudents(int num) {
         EnumMap<Colour,Integer> contents=this.getContents();
         EnumMap<Colour,Integer> res=Colour.genStudentMap();
         Colour c;

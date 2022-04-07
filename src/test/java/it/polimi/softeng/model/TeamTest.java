@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 public class TeamTest {
     private static boolean printTestResults=false;
     //generic function to generate n players with teams
-    private static ArrayList<Player> generateTestTeam(Integer num) {
+    private static ArrayList<Player> generateTestTeam(int num) {
         ArrayList<String> playersNames=new ArrayList<>();
         for (int i=0; i<num; i++) {
             playersNames.add("Player_"+(i+1));
@@ -50,7 +50,6 @@ public class TeamTest {
     public void testGetTeam() {
         ArrayList<Player> testPlayers;
         ArrayList<Team> teams;
-        Integer num;
         for (int i=2; i<5; i++) {
             testPlayers=generateTestTeam(i);
             teams=Team.getTeams(testPlayers);
@@ -66,7 +65,7 @@ public class TeamTest {
         ArrayList<Player> testPlayers;
         ArrayList<Team> teams;
         ArrayList<Player> teamPlayers;
-        Integer num;
+        int num;
         for (int i=2; i<5; i++) {
             testPlayers=generateTestTeam(i);
             teams=Team.getTeams(testPlayers);
@@ -88,7 +87,7 @@ public class TeamTest {
                     }
                 }
             }
-            assertEquals("Player number mismatch",num,Integer.valueOf(i));
+            assertEquals("Player number mismatch",num,i);
         }
     }
 }
