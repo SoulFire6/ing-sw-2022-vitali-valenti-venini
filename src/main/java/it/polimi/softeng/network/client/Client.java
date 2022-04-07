@@ -11,7 +11,7 @@ public class Client {
     private static final String DEFAULT_IP="127.0.0.1";
     private static final Integer DEFAULT_PORT=50033;
     private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-9])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-9])$";
-    //TODO: Add message type class
+    //TODO: Replace strings with messages
     private static final ArrayList<String> errorMessages=new ArrayList<>(Arrays.asList("Disconnecting","SERVER FULL","SERVER CLOSED"));
     public static void main(String[] args) throws IOException {
         String inputLine=null, outputLine;
