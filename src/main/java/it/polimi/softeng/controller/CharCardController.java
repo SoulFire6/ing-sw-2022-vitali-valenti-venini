@@ -107,10 +107,24 @@ public class CharCardController {
     //Factory method for generating cards
     public CharacterCard createCharacterCard(String[] card) {
         try {
-            CharID id=CharID.valueOf(card[0]);
-            Integer cost=Integer.valueOf(card[1]);
+            CharID id=CharID.valueOf(card[0].toUpperCase());
+            int cost=Integer.parseInt(card[1]);
             id.inPlay=true;
             switch (id) {
+                case MONK:
+                case HERALD:
+                case MAGICPOSTMAN:
+                case GRANDMAHERBS:
+                case CENTAUR:
+                case JESTER:
+                case KNIGHT:
+                case SHROOMVENDOR:
+                case MINSTREL:
+                case SPOILEDPRINCESS:
+                case THIEF:
+                case FARMER:
+                    //temp return value
+                    return new CharacterCard(card[0],cost);
                 default:
                     System.out.println("This should not be reachable");
                     return null;

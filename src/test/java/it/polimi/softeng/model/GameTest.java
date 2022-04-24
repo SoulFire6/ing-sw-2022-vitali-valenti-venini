@@ -1,5 +1,6 @@
 package it.polimi.softeng.model;
 
+import it.polimi.softeng.controller.CharCardController;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class GameTest {
     }
     @Test
     public void testExpertGameConstructor() {
+        CharCardController charControl=new CharCardController();
         int testPlayerNum=2;
         ArrayList<String> expertPlayerNames=new ArrayList<>();
         for (int i=0; i<testPlayerNum; i++) {
@@ -44,7 +46,8 @@ public class GameTest {
         ArrayList<Player> expertPlayers=Team.genTeams(expertPlayerNames);
         int testCoins=20;
         int testCharCardNum=3;
-        Game game=new Game("test_expert",expertPlayers,26,2,3,12,testCoins,testCharCardNum);
+        ArrayList<CharacterCard> characterCards=charControl.genNewCharacterCards(testCharCardNum);
+        Game game=new Game("test_expert",expertPlayers,26,2,3,12,testCoins,characterCards);
         assertEquals(testCoins,game.getCoins());
         assertEquals(testCharCardNum,game.getCharacterCards().size());
         assertEquals(true,game.isExpertMode());
@@ -54,7 +57,7 @@ public class GameTest {
         int initialCoins=20;
         int newCoins=10;
         ArrayList<String> playerNames=new ArrayList<>(Arrays.asList("Player_1","Player_2"));
-        Game game=new Game("test_coins",Team.genTeams(playerNames),26,2,3,12,initialCoins,3);
+        Game game=new Game("test_coins",Team.genTeams(playerNames),26,2,3,12,initialCoins,null);
         assertEquals(initialCoins,game.getCoins());
         game.setCoins(newCoins);
         assertEquals(newCoins,game.getCoins());

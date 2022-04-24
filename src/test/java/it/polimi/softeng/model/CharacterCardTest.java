@@ -24,10 +24,4 @@ public class CharacterCardTest {
         testValue+=1;
         assertEquals(testCard.getCost(),testValue);
     }
-    @Test
-    public void testGenCharacterCards() {
-        int num=3;
-        ArrayList<CharacterCard> testCards=CharacterCard.genCharacterCards(num);
-        assertEquals("Character cards were not generated successfully (number generated differs from wanted)",num,testCards.size());
-    }
 }

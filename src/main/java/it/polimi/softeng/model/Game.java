@@ -27,11 +27,11 @@ public class Game {
     }
 
     //Expert game constructor
-    public Game(String gameID, ArrayList<Player> players,int bagFill, int cloudNum, int cloudMax,int islandNum, int coins, int charCardNum) {
+    public Game(String gameID, ArrayList<Player> players,int bagFill, int cloudNum, int cloudMax,int islandNum, int coins, ArrayList<CharacterCard> characterCards) {
         this(gameID,players,bagFill,cloudNum,cloudMax,islandNum);
         this.expertMode=true;
         this.coins=coins;
-        this.characterCards=CharacterCard.genCharacterCards(charCardNum);
+        this.characterCards=characterCards;
     }
     public String getGameID() {
         return this.gameID;
