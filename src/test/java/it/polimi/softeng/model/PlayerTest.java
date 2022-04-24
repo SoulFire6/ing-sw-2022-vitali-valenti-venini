@@ -28,7 +28,7 @@ public class PlayerTest {
     @Test
     public void testSchoolBoard() {
         Player testPlayer=new Player("test",Team.WHITE);
-        SchoolBoard_Tile schoolBoard=new SchoolBoard_Tile(testPlayer.getName(),0,0,0,0);
+        SchoolBoard_Tile schoolBoard=new SchoolBoard_Tile(testPlayer.getName(),0,0,0,null,0);
         testPlayer.setSchoolBoard(schoolBoard);
         assertEquals(schoolBoard,testPlayer.getSchoolBoard());
     }

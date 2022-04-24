@@ -13,14 +13,14 @@ public class SchoolBoard_Tile extends Tile{
     private AssistantCard lastUsedCard;
     private int coins;
 
-    public SchoolBoard_Tile(String playerName, int maxEntranceSlots, int towers, int maxTowers, int coins) {
+    public SchoolBoard_Tile(String playerName, int maxEntranceSlots, int towers, int maxTowers,ArrayList<AssistantCard> hand, int coins) {
         this.setTileID(playerName+"'s_schoolboard");
         this.maxEntranceSlots=maxEntranceSlots;
         this.diningRoom=Colour.genStudentMap();
         this.professorTable=Colour.genProfessorMap();
         this.towers=towers;
         this.maxTowers=maxTowers;
-        this.hand=AssistantCard.genHand();
+        this.hand=hand;
         this.coins=coins;
     }
     public int getMaxExntranceSlots() {

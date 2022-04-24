@@ -2,8 +2,6 @@ package it.polimi.softeng.model;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-
 import static org.junit.Assert.assertEquals;
 
 public class AssistantCardTest {
@@ -16,10 +14,5 @@ public class AssistantCardTest {
         assertEquals(testCard.getCardID(),testID);
         assertEquals(testCard.getTurnValue(),testTurn);
         assertEquals(testCard.getMotherNatureValue(),testMN);
-    }
-    @Test
-    public void testGenHand() {
-        ArrayList<AssistantCard> testCards=AssistantCard.genHand();
-        assertEquals("Hand was not generated properly",10,testCards.size());
     }
 }
