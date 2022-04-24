@@ -6,20 +6,28 @@ import java.util.Random;
 public enum Colour {
     YELLOW,BLUE,GREEN,RED,PURPLE;
 
-    public static EnumMap<Colour,Integer> genStudentMap() {
-        EnumMap<Colour,Integer> studentMap=new EnumMap<>(Colour.class);
+    public static EnumMap<Colour,Integer> genIntegerMap() {
+        EnumMap<Colour,Integer> integerMap=new EnumMap<>(Colour.class);
         for (Colour c: Colour.values()) {
-            studentMap.put(c,0);
+            integerMap.put(c,0);
         }
-        return studentMap;
+        return integerMap;
     }
 
-    public static EnumMap<Colour,Boolean> genProfessorMap() {
-        EnumMap<Colour,Boolean> professorMap=new EnumMap<>(Colour.class);
+    public static EnumMap<Colour,Boolean> genBooleanMap() {
+        EnumMap<Colour,Boolean> booleanMap=new EnumMap<>(Colour.class);
         for (Colour c: Colour.values()) {
-            professorMap.put(c,false);
+            booleanMap.put(c,false);
         }
-        return professorMap;
+        return booleanMap;
+    }
+
+    public static EnumMap<Colour,Player> genPlayerMap() {
+        EnumMap<Colour,Player> playerMap=new EnumMap<>(Colour.class);
+        for (Colour c: Colour.values()) {
+            playerMap.put(c,null);
+        }
+        return playerMap;
     }
     public static Colour parseChosenColour(String input) {
         try {

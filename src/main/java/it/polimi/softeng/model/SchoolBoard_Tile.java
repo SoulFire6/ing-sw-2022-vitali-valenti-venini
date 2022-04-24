@@ -16,8 +16,8 @@ public class SchoolBoard_Tile extends Tile{
     public SchoolBoard_Tile(String playerName, int maxEntranceSlots, int towers, int maxTowers,ArrayList<AssistantCard> hand, int coins) {
         this.setTileID(playerName+"'s_schoolboard");
         this.maxEntranceSlots=maxEntranceSlots;
-        this.diningRoom=Colour.genStudentMap();
-        this.professorTable=Colour.genProfessorMap();
+        this.diningRoom=Colour.genIntegerMap();
+        this.professorTable=Colour.genBooleanMap();
         this.towers=towers;
         this.maxTowers=maxTowers;
         this.hand=hand;

@@ -10,14 +10,14 @@ import static org.junit.Assert.*;
 public class ColourTest {
     @Test
     public void testGenStudentMap() {
-        EnumMap<Colour,Integer> testMap=Colour.genStudentMap();
+        EnumMap<Colour,Integer> testMap=Colour.genIntegerMap();
         for (Colour c: Colour.values()) {
             assertEquals(0,testMap.get(c).intValue());
         }
     }
     @Test
     public void testGenProfessorMap() {
-        EnumMap<Colour,Boolean> testMap=Colour.genProfessorMap();
+        EnumMap<Colour,Boolean> testMap=Colour.genBooleanMap();
         for (Colour c: Colour.values()) {
             assertEquals(false,testMap.get(c));
         }

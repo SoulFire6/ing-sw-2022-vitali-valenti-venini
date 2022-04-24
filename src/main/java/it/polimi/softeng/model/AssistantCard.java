@@ -1,13 +1,10 @@
 package it.polimi.softeng.model;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Scanner;
 
 public class AssistantCard {
-    private String cardID;
-    private int turnValue;
-    private int motherNatureValue;
+    private final String cardID;
+    private final int turnValue;
+    private final int motherNatureValue;
 
     public AssistantCard(String id, int turn, int motherNature) {
         this.cardID=id;

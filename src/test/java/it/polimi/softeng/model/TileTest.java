@@ -82,7 +82,7 @@ public class TileTest {
     public void testContents() {
         int idx=10;
         Tile tile=new Test_Tile();
-        EnumMap<Colour, Integer> testContents=Colour.genStudentMap();
+        EnumMap<Colour, Integer> testContents=Colour.genIntegerMap();
         for (Colour c: Colour.values()) {
             testContents.put(c,idx--);
         }
@@ -105,7 +105,7 @@ public class TileTest {
     public void testAddStudentsWithEnumMap() {
         int idx=10;
         int initialNum=5;
-        EnumMap<Colour,Integer> testStudents=Colour.genStudentMap();
+        EnumMap<Colour,Integer> testStudents=Colour.genIntegerMap();
         Tile tile=new Test_Tile(initialNum);
         for (Colour c: Colour.values()) {
             testStudents.put(c,idx--);

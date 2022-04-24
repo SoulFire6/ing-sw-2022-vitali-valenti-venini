@@ -1,11 +1,15 @@
 package it.polimi.softeng.controller;
 
+import it.polimi.softeng.model.Bag_Tile;
 import it.polimi.softeng.model.CharacterCard;
+import it.polimi.softeng.model.Colour;
+import it.polimi.softeng.model.Player;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.Random;
 
 public class CharCardController {
@@ -36,10 +40,17 @@ public class CharCardController {
         }
     }
     //Deactivates all cards (to be use at end of turn when effect for all cards ends)
-    public void deactivateAllCards() {
+    public void deactivateAllCards(ArrayList<CharacterCard> cards) {
         for (CharID id: CharID.values()) {
             if (id.inPlay && id.active) {
                 id.active=false;
+            }
+        }
+        CharID id;
+        for (CharacterCard card: cards) {
+            id=CharID.valueOf(card.getCardID().toUpperCase());
+            if (id==CharID.SHROOMVENDOR || id==CharID.FARMER) {
+                card.setMemory(null);
             }
         }
     }
@@ -104,27 +115,63 @@ public class CharCardController {
             return null;
         }
     }
-    //Factory method for generating cards
+    //Factory method for generating cards (divided based on memory needs)
     public CharacterCard createCharacterCard(String[] card) {
         try {
             CharID id=CharID.valueOf(card[0].toUpperCase());
             int cost=Integer.parseInt(card[1]);
             id.inPlay=true;
             switch (id) {
-                case MONK:
+                //No memory
                 case HERALD:
                 case MAGICPOSTMAN:
-                case GRANDMAHERBS:
                 case CENTAUR:
-                case JESTER:
                 case KNIGHT:
-                case SHROOMVENDOR:
                 case MINSTREL:
-                case SPOILEDPRINCESS:
                 case THIEF:
-                case FARMER:
-                    //temp return value
                     return new CharacterCard(card[0],cost);
+                //Stores amount of students disks on card
+                case MONK:
+                case JESTER:
+                case SPOILEDPRINCESS:
+                    return new CharacterCard(card[0],cost,Colour.genIntegerMap()) {
+                        @Override
+                        public EnumMap<Colour,Integer> getMemory() {
+                            return (EnumMap<Colour, Integer>) this.memory;
+                        }
+                    };
+                //Stores the amount of no entry tiles left on the card
+                case GRANDMAHERBS:
+                    return new CharacterCard(card[0],cost,Integer.valueOf(4)) {
+                        @Override
+                        public Integer getMemory() {
+                            return (Integer) this.memory;
+                        }
+                    };
+                //Stores which colours do not count during influence calculation this turn
+                case SHROOMVENDOR:
+                    return new CharacterCard(card[0],cost,Colour.genBooleanMap()) {
+                        @Override
+                        public EnumMap<Colour,Boolean> getMemory() {
+                            return (EnumMap<Colour, Boolean>) this.memory;
+                        }
+                        @Override
+                        public void setMemory(Object mem) {
+                            this.memory=Colour.genBooleanMap();
+                        }
+                    };
+                //Stores previous owners of professors that were taken
+                case FARMER:
+                    return new CharacterCard(card[0],cost,Colour.genPlayerMap()) {
+                        @Override
+                        public EnumMap<Colour, Player> getMemory() {
+                            return (EnumMap<Colour, Player>) this.memory;
+                        }
+                        @Override
+                        public void setMemory(Object mem) {
+                            this.memory=Colour.genPlayerMap();
+                        }
+                    };
                 default:
                     System.out.println("This should not be reachable");
                     return null;
@@ -133,6 +180,24 @@ public class CharCardController {
         catch (IllegalArgumentException iae) {
             System.out.println("Value "+card[0]+" not a char id or "+card[1]+" is not an int");
             return null;
+        }
+    }
+    public void setUpCards(Bag_Tile b, ArrayList<CharacterCard> cards) {
+        CharID id;
+        EnumMap<Colour,Integer> students;
+        for (CharacterCard card: cards) {
+            id=CharID.valueOf(card.getCardID().toUpperCase());
+            switch (id) {
+                case MONK:
+                case SPOILEDPRINCESS:
+                    card.setMemory(b.drawStudents(4));
+                    break;
+                case JESTER:
+                    card.setMemory(b.drawStudents(6));
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

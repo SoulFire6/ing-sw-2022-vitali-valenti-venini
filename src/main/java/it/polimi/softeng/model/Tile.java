@@ -7,10 +7,10 @@ public abstract class Tile {
     private EnumMap<Colour,Integer> contents;
 
     public Tile() {
-        this.contents=Colour.genStudentMap();
+        this.contents=Colour.genIntegerMap();
     }
     public Tile(int num) {
-        this.contents=Colour.genStudentMap();
+        this();
         this.addStudents(num);
     }
     public void setTileID(String id) {

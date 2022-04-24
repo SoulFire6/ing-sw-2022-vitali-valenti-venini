@@ -9,7 +9,7 @@ public class Bag_Tile extends Tile {
     }
     public EnumMap<Colour,Integer> drawStudents(int num) {
         EnumMap<Colour,Integer> contents=this.getContents();
-        EnumMap<Colour,Integer> res=Colour.genStudentMap();
+        EnumMap<Colour,Integer> res=Colour.genIntegerMap();
         Colour c;
         while(num>0) {
             c=Colour.getRandomColour();
