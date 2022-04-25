@@ -1,6 +1,8 @@
 package it.polimi.softeng.network.message;
 
-public abstract class Message {
+import java.io.Serializable;
+
+public abstract class Message implements Serializable {
     private final MsgType type;
     private final String sender;
     private final String context;

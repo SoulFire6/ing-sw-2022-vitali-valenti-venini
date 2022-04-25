@@ -1,50 +1,63 @@
 package it.polimi.softeng.network.client;
 
+import it.polimi.softeng.network.message.Info_Message;
+import it.polimi.softeng.network.message.Message;
+import it.polimi.softeng.network.message.MessageCenter;
+import it.polimi.softeng.network.message.MsgType;
+import it.polimi.softeng.network.message.load.Load_Message;
+
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Client {
+    private static String username;
+    //TODO: add client controller attribute that processes messages
     private static final String DEFAULT_IP="127.0.0.1";
     private static final Integer DEFAULT_PORT=50033;
     private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-9])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-9])$";
-    //TODO: Replace strings with messages
-    private static final ArrayList<String> errorMessages=new ArrayList<>(Arrays.asList("Disconnecting","SERVER FULL","SERVER CLOSED"));
     public static void main(String[] args) throws IOException {
-        String inputLine=null, outputLine;
+        Message inMessage=null;
         Socket socket=null;
         BufferedReader userInput=new BufferedReader(new InputStreamReader(System.in));
         while (socket==null) {
             socket=connectToServer(userInput);
         }
-        PrintWriter toServer=new PrintWriter(socket.getOutputStream(),true);
-        BufferedReader fromServer=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        while (!errorMessages.contains(inputLine)) {
-            while(!(inputLine=fromServer.readLine()).equals("DONE") && !errorMessages.contains(inputLine)) {
-                System.out.println(inputLine);
-            }
-            if (!errorMessages.contains(inputLine)) {
-                outputLine=userInput.readLine();
-                toServer.println(outputLine);
+        ObjectOutputStream toServer=new ObjectOutputStream(socket.getOutputStream());
+        ObjectInputStream fromServer=new ObjectInputStream(socket.getInputStream());
+        //sends username to server for identification
+        toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT,null,username,null,null));
+        try {
+            while ((inMessage=(Message)fromServer.readObject())!=null && inMessage.getType()!=MsgType.DISCONNECT) {
+                parseMessage(inMessage);
+                if (inMessage.getType()==MsgType.INPUT) {
+                    toServer.writeObject(outMessage(userInput.readLine()));
+                }
             }
         }
-        System.out.println("DISCONNECTED");
-        System.out.println(inputLine);
+        catch (ClassNotFoundException cnfe) {
+            System.out.println("Error reading message from server");
+        }
+        if (inMessage.getType()==MsgType.DISCONNECT) {
+            System.out.println("DISCONNECTED");
+        } else {
+            System.out.println("Error: abrupt disconnect");
+        }
         userInput.close();
         toServer.close();
         fromServer.close();
         socket.close();
     }
 
-    public static Socket connectToServer(BufferedReader in) {
+    private static Socket connectToServer(BufferedReader in) {
         Pattern pattern=Pattern.compile(IP_FORMAT);
         Matcher matcher;
         String inputLine,serverIP=null;
         Integer port=null;
+        System.out.println("Choose a username: ");
         try {
+            username=in.readLine();
             while (serverIP==null) {
                 System.out.print("Server ip (default local): ");
                 if ((inputLine = in.readLine()).length()!=0 && !inputLine.equals("local")) {
@@ -89,5 +102,22 @@ public class Client {
             System.out.println("Error connecting to server");
             return null;
         }
+    }
+    //TODO: move message methods as NON STATIC methods into client controller
+    private static void parseMessage(Message msg) {
+        switch (msg.getType()) {
+            case TEXT:
+            case INPUT:
+            case DISCONNECT:
+                System.out.println("["+msg.getSender()+"]: "+((Info_Message)msg).getInfo());
+                break;
+            case LOAD:
+                System.out.println(((Load_Message) msg).getLoadType()+" "+((Load_Message)msg).getLoadType());
+                break;
+        }
+    }
+    private static Message outMessage(String msg) {
+        //TODO: add more message types
+        return MessageCenter.genMessage(MsgType.TEXT,null,username,"",msg);
     }
 }

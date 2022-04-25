@@ -1,17 +1,19 @@
 package it.polimi.softeng.network.server;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import it.polimi.softeng.network.message.Message;
+import it.polimi.softeng.network.message.MessageCenter;
+import it.polimi.softeng.network.message.MsgType;
+
+import java.io.*;
 import java.net.Socket;
 
 public class LobbyClient {
     private final String username;
     private final Socket socket;
-    private final BufferedReader in;
-    private final PrintWriter out;
+    private final ObjectInputStream in;
+    private final ObjectOutputStream out;
 
-    public LobbyClient(String username, Socket socket, BufferedReader in, PrintWriter out) {
+    public LobbyClient(String username, Socket socket, ObjectInputStream in, ObjectOutputStream out) {
         this.username=username;
         this.socket=socket;
         this.in=in;
@@ -23,10 +25,21 @@ public class LobbyClient {
     public Socket getSocket() {
         return this.socket;
     }
-    public String getIn() throws IOException {
-        return this.in.readLine();
+    public Message getIn() throws IOException {
+        try {
+            return (Message)this.in.readObject();
+        }
+        catch (ClassNotFoundException cnfe) {
+            return null;
+        }
     }
-    public void printOut(String msg) {
-        this.out.println(msg);
+    public void printOut(MsgType type, String lobbyName, String context, Object msg) {
+        try {
+            this.out.writeObject(MessageCenter.genMessage(type,null,lobbyName,context,msg));
+        }
+        catch (IOException io) {
+            System.out.println("Error sending message to client");
+        }
+
     }
 }

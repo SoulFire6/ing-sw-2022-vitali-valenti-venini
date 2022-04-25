@@ -1,9 +1,11 @@
 package it.polimi.softeng.network.server;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import it.polimi.softeng.network.message.Info_Message;
+import it.polimi.softeng.network.message.Message;
+import it.polimi.softeng.network.message.MessageCenter;
+import it.polimi.softeng.network.message.MsgType;
+
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -27,13 +29,15 @@ public class Server {
     private static void serveClient(Socket clientSocket) {
         boolean clientSatisfied=false;
         String username=null;
+        Message inMessage;
         try {
-            BufferedReader in=new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter out=new PrintWriter(clientSocket.getOutputStream(),true);
-            out.println("CONNECTED\nEnter your name: \nDONE");
-            username=in.readLine();
-            out.println("Username: "+username+"\n[create] or [join] lobby?\nDONE");
+            ObjectInputStream in=new ObjectInputStream(clientSocket.getInputStream());
+            ObjectOutputStream out=new ObjectOutputStream(clientSocket.getOutputStream());
+            inMessage=(Message)in.readObject();
+            username=inMessage.getSender();
             System.out.println("New client: "+username);
+            out.writeObject(MessageCenter.genMessage(MsgType.TEXT,null,"SERVER","Welcome message","Connected to server with username: "+username));
+            out.writeObject(MessageCenter.genMessage(MsgType.INPUT,null,"SERVER","Serving client",username+", [create] or [join] lobby?\nOtherwise [disconnect]"));
             while (!clientSatisfied) {
                 clientSatisfied=processRequest(username,clientSocket,in,out);
             }
@@ -49,63 +53,82 @@ public class Server {
                 System.out.println(username+" disconnected abruptly");
             }
         }
-    }
-
-    private static boolean processRequest(String username, Socket clientSocket, BufferedReader in, PrintWriter out) throws IOException {
-        boolean status=false;
-        String inputLine=in.readLine();
-        switch (inputLine) {
-            case "create":
-                out.println("Enter lobby id: \nDONE");
-                inputLine=in.readLine();
-                if (lobbies.get(inputLine)==null) {
-                    out.println("Created lobby "+inputLine+", entering now...");
-                    lobbies.put(inputLine,new Lobby(inputLine,username, new LobbyClient(username,clientSocket,in,out)));
-                    new Thread(lobbies.get(inputLine)).start();
-                    status=true;
-                } else {
-                    out.println("Lobby already exists, try joining instead\nDONE");
-                }
-                break;
-            case "join":
-                out.println("Enter lobby id: \nDONE");
-                inputLine=in.readLine();
-                if (lobbies.get(inputLine)==null) {
-                    out.println("Lobby not found\nDONE");
-                } else {
-                    joinLobby(lobbies.get(inputLine),username,clientSocket,in,out);
-                }
-                break;
-            case "disconnect":
-                out.println("Disconnecting\nDONE");
-                clientSocket.close();
-                status=true;
-                break;
-            default:
-                out.println("Invalid format\nDONE");
-                break;
+        catch (ClassNotFoundException cnfe) {
+            System.out.println("Could not determine what client has sent");
         }
-        return status;
     }
 
-    private static void joinLobby(Lobby lobby, String username, Socket socket, BufferedReader in, PrintWriter out) {
-        int maxPlayers=lobby.getMaxPlayers();
-        if (maxPlayers==0) {
-            out.println("Lobby not yet setup");
-        } else {
-            synchronized (lobby.getClients()) {
-                HashMap<String,LobbyClient> clients=lobby.getClients();
-                if (clients.size()<maxPlayers) {
-                    if (clients.get(username)==null) {
-                        clients.put(username,new LobbyClient(username,socket,in,out));
-                        clients.notify();
+    private static boolean processRequest(String username, Socket clientSocket, ObjectInputStream in, ObjectOutputStream out) throws IOException {
+        boolean status=false;
+        String lobbyName;
+        try {
+            Info_Message response=(Info_Message)in.readObject();
+            switch (response.getInfo().toUpperCase()) {
+                case "CREATE":
+                    out.writeObject(MessageCenter.genMessage(MsgType.INPUT, null, "SERVER", "Lobby id", "Enter lobby id: "));
+                    response=(Info_Message)in.readObject();
+                    lobbyName=response.getInfo();
+                    if (lobbies.get(lobbyName) == null) {
+                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT,null,"SERVER","Creating lobby","Lobby ["+lobbyName+"] created, entering now"));
+                        lobbies.put(lobbyName, new Lobby(lobbyName, username, new LobbyClient(username, clientSocket, in, out)));
+                        new Thread(lobbies.get(lobbyName)).start();
+                        status=true;
                     } else {
-                        out.println("Player with that username already exists");
+                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT,null,"SERVER","Error: lobby already exists","Lobby already exists, try joining instead"));
                     }
-                } else {
-                    out.println("Max clients reached for lobby");
+                    break;
+                case "JOIN":
+                    out.writeObject(MessageCenter.genMessage(MsgType.INPUT, null, "SERVER", "Lobby id", "Enter lobby id: "));
+                    response=(Info_Message) in.readObject();
+                    lobbyName=response.getInfo();
+                    if (lobbies.get(lobbyName) == null) {
+                        out.writeObject(MessageCenter.genMessage(MsgType.INPUT, null, "SERVER", "Error: lobby does not exist", "Lobby not found"));
+                    } else {
+                        joinLobby(lobbies.get(lobbyName), username, clientSocket, in, out);
+                        status=true;
+                    }
+                    break;
+                case "DISCONNECT":
+                    out.writeObject(MessageCenter.genMessage(MsgType.DISCONNECT, null, "SERVER", "Disconnecting", "Goodbye"));
+                    clientSocket.close();
+                    status = true;
+                    break;
+                default:
+                    out.writeObject(MessageCenter.genMessage(MsgType.INPUT, null, "SERVER", "FORMAT ERROR", "Invalid format"));
+                    break;
+            }
+            return status;
+        }
+        catch (ClassNotFoundException cnfe) {
+            System.out.println("Error receiving message");
+            return false;
+        }
+    }
+
+    private static void joinLobby(Lobby lobby, String username, Socket socket, ObjectInputStream in, ObjectOutputStream out) {
+        int maxPlayers=lobby.getMaxPlayers();
+        try {
+            if (maxPlayers==0) {
+                out.writeObject(MessageCenter.genMessage(MsgType.TEXT,null,"SERVER","Lobby not ready","Lobby not yet ready, try joining later"));
+
+            } else {
+                synchronized (lobby.getClients()) {
+                    HashMap<String,LobbyClient> clients=lobby.getClients();
+                    if (clients.size()<maxPlayers) {
+                        if (clients.get(username)==null) {
+                            clients.put(username,new LobbyClient(username,socket,in,out));
+                            clients.notify();
+                        } else {
+                            out.writeObject(MessageCenter.genMessage(MsgType.TEXT,null,"SERVER","Username already in use","Player with that username already exists"));
+                        }
+                    } else {
+                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT,null,"SERVER","Lobby full","Lobby is full ["+maxPlayers+"/"+maxPlayers+"]"));
+                    }
                 }
             }
+        }
+        catch (IOException io) {
+            System.out.println("Error sending message to client during lobby join");
         }
     }
 }
