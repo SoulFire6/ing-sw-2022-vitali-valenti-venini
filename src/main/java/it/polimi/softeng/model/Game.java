@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Game {
     private final String gameID;
+    private final int diningRoomMaxCapacity;
     private final int playerNum;
     private final ArrayList<Player> players;
     private ArrayList<Team> teams;
@@ -24,6 +25,7 @@ public class Game {
         this.clouds=Cloud_Tile.genClouds(cloudNum,cloudMax);
         this.islands=Island_Tile.genIslands(islandNum);
         this.expertMode=false;
+        this.diningRoomMaxCapacity =10;
     }
 
     //Expert game constructor
@@ -75,5 +77,9 @@ public class Game {
             //System.out.println("Game is not in expert mode");
             return null;
         }
+    }
+    public int getDiningRoomMaxCapacity()
+    {
+        return diningRoomMaxCapacity;
     }
 }

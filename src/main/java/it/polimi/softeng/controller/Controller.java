@@ -8,36 +8,78 @@ import java.util.*;
 public class Controller {
     Game g;
     TurnManager turnManager;
+    int remainingMoves,maxMoves;
 
     public Controller(Game g)
     {
         this.g=g;
         turnManager = new TurnManager(g.getPlayers());
+        maxMoves = g.getClouds().get(0).getMaxSlots();
+        remainingMoves=maxMoves;
+
     }
 
-    public boolean playAssistantCard(Player p, String assistantCardID)  //todo: check on assistant card values played by others
+    public boolean playAssistantCard(Player p, AssistantCard assistantCard)
     {
         if(p != turnManager.getCurrentPlayer()) {
             System.out.println("Can't execute this command, it's not the turn of player " + p.getName());
             return false;
         }
-        if(p.getSchoolBoard().getHand().stream().noneMatch(o -> o.getCardID().equals(assistantCardID))) {
-            System.out.println("Error. Card " + assistantCardID + "can't be found in " + p.getName() + "'s hand");
+        if(!p.getSchoolBoard().getHand().contains(assistantCard)) {
+            System.out.println("Error. Card " + assistantCard.getCardID() + "can't be found in " + p.getName() + "'s hand");
             return false;
         }
-        p.getSchoolBoard().playAssistantCard(assistantCardID);
+        if(turnManager.getTurnState()!= TurnManager.TurnState.ASSISTANT_CARDS_PHASE)
+        {
+            System.out.println("Error. Operation not allowed");
+            return false;
+        }
+
+        if(p.getSchoolBoard().getHand().size()>1)       //if the Player p hasn't just one card we check cards played by other players in this round
+        {
+            ArrayList<Player> previousPlayers = (ArrayList<Player>) turnManager.getPlayerOrder().subList(0,turnManager.getPlayerOrder().indexOf(p));
+            for(Player player : previousPlayers)
+            {
+                if(player.getSchoolBoard().getLastUsedCard().getTurnValue() == assistantCard.getTurnValue())
+                {
+                    System.out.println("Error. Play another card");
+                    return false;
+                }
+            }
+        }
+
+        p.getSchoolBoard().playAssistantCard(assistantCard.getCardID());
+        turnManager.nextPlayer();
         return true;
     }
 
-    public boolean playCharacterCard()
+    public boolean playCharacterCard(CharacterCard characterCard, Player p)
     {
-        return false;
+        if(!g.getCharacterCards().contains(characterCard))
+        {
+            System.out.println("Error. Character card not in play.");
+            return false;
+        }
+        if(characterCard.getCost()>p.getSchoolBoard().getCoins())
+        {
+            System.out.println("Error. Not enough coins.");
+            return false;
+        }
+
+        //Play Character card and increase its cost(1st activation)
+        return true;
     }
 
     public boolean moveStudentsToIsland(Player p, EnumMap<Colour,Integer> students , Island_Tile island_tile)
     {
         if(p != turnManager.getCurrentPlayer()) {
             System.out.println("Can't execute this command, it's not the turn of player " + p.getName());
+            return false;
+        }
+
+        if(turnManager.getTurnState()!= TurnManager.TurnState.MOVE_STUDENTS_PHASE)
+        {
+            System.out.println("Error. Operation not allowed");
             return false;
         }
 
@@ -48,8 +90,20 @@ public class Controller {
                 return false;
             }
         }
-        //students is contained in currentPlayer's diningRoom
-        island_tile.addStudents(students);                      //todo: ricalcolo influenza e torri
+        int movesRequested=0;
+        for(Colour c : Colour.values())                 //count number of students that the player wants to insert
+            movesRequested+=students.get(c);
+        if(movesRequested>remainingMoves)
+        {
+            System.out.println("Error. You can move only up to" +remainingMoves +" students");
+            return false;
+        }
+        island_tile.addStudents(students);
+        remainingMoves-=movesRequested;
+        if(remainingMoves==0) {
+            turnManager.nextPlayer();
+            remainingMoves=maxMoves;
+        }
         return true;
     }
 
@@ -60,9 +114,15 @@ public class Controller {
             return false;
         }
 
-        if(n>p.getSchoolBoard().getLastUsedCard().getMotherNatureValue()) //todo: controllo character card +2
+        if(n>p.getSchoolBoard().getLastUsedCard().getMotherNatureValue())
         {
             System.out.println("Error. The given number is too high");
+            return false;
+        }
+
+        if(turnManager.getTurnState()!= TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE)
+        {
+            System.out.println("Error. Operation not allowed");
             return false;
         }
         ArrayList<Island_Tile> islands = g.getIslands();
@@ -80,8 +140,10 @@ public class Controller {
             newMotherNatureIsland = newMotherNatureIsland.getNext();
         oldMotherNatureIsland.setMotherNature(false);       //MotherNature attribute on the Island_Tile gets changed
         newMotherNatureIsland.setMotherNature(true);
+        checkInfluence(newMotherNatureIsland);
+        checkUnification(newMotherNatureIsland);
 
-
+        turnManager.nextPlayer();
         return true;
     }
 
@@ -96,7 +158,13 @@ public class Controller {
             System.out.println("Error. Empty cloud tile.");
             return false;
         }
+        if(turnManager.getTurnState()!= TurnManager.TurnState.CHOOSE_CLOUD_TILE_PHASE)
+        {
+            System.out.println("Error. Operation not allowed");
+            return false;
+        }
         p.getSchoolBoard().fillEntrance(cloud_tile);
+        turnManager.nextPlayer();
         return true;
     }
 
@@ -107,23 +175,117 @@ public class Controller {
             return false;
         }
 
+        if(turnManager.getTurnState()!= TurnManager.TurnState.MOVE_STUDENTS_PHASE)
+        {
+            System.out.println("Error. Operation not allowed");
+            return false;
+        }
+
         for(Colour c : Colour.values()) {
             if(students.get(c) > turnManager.getCurrentPlayer().getSchoolBoard().getContents().get(c))
             {
                 System.out.println("Error. Not enough students present in the entrance");
                 return false;
             }
+            if(students.get(c) > (g.getDiningRoomMaxCapacity()-p.getSchoolBoard().getDiningRoomAmount(c)))
+            {
+                System.out.println("Error. Not enough space in the dining room");
+                return false;
+            }
+        }
+
+        int movesRequested=0;
+        for(Colour c : Colour.values())                 //count number of students that the player wants to insert
+            movesRequested+=students.get(c);
+        if(movesRequested>remainingMoves)
+        {
+            System.out.println("Error. You can move only other" +remainingMoves +" students");
+            return false;
         }
 
         for(Colour c : Colour.values())
-            for(int i=0;i<students.get(c);i++)
+            for(int i=0;i<students.get(c);i++) {
                 turnManager.getCurrentPlayer().getSchoolBoard().moveStudentToDiningRoom(c);
-
+                checkProfessorChange(c,p);
+                remainingMoves--;
+            }
+        if(remainingMoves==0) {
+            turnManager.nextPlayer();
+            remainingMoves = maxMoves;
+        }
         return true;
     }
 
+    public void checkInfluence(Island_Tile motherNatureIsland)
+    {
+        int max=0, count=0;
+        Team influenceTeam=null;
+        EnumMap<Colour,Integer> content = motherNatureIsland.getContents();
+        for(Team t : Team.getTeams(g.getPlayers())) {
+            for (Player p : g.getPlayers()) {
+                if (p.getTeam() == t) {
+                    for (Colour c : Colour.values()) {
+                        if (p.getSchoolBoard().getProfessor(c))
+                            count += content.get(c);
+                    }
+                    if (p.getTeam() == motherNatureIsland.getTeam() && p.getSchoolBoard().getMaxTowers()>0)         //if player's team controls the island and if the player is the one of the team with towers on the board
+                        count += motherNatureIsland.getTowers();                                 //towers count as additional influence
+                    if (count > max)
+                        influenceTeam = t;
+                    else if (count == max)
+                        if (p.getTeam() == motherNatureIsland.getTeam())                        //If two teams got same influence, the previous influence lead is preserved
+                            influenceTeam = t;
+                    count = 0;
+                }
+            }
+        }
+        if(influenceTeam!=motherNatureIsland.getTeam()) {
+            for(Player p:g.getPlayers()) {
+                if (influenceTeam == p.getTeam() && p.getSchoolBoard().getMaxTowers() > 0)      //Add towers of influence team
+                    p.getSchoolBoard().modifyTowers(motherNatureIsland.getTowers());
+                if (motherNatureIsland.getTeam() == p.getTeam() && p.getSchoolBoard().getMaxTowers() >0)
+                    p.getSchoolBoard().modifyTowers(motherNatureIsland.getTowers()*-1);     //Remove towers of the team who lost influence
+            }
+            motherNatureIsland.setTeam(influenceTeam);
+        }
 
 
+    }
+
+    public void checkUnification(Island_Tile island)
+    {
+        ArrayList<Island_Tile> islands = g.getIslands();
+        if(island.getTeam()==island.getNext().getTeam()) {
+            island.setNext(island.getNext().getNext());
+            island.setTowers(island.getTowers()+island.getNext().getTowers());
+            islands.remove(island.getNext());
+        }
+        if(island.getTeam()==island.getPrev().getTeam()) {
+            island.setPrev(island.getPrev().getPrev());
+            island.setTowers(island.getTowers()+island.getPrev().getTowers());
+            islands.remove(island.getPrev());
+        }
+
+    }
+
+    public void checkProfessorChange(Colour c, Player p)
+    {
+        int count,max=0;
+        Player professorPlayer=null;
+        for(Player player : g.getPlayers()) {                           //set professorPlayer to the player controlling the professor of color c
+            if(player.getSchoolBoard().getProfessor(c))
+                professorPlayer = player;
+        }
+        if(professorPlayer==null)                                       //First dining room filled
+        {
+            p.getSchoolBoard().setProfessor(c,true);
+            return;
+        }
+        if(p.getSchoolBoard().getDiningRoomAmount(c)>professorPlayer.getSchoolBoard().getDiningRoomAmount(c)) {
+            p.getSchoolBoard().setProfessor(c, true);
+            professorPlayer.getSchoolBoard().setProfessor(c,false);
+        }
+    }
 
 
 

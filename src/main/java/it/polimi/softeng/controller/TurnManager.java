@@ -10,6 +10,7 @@ public class TurnManager {
     private ArrayList<Player> playerOrder;
     private Player currentPlayer;
 
+
     enum TurnState {
         STUDENTS_DRAW_PHASE,
         ASSISTANT_CARDS_PHASE,
@@ -67,6 +68,11 @@ public class TurnManager {
     public TurnState getTurnState()
     {
         return turnState;
+    }
+
+    public ArrayList<Player> getPlayerOrder()
+    {
+        return playerOrder;
     }
 
 }
