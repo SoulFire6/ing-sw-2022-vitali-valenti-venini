@@ -6,19 +6,19 @@ import java.lang.reflect.Array;
 import java.util.*;
 
 public class Controller {
-    Game g;
+    private final Game game;
     TurnManager turnManager;
     int remainingMoves,maxMoves;
 
-    public Controller(Game g)
-    {
-        this.g=g;
-        turnManager = new TurnManager(g.getPlayers());
-        maxMoves = g.getClouds().get(0).getMaxSlots();
-        remainingMoves=maxMoves;
-
+    public Controller(ArrayList<String> playerNames, boolean expertMode) {
+        this.game=createGame(playerNames,expertMode);
+        turnManager = new TurnManager(game.getPlayers());
+        maxMoves = remainingMoves = game.getClouds().get(0).getMaxSlots();
     }
-
+    public Game createGame(ArrayList<String> playerNames,boolean expertMode) {
+        //TODO: complete method
+        return null;
+    }
     public boolean playAssistantCard(Player p, AssistantCard assistantCard)
     {
         if(p != turnManager.getCurrentPlayer()) {
@@ -55,7 +55,7 @@ public class Controller {
 
     public boolean playCharacterCard(CharacterCard characterCard, Player p)
     {
-        if(!g.getCharacterCards().contains(characterCard))
+        if(!game.getCharacterCards().contains(characterCard))
         {
             System.out.println("Error. Character card not in play.");
             return false;
@@ -125,7 +125,7 @@ public class Controller {
             System.out.println("Error. Operation not allowed");
             return false;
         }
-        ArrayList<Island_Tile> islands = g.getIslands();
+        ArrayList<Island_Tile> islands = game.getIslands();
         Island_Tile oldMotherNatureIsland = null;
         Island_Tile newMotherNatureIsland;
 
@@ -187,7 +187,7 @@ public class Controller {
                 System.out.println("Error. Not enough students present in the entrance");
                 return false;
             }
-            if(students.get(c) > (g.getDiningRoomMaxCapacity()-p.getSchoolBoard().getDiningRoomAmount(c)))
+            if(students.get(c) > (game.getDiningRoomMaxCapacity()-p.getSchoolBoard().getDiningRoomAmount(c)))
             {
                 System.out.println("Error. Not enough space in the dining room");
                 return false;
@@ -221,8 +221,8 @@ public class Controller {
         int max=0, count=0;
         Team influenceTeam=null;
         EnumMap<Colour,Integer> content = motherNatureIsland.getContents();
-        for(Team t : Team.getTeams(g.getPlayers())) {
-            for (Player p : g.getPlayers()) {
+        for(Team t : Team.getTeams(game.getPlayers())) {
+            for (Player p : game.getPlayers()) {
                 if (p.getTeam() == t) {
                     for (Colour c : Colour.values()) {
                         if (p.getSchoolBoard().getProfessor(c))
@@ -240,7 +240,7 @@ public class Controller {
             }
         }
         if(influenceTeam!=motherNatureIsland.getTeam()) {
-            for(Player p:g.getPlayers()) {
+            for(Player p:game.getPlayers()) {
                 if (influenceTeam == p.getTeam() && p.getSchoolBoard().getMaxTowers() > 0)      //Add towers of influence team
                     p.getSchoolBoard().modifyTowers(motherNatureIsland.getTowers());
                 if (motherNatureIsland.getTeam() == p.getTeam() && p.getSchoolBoard().getMaxTowers() >0)
@@ -254,7 +254,7 @@ public class Controller {
 
     public void checkUnification(Island_Tile island)
     {
-        ArrayList<Island_Tile> islands = g.getIslands();
+        ArrayList<Island_Tile> islands = game.getIslands();
         if(island.getTeam()==island.getNext().getTeam()) {
             island.setNext(island.getNext().getNext());
             island.setTowers(island.getTowers()+island.getNext().getTowers());
@@ -272,7 +272,7 @@ public class Controller {
     {
         int count,max=0;
         Player professorPlayer=null;
-        for(Player player : g.getPlayers()) {                           //set professorPlayer to the player controlling the professor of color c
+        for(Player player : game.getPlayers()) {                           //set professorPlayer to the player controlling the professor of color c
             if(player.getSchoolBoard().getProfessor(c))
                 professorPlayer = player;
         }
