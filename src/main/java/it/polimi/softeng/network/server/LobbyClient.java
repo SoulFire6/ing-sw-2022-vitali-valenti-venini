@@ -25,11 +25,11 @@ public class LobbyClient {
     public Socket getSocket() {
         return this.socket;
     }
-    public Message getIn() throws IOException {
+    public Message getIn() {
         try {
             return (Message)this.in.readObject();
         }
-        catch (ClassNotFoundException cnfe) {
+        catch (ClassNotFoundException | IOException e) {
             return null;
         }
     }

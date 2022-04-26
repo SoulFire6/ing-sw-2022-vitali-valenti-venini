@@ -1,10 +1,10 @@
 package it.polimi.softeng.network.server;
 
+import it.polimi.softeng.controller.Controller;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MsgType;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -15,6 +15,7 @@ public class Lobby implements Runnable {
     private final HashMap<String,LobbyClient> clients=new HashMap<>();
     private String lobbyMaster;
     private int maxPlayers=0;
+    private final Controller controller=null; //TODO: Initialise once all players have joined
 
     public Lobby(String lobbyName,String username, LobbyClient lobbyMaster) {
         this.lobbyName=lobbyName;
@@ -29,6 +30,9 @@ public class Lobby implements Runnable {
         LobbyClient currentClient=clients.get(lobbyMaster);
         currentClient.printOut(MsgType.TEXT,lobbyName,"Correct max player set","Set max players to "+maxPlayers);
         waitForOtherPlayers();
+        //controller=new Controller(clientUsernames,mode); TODO: pass player names and mode to generate game
+        createLobbyListeners();
+        processMessageQueue();
     }
 
     private void setupLobby(LobbyClient client) {
@@ -38,8 +42,8 @@ public class Lobby implements Runnable {
             try {
                 maxPlayers=Integer.parseInt(((Info_Message)client.getIn()).getInfo());
             }
-            catch (NumberFormatException | IOException e) {
-                if (e.getCause()==null) {
+            catch (NumberFormatException nfe) {
+                if (nfe.getCause()==null) {
                     //TODO: delete lobby if lobby master disconnects before setup
                     System.out.println("Lobby master "+lobbyMaster+" disconnected, TODO: must delete lobby");
                 } else {
@@ -75,5 +79,36 @@ public class Lobby implements Runnable {
     }
     public int getMaxPlayers() {
         return this.maxPlayers;
+    }
+    public void createLobbyListeners() {
+        Thread listener;
+        for (String client: clients.keySet()) {
+            listener=new Thread(new LobbyListener(clients.get(client),lobbyName,lobbyMessageQueue));
+            listener.setDaemon(true);
+            listener.start();
+        }
+    }
+    public void processMessageQueue() {
+        Message msg;
+        while (clients.size()!=0) {
+            checkClientConnection();
+            synchronized (lobbyMessageQueue) {
+                while(clients.size()>0) {
+                    while (lobbyMessageQueue.size()>0) {
+                        msg=lobbyMessageQueue.poll();
+                        //Check print
+                        System.out.println("["+lobbyName+"]: processed message ("+((Info_Message)msg).getInfo()+"), queue size: "+lobbyMessageQueue.size());
+                        //controller.processMessage(msg,clients.get(msg.getSender()));
+                    }
+                }
+            }
+        }
+    }
+    public void checkClientConnection() {
+        for (String client: clients.keySet()) {
+            if (!clients.get(client).getSocket().isConnected()) {
+                clients.remove(client);
+            }
+        }
     }
 }
