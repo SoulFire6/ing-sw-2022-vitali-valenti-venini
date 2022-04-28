@@ -6,7 +6,12 @@ import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import it.polimi.softeng.network.message.load.Load_Message;
 
-import java.io.*;
+
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,37 +22,41 @@ public class Client {
     private static final String DEFAULT_IP="127.0.0.1";
     private static final Integer DEFAULT_PORT=50033;
     private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-9])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-9])$";
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Message inMessage=null;
         Socket socket=null;
         BufferedReader userInput=new BufferedReader(new InputStreamReader(System.in));
         while (socket==null) {
             socket=connectToServer(userInput);
         }
-        ObjectOutputStream toServer=new ObjectOutputStream(socket.getOutputStream());
-        ObjectInputStream fromServer=new ObjectInputStream(socket.getInputStream());
-        //sends username to server for identification
-        toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT,null,username,null,null));
         try {
+            ObjectOutputStream toServer=new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream fromServer=new ObjectInputStream(socket.getInputStream());
+            //sends username to server for identification
+            toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT,null,username,null,null));
             while ((inMessage=(Message)fromServer.readObject())!=null && inMessage.getType()!=MsgType.DISCONNECT) {
                 parseMessage(inMessage);
                 if (inMessage.getType()==MsgType.INPUT) {
                     toServer.writeObject(outMessage(userInput.readLine()));
                 }
             }
+            userInput.close();
+            toServer.close();
+            fromServer.close();
+            socket.close();
         }
         catch (ClassNotFoundException cnfe) {
             System.out.println("Error reading message from server");
+        }
+        catch (IOException io) {
+            System.out.println("IO exception");
         }
         if (inMessage.getType()==MsgType.DISCONNECT) {
             System.out.println("DISCONNECTED");
         } else {
             System.out.println("Error: abrupt disconnect");
         }
-        userInput.close();
-        toServer.close();
-        fromServer.close();
-        socket.close();
+
     }
 
     private static Socket connectToServer(BufferedReader in) {
