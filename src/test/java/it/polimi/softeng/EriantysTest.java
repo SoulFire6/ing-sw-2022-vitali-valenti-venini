@@ -1,38 +1,56 @@
 package it.polimi.softeng;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+
 public class EriantysTest {
+
+    private boolean checkErrorFromArgs(String[] args, String testMessage) {
+        String msg=null;
+        try {
+            Eriantys.main(args);
+        }
+        catch (IllegalArgumentException iae) {
+            msg=iae.getMessage();
+        }
+        if (msg==null) {
+            return testMessage==null;
+        }
+        if (!msg.equals(testMessage)) {
+            System.out.println(msg);
+            return false;
+        }
+
+        return true;
+    }
 
     @Test
     public void testNoArguments() {
         String[] args={};
-        assertEquals(0,Eriantys.main(args));
+        assertTrue(checkErrorFromArgs(args,null));
     }
     @Test
     public void testHelpMessage() {
         String[] args={"--help"};
-        assertEquals(0,Eriantys.main(args));
+        assertTrue(checkErrorFromArgs(args,null));
     }
     @Test
     public void testServerClientConflict() {
         String[] args={"-c","-s"};
-        assertEquals(-1,Eriantys.main(args));
         String[] args2={"-s","-c"};
-        assertEquals(-1,Eriantys.main(args2));
+        assertTrue(checkErrorFromArgs(args,"Already client: cannot be server"));
+        assertTrue(checkErrorFromArgs(args2,"Already server: cannot be client"));
     }
-
     @Test
     public void testDuplicateIP() {
         String[] args={"-ip","0.0.0.0","-ip","0.0.0.1"};
-        assertEquals(-1,Eriantys.main(args));
+        assertTrue(checkErrorFromArgs(args,"Already set ip"));
     }
 
     @Test
     public void testDuplicatePort() {
         String[] args={"-p","0","-p","1"};
-        assertEquals(-1,Eriantys.main(args));
+        assertTrue(checkErrorFromArgs(args,"Already set port"));
     }
 }

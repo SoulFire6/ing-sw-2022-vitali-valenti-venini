@@ -14,7 +14,39 @@ public class Server {
     private static final HashMap<String,Lobby> lobbies=new HashMap<>();
     private static final Integer SERVER_PORT=50033;
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket=new ServerSocket(SERVER_PORT);
+        BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
+        ServerSocket serverSocket;
+        Integer port=SERVER_PORT;
+        if (args.length!=0) {
+            try {
+                port=Integer.parseInt(args[0]);
+                if (port<49152 || port>65535) {
+                    System.out.println("Out of range");
+                }
+            }
+            catch (NumberFormatException nfe) {
+                System.out.println("Not a valid number");
+                port=null;
+            }
+            String portNumber;
+            while (port==null || port<49152 || port>65535) {
+                System.out.print("Server port (default 50033, range 49152-65535): ");
+                try {
+                    if ((portNumber=in.readLine()).length()!=0 && !portNumber.equals("local")) {
+                        port=Integer.parseInt(portNumber);
+                    } else {
+                        port=SERVER_PORT;
+                    }
+                }
+                catch (IOException io) {
+                    System.out.println("Error reading port number");
+                }
+                catch (NumberFormatException nfe) {
+                    System.out.println("Not a valid number");
+                }
+            }
+        }
+        serverSocket=new ServerSocket(port);
         Socket clientSocket;
         while (true) {
             try {
@@ -22,6 +54,7 @@ public class Server {
                 serveClient(clientSocket);
             } catch (NullPointerException npe) {
                 System.out.println("Client disconnected abruptly");
+                break;
             }
         }
     }
