@@ -1,7 +1,12 @@
 # Software Engineering Project A.Y. 2021-2022
 
-## Simulation of the board game Eriantys
+## Simulation of the board game Eriantys 
+
+### [![Report](https://github.com/Callum-Venini/ing-sw-2022-vitali-valenti-venini/actions/workflows/report.yml/badge.svg)](https://github.com/Callum-Venini/ing-sw-2022-vitali-valenti-venini/actions/workflows/report.yml)
+
 <img src="https://www.craniocreations.it/wp-content/uploads/2021/06/Eriantys_scatolaFrontombra-300x300.png" alt="Eriantys' box cover">
+
+
 
 **Group GC33**:
 - [Marco Vitali](https://github.com/MarcoVitali0)
@@ -12,7 +17,11 @@
 
 1. [Project specification](#project-specification)
 2. [Implemented Features](#implemented-features)
-3. [How to run](#how-to-install-and-run)
+3. [How to install](#how-to-install)
+4. [How to run](#how-to-run)
+   1. [Terminal](#terminal)
+   2. [Linux/MacOsX](#linux--macosx)
+   3. [Windows](#windows)
 
 ## Project specification
 
@@ -29,17 +38,18 @@ The final version will include:
 
 ## Implemented features
 
-| Feature | Status | Details |
-|---------|:------:|---------|
-|Simplified rules|:warning:|Normal mode only|
-|Complete rules|:warning:|Expert mode with 8 character cards|
-|CLI|:warning:|Command line input|
-|GUI|:x:|Graphical user interface|
-|Character cards|:x:|All 12 cards instead of just 8|
-|4 Player mode|:warning:|Allows 4 players to participate in teams of 2|
-|Multiple games|:x:|Allows simulatenous games on the same server|
-|Persistence|:x:|Save and load game state to disk|
-|Disconnection Resilience|:x:|Allows players to reconnect|
+| Feature                  |  Status   | Details                                       |
+|--------------------------|:---------:|-----------------------------------------------|
+| Simplified rules         | :warning: | Normal mode only                              |
+| Complete rules           | :warning: | Expert mode with 8 character cards            |
+| CLI                      | :warning: | Command line input                            |
+| GUI                      |    :x:    | Graphical user interface                      |
+| Socket                   | :warning: | Client-server architecture                    |
+| Character cards          | :warning: | All 12 cards instead of just 8                |
+| 4 Player mode            | :warning: | Allows 4 players to participate in teams of 2 |
+| Multiple games           | :warning: | Allows simultaneous games on the same server  |
+| Persistence              |    :x:    | Save and load game state to disk              |
+| Disconnection Resilience |    :x:    | Allows players to reconnect                   |
 
 **Table Legend:**
 
@@ -49,6 +59,28 @@ The final version will include:
 
 :white_check_mark: Implemented
 
-## How to install and run
+## How to install
 
-**Not yet available**
+## How to run
+
+### Terminal
+    
+To get info on command line arguments
+
+    java Eriantys --help
+
+To run client
+
+    java Eriantys -client -u <username> [-cli | -gui ] -ip <server-ip> -p <server-port>
+
+To run server
+
+    java Eriantys -server -p <server-port>
+
+### Linux / MacOsX
+
+bash scripts not yet implemented
+
+### Windows
+
+batch files not yet implemented
