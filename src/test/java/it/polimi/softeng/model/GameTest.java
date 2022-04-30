@@ -24,7 +24,8 @@ public class GameTest {
         assertEquals(testID,game.getGameID());
         assertEquals(testPlayers,game.getPlayers());
         assertEquals(testPlayerNum,game.getPlayerNum());
-        assertEquals(testBagFill*Colour.values().length,game.getBag().getFillAmount());
+        //deprecated since bag gets changed in constructor if islands are generated
+        //assertEquals(testBagFill*Colour.values().length,game.getBag().getFillAmount());
         assertEquals(testCloudNum,game.getClouds().size());
         for (Cloud_Tile cloud: game.getClouds()) {
             assertEquals(testCloudMax,cloud.getMaxSlots());

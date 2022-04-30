@@ -25,6 +25,14 @@ public class CharCardController {
             this.inPlay=false;
         }
     }
+    public CharID getCharCardID(CharacterCard card) {
+        try {
+            return CharID.valueOf(card.getCardID().toUpperCase());
+        }
+        catch (IllegalArgumentException iae) {
+            return null;
+        }
+    }
     public boolean activateCard(CharacterCard card) {
         try {
             CharID id=CharID.valueOf(card.getCardID().toUpperCase());
@@ -48,7 +56,7 @@ public class CharCardController {
         }
         CharID id;
         for (CharacterCard card: cards) {
-            id=CharID.valueOf(card.getCardID().toUpperCase());
+            id=getCharCardID(card);
             if (id==CharID.SHROOMVENDOR || id==CharID.FARMER) {
                 card.setMemory(null);
             }
@@ -115,6 +123,15 @@ public class CharCardController {
             return null;
         }
     }
+    public boolean checkDisabledColour(Colour c, ArrayList<CharacterCard> cards) {
+        CharacterCard ShroomVendor=null;
+        for (CharacterCard card: cards) {
+            if (getCharCardID(card)==CharID.SHROOMVENDOR) {
+                ShroomVendor=card;
+            }
+        }
+        return getActiveStatus("SHROOMVENDOR") && ShroomVendor!=null && ((EnumMap<Colour,Boolean>)ShroomVendor.getMemory()).get(c);
+    }
     //Factory method for generating cards (divided based on memory needs)
     public CharacterCard createCharacterCard(String[] card) {
         try {
@@ -142,7 +159,7 @@ public class CharCardController {
                     };
                 //Stores the amount of no entry tiles left on the card
                 case GRANDMAHERBS:
-                    return new CharacterCard(card[0],cost,Integer.valueOf(4)) {
+                    return new CharacterCard(card[0],cost,4) {
                         @Override
                         public Integer getMemory() {
                             return (Integer) this.memory;
