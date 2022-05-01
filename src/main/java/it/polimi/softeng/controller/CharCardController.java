@@ -1,9 +1,10 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.model.Bag_Tile;
-import it.polimi.softeng.model.CharacterCard;
-import it.polimi.softeng.model.Colour;
-import it.polimi.softeng.model.Player;
+import it.polimi.softeng.model.*;
+import it.polimi.softeng.model.CharacterCardSubTypes.ColourBooleanMap_CharCard;
+import it.polimi.softeng.model.CharacterCardSubTypes.ColourPlayerMap_CharCard;
+import it.polimi.softeng.model.CharacterCardSubTypes.Int_CharCard;
+import it.polimi.softeng.model.CharacterCardSubTypes.StudentDisk_CharCard;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -57,8 +58,11 @@ public class CharCardController {
         CharID id;
         for (CharacterCard card: cards) {
             id=getCharCardID(card);
-            if (id==CharID.SHROOMVENDOR || id==CharID.FARMER) {
-                card.setMemory(null);
+            if (id==CharID.SHROOMVENDOR) {
+                ((ColourBooleanMap_CharCard)card).resetMemory();
+            }
+            if (id==CharID.FARMER) {
+                ((ColourPlayerMap_CharCard)card).resetMemory();
             }
         }
     }
@@ -124,13 +128,13 @@ public class CharCardController {
         }
     }
     public boolean checkDisabledColour(Colour c, ArrayList<CharacterCard> cards) {
-        CharacterCard ShroomVendor=null;
+        ColourBooleanMap_CharCard ShroomVendor=null;
         for (CharacterCard card: cards) {
             if (getCharCardID(card)==CharID.SHROOMVENDOR) {
-                ShroomVendor=card;
+                ShroomVendor=(ColourBooleanMap_CharCard) card;
             }
         }
-        return getActiveStatus("SHROOMVENDOR") && ShroomVendor!=null && ((EnumMap<Colour,Boolean>)ShroomVendor.getMemory()).get(c);
+        return getActiveStatus("SHROOMVENDOR") && ShroomVendor!=null && ShroomVendor.getMemory().get(c);
     }
     //Factory method for generating cards (divided based on memory needs)
     public CharacterCard createCharacterCard(String[] card) {
@@ -151,44 +155,16 @@ public class CharCardController {
                 case MONK:
                 case JESTER:
                 case SPOILEDPRINCESS:
-                    return new CharacterCard(card[0],cost,Colour.genIntegerMap()) {
-                        @Override
-                        public EnumMap<Colour,Integer> getMemory() {
-                            return (EnumMap<Colour, Integer>) this.memory;
-                        }
-                    };
+                    return new StudentDisk_CharCard(card[0],cost,Colour.genIntegerMap());
                 //Stores the amount of no entry tiles left on the card
                 case GRANDMAHERBS:
-                    return new CharacterCard(card[0],cost,4) {
-                        @Override
-                        public Integer getMemory() {
-                            return (Integer) this.memory;
-                        }
-                    };
+                    return new Int_CharCard(card[0],cost,4);
                 //Stores which colours do not count during influence calculation this turn
                 case SHROOMVENDOR:
-                    return new CharacterCard(card[0],cost,Colour.genBooleanMap()) {
-                        @Override
-                        public EnumMap<Colour,Boolean> getMemory() {
-                            return (EnumMap<Colour, Boolean>) this.memory;
-                        }
-                        @Override
-                        public void setMemory(Object mem) {
-                            this.memory=Colour.genBooleanMap();
-                        }
-                    };
+                    return new ColourBooleanMap_CharCard(card[0],cost,Colour.genBooleanMap());
                 //Stores previous owners of professors that were taken
                 case FARMER:
-                    return new CharacterCard(card[0],cost,Colour.genPlayerMap()) {
-                        @Override
-                        public EnumMap<Colour, Player> getMemory() {
-                            return (EnumMap<Colour, Player>) this.memory;
-                        }
-                        @Override
-                        public void setMemory(Object mem) {
-                            this.memory=Colour.genPlayerMap();
-                        }
-                    };
+                    return new ColourPlayerMap_CharCard(card[0],cost,Colour.genPlayerMap());
                 default:
                     System.out.println("This should not be reachable");
                     return null;
@@ -207,10 +183,10 @@ public class CharCardController {
             switch (id) {
                 case MONK:
                 case SPOILEDPRINCESS:
-                    card.setMemory(b.drawStudents(4));
+                    ((StudentDisk_CharCard)card).setMemory(b.drawStudents(4));
                     break;
                 case JESTER:
-                    card.setMemory(b.drawStudents(6));
+                    ((StudentDisk_CharCard)card).setMemory(b.drawStudents(6));
                     break;
                 default:
                     break;

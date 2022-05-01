@@ -24,6 +24,8 @@ public class CharacterCardTest {
         testValue+=1;
         assertEquals(testCard.getCost(),testValue);
     }
+    //TODO: test memory for all subtypes instead
+    /*
     @Test
     public void testMemory() {
         CharacterCard testCardNoMem=new CharacterCard("test_noMem",0);
@@ -41,4 +43,5 @@ public class CharacterCardTest {
         testCardMem.setMemory(testInt);
         assertEquals(testCardMem.getMemory(),testInt);
     }
+     */
 }
