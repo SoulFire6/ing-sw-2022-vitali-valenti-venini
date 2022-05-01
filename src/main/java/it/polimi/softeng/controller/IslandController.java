@@ -50,50 +50,28 @@ public class IslandController {
         }
         return islands;
     }
-    //TODO: merge calculate influence so it works for both expert mode and not by passing null values
-    public static Team calculateInfluence(Island_Tile island, ArrayList<Player> players) {
+    //NORMAL: charController and cards are null, otherwise calculates with EXPERT mode rules
+    public Team calculateInfluence(Player conqueringPlayer, Island_Tile island, ArrayList<Player> players, CharCardController charController,  ArrayList<CharacterCard> cards) {
+        Team conqueringTeam=conqueringPlayer.getTeam();
+        Team currentTeam=island.getTeam();
         EnumMap<Team,Integer> teamInfluence=new EnumMap<>(Team.class);
         EnumMap<Team,ArrayList<Colour>> teamColours=new EnumMap<>(Team.class);
-        Team currentTeam=island.getTeam();
+        //Setup
         for (Team t: Team.values()) {
             teamInfluence.put(t,0);
             teamColours.put(t,PlayerController.getTeamColours(t,players));
         }
-        teamInfluence.put(currentTeam,teamInfluence.get(currentTeam)+island.getTowers());
-        for (Colour c: Colour.values()) {
-            for (Team t: Team.values()) {
-                if (teamColours.get(t).contains(c)) {
-                    teamInfluence.put(t,teamInfluence.get(t)+island.getContents().get(c));
-                }
-            }
-        }
-        Team maxTeam= Collections.max(teamInfluence.entrySet(), Map.Entry.comparingByValue()).getKey();
-        int maxInfluence=teamInfluence.get(maxTeam);
-        //If two or more teams have the same max influence previous island state is returned
-        for (Team t: Team.values()) {
-            if (t!=maxTeam && teamInfluence.get(t)==maxInfluence) {
-                return island.getTeam();
-            }
-        }
-        island.setTeam(maxTeam);
-        return maxTeam;
-    }
-    //EXPERT MODE ONLY
-    public static Team calculateInfluence(Team conqueringTeam,Island_Tile island, ArrayList<Player> players,CharCardController charController, ArrayList<CharacterCard> cards) {
-        EnumMap<Team,Integer> teamInfluence=new EnumMap<>(Team.class);
-        EnumMap<Team,ArrayList<Colour>> teamColours=new EnumMap<>(Team.class);
-        Team currentTeam=island.getTeam();
-        for (Team t: Team.values()) {
-            teamInfluence.put(t,0);
-            teamColours.put(t,PlayerController.getTeamColours(t,players));
-        }
-        //influence from towers
-        if (currentTeam!=null && !charController.getActiveStatus("")) {
+        //Tower influence
+        if (charController==null) {
             teamInfluence.put(currentTeam,teamInfluence.get(currentTeam)+island.getTowers());
+        } else {
+            //centaur negates tower influence of current island, knight adds 2 to initial influence to conquering player's team
+            teamInfluence.put(currentTeam,teamInfluence.get(currentTeam)+(island.getTowers()*(charController.getActiveStatus("CENTAUR")?0:1)));
             teamInfluence.put(conqueringTeam,teamInfluence.get(conqueringTeam)+2*(charController.getActiveStatus("KNIGHT")?1:0));
         }
+        //Student Disk Influence
         for (Colour c: Colour.values()) {
-            if (!charController.checkDisabledColour(c, cards)) {
+            if (charController==null || !charController.checkDisabledColour(c, cards)) {
                 for (Team t: Team.values()) {
                     if (teamColours.get(t).contains(c)) {
                         teamInfluence.put(t,teamInfluence.get(t)+island.getContents().get(c));
@@ -110,6 +88,7 @@ public class IslandController {
             }
         }
         island.setTeam(maxTeam);
+        //TODO: swap out towers (evenly among team members?)
         return maxTeam;
     }
     public static ArrayList<Island_Tile> checkAndMerge(ArrayList<Island_Tile> islands, Island_Tile island) {
