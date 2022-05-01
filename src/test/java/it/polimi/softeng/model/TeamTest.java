@@ -8,6 +8,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class TeamTest {
+    /*
     private static boolean printTestResults=false;
     //generic function to generate n players with teams
     private static ArrayList<Player> generateTestTeam(int num) {
@@ -90,4 +91,6 @@ public class TeamTest {
             assertEquals("Player number mismatch",num,i);
         }
     }
+    TODO: move tests to player controller tests
+     */
 }

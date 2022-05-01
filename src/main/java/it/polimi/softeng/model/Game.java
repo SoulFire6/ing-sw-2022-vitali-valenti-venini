@@ -1,6 +1,7 @@
 package it.polimi.softeng.model;
 
 import it.polimi.softeng.controller.IslandController;
+import it.polimi.softeng.controller.PlayerController;
 
 import java.util.ArrayList;
 
@@ -22,7 +23,7 @@ public class Game {
         this.gameID=gameID;
         this.playerNum=players.size();
         this.players=players;
-        this.teams=Team.getTeams(this.players);
+        this.teams= PlayerController.getTeams(this.players);
         this.bag=new Bag_Tile(bagFill);
         this.clouds=Cloud_Tile.genClouds(cloudNum,cloudMax);
         this.islands=IslandController.genIslands(islandNum,bag);

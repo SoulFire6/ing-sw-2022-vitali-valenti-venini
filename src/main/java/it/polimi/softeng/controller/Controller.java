@@ -221,7 +221,7 @@ public class Controller {
         int max=0, count=0;
         Team influenceTeam=null;
         EnumMap<Colour,Integer> content = motherNatureIsland.getContents();
-        for(Team t : Team.getTeams(game.getPlayers())) {
+        for(Team t : PlayerController.getTeams(game.getPlayers())) {
             for (Player p : game.getPlayers()) {
                 if (p.getTeam() == t) {
                     for (Colour c : Colour.values()) {

@@ -1,6 +1,7 @@
 package it.polimi.softeng.model;
 
 import it.polimi.softeng.controller.CharCardController;
+import it.polimi.softeng.controller.PlayerController;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class GameTest {
         for (int i=0; i<testPlayerNum; i++) {
             playerNames.add("Player_"+i+1);
         }
-        ArrayList<Player> testPlayers=Team.genTeams(playerNames);
+        ArrayList<Player> testPlayers= PlayerController.genTeams(playerNames);
         int testBagFill=26;
         int testCloudNum=2;
         int testCloudMax=3;
@@ -44,7 +45,7 @@ public class GameTest {
         for (int i=0; i<testPlayerNum; i++) {
             expertPlayerNames.add("Player_"+i+1);
         }
-        ArrayList<Player> expertPlayers=Team.genTeams(expertPlayerNames);
+        ArrayList<Player> expertPlayers=PlayerController.genTeams(expertPlayerNames);
         int testCoins=20;
         int testCharCardNum=3;
         ArrayList<CharacterCard> characterCards=charControl.genNewCharacterCards(testCharCardNum);
@@ -58,7 +59,7 @@ public class GameTest {
         int initialCoins=20;
         int newCoins=10;
         ArrayList<String> playerNames=new ArrayList<>(Arrays.asList("Player_1","Player_2"));
-        Game game=new Game("test_coins",Team.genTeams(playerNames),26,2,3,12,initialCoins,null);
+        Game game=new Game("test_coins",PlayerController.genTeams(playerNames),26,2,3,12,initialCoins,null);
         assertEquals(initialCoins,game.getCoins());
         game.setCoins(newCoins);
         assertEquals(newCoins,game.getCoins());
@@ -71,7 +72,7 @@ public class GameTest {
             for (int j=0; j<i; j++) {
                 playerNames.add("Player_"+j+1);
             }
-            Game game=new Game("test_teams_"+i,Team.genTeams(playerNames),26,2,3,12);
+            Game game=new Game("test_teams_"+i,PlayerController.genTeams(playerNames),26,2,3,12);
             switch (i) {
                 case 2:
                     case 4:
