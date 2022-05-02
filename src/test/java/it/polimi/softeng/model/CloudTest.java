@@ -34,6 +34,8 @@ public class CloudTest {
         assertEquals(maxSlots,cloud.getFillAmount());
         assertEquals(fillAmount-maxSlots,bag.getFillAmount());
     }
+    //TODO: move to controller test
+    /*
     @Test
     public void testGenClouds() {
         int cloudNum=10;
@@ -44,4 +46,5 @@ public class CloudTest {
             assertEquals(maxSlots,cloud.getMaxSlots());
         }
     }
+     */
 }

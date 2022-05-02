@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class AssistantCardController {
     private static final String CARD_DATA_PATH="src/main/resources/CardData/AssistantCards.csv";
 
-    public static ArrayList<AssistantCard> genHand(String PATH_TO_SAVE) {
+    public ArrayList<AssistantCard> genHand(String PATH_TO_SAVE) {
         ArrayList<AssistantCard> res=new ArrayList<>();
         String[] card;
         String cardValue;

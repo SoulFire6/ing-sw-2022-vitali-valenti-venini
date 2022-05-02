@@ -6,11 +6,12 @@ import it.polimi.softeng.controller.Exceptions.NotEnoughStudentsInEntranceExcept
 import it.polimi.softeng.controller.Exceptions.NotYourTurnException;
 import it.polimi.softeng.model.*;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class TileController {
 
-    public static ArrayList<Island_Tile> genIslands(int num, Bag_Tile bag) {
+    public ArrayList<Island_Tile> genIslands(int num, Bag_Tile bag) {
         ArrayList<Island_Tile> islands=new ArrayList<>();
         ArrayList<String> initialisedIslands=new ArrayList<>();
         Island_Tile head=new Island_Tile("Island_1");
@@ -56,7 +57,17 @@ public class TileController {
         return islands;
     }
 
-    public void moveMotherNature(Player p, int n, TurnManager turnManager, ArrayList<Island_Tile> islands) throws NotYourTurnException, MotherNatureValueException, MoveNotAllowedException {
+    public ArrayList<Cloud_Tile> genClouds(int num, int max, Bag_Tile bag) {
+        ArrayList<Cloud_Tile> clouds=new ArrayList<>();
+        for (int i=0; i<num; i++) {
+            clouds.add(new Cloud_Tile("Cloud_"+(i+1),max));
+        }
+        for (Cloud_Tile cloud: clouds) {
+            cloud.fillCloud(bag);
+        }
+        return clouds;
+    }
+    public void moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards,TurnManager turnManager, ArrayList<Island_Tile> islands) throws NotYourTurnException, MotherNatureValueException, MoveNotAllowedException {
         if(p != turnManager.getCurrentPlayer())
             throw new NotYourTurnException("Can't execute this command, it's not the turn of player " + p.getName());
 
@@ -80,61 +91,10 @@ public class TileController {
             newMotherNatureIsland = newMotherNatureIsland.getNext();
         oldMotherNatureIsland.setMotherNature(false);       //MotherNature attribute on the Island_Tile gets changed
         newMotherNatureIsland.setMotherNature(true);
-        checkInfluence(newMotherNatureIsland, turnManager.getPlayerOrder());
-        checkUnification(newMotherNatureIsland, islands);
+        calculateInfluence(p,newMotherNatureIsland,players,charCardController,cards);
+        checkAndMerge(islands,newMotherNatureIsland);
         turnManager.nextAction();
     }
-
-    public void checkInfluence(Island_Tile motherNatureIsland, ArrayList<Player> players)                               //TODO: replace with calculateInfluence(?)
-    {
-        int max=0, count=0;
-        Team influenceTeam=null;
-        EnumMap<Colour,Integer> content = motherNatureIsland.getContents();
-        for(Team t : PlayerController.getTeams(players)) {
-            for (Player p : players) {
-                if (p.getTeam() == t) {
-                    for (Colour c : Colour.values()) {
-                        if (p.getSchoolBoard().getProfessor(c))
-                            count += content.get(c);
-                    }
-                    if (p.getTeam() == motherNatureIsland.getTeam() && p.getSchoolBoard().getMaxTowers()>0)         //if player's team controls the island and if the player is the one of the team with towers on the board
-                        count += motherNatureIsland.getTowers();                                 //towers count as additional influence
-                    if (count > max)
-                        influenceTeam = t;
-                    else if (count == max)
-                        if (p.getTeam() == motherNatureIsland.getTeam())                        //If two teams got same influence, the previous influence lead is preserved
-                            influenceTeam = t;
-                    count = 0;
-                }
-            }
-        }
-        if(influenceTeam!=motherNatureIsland.getTeam()) {
-            for(Player p:players) {
-                if (influenceTeam == p.getTeam() && p.getSchoolBoard().getMaxTowers() > 0)      //Add towers of influence team
-                    p.getSchoolBoard().modifyTowers(motherNatureIsland.getTowers());
-                if (motherNatureIsland.getTeam() == p.getTeam() && p.getSchoolBoard().getMaxTowers() >0)
-                    p.getSchoolBoard().modifyTowers(motherNatureIsland.getTowers()*-1);     //Remove towers of the team who lost influence
-            }
-            motherNatureIsland.setTeam(influenceTeam);
-        }
-
-
-    }
-
-    public void checkUnification(Island_Tile island, ArrayList<Island_Tile> islands)                                    //TODO: replace with checkAndMerge(?)
-    {
-        if(island.getTeam()==island.getNext().getTeam()) {
-            island.setNext(island.getNext().getNext());
-            island.setTowers(island.getTowers()+island.getNext().getTowers());
-            islands.remove(island.getNext());
-        }
-        if(island.getTeam()==island.getPrev().getTeam()) {
-            island.setPrev(island.getPrev().getPrev());
-            island.setTowers(island.getTowers()+island.getPrev().getTowers());
-            islands.remove(island.getPrev());
-        }
-    }
-
     public void moveStudentsToIsland(Player p, EnumMap<Colour,Integer> students , Island_Tile island_tile, TurnManager turnManager, int maxMoves) throws NotYourTurnException, MoveNotAllowedException, NotEnoughStudentsInEntranceException {
         if(p != turnManager.getCurrentPlayer())
             throw new NotYourTurnException("Can't execute this command, it's not the turn of player " + p.getName());

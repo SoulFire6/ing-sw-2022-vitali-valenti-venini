@@ -27,12 +27,4 @@ public class Cloud_Tile extends Tile {
         }
         this.setContents(contents);
     }
-    //Generates clouds for the game class
-    public static ArrayList<Cloud_Tile> genClouds(int num, int max) {
-        ArrayList<Cloud_Tile> res=new ArrayList<>();
-        for (int i=0; i<num; i++) {
-            res.add(new Cloud_Tile("Cloud_"+(i+1),max));
-        }
-        return res;
-    }
 }

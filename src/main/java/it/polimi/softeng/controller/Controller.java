@@ -10,46 +10,38 @@ public class Controller {
     private final TurnManager turnManager;
     private final CharCardController charCardController;
     private final AssistantCardController assistantCardController;
-    private final TileController islandController;
+    private final TileController tileController;
     private final PlayerController playerController;
     int remainingMoves,maxMoves;
 
     public Controller(ArrayList<String> playerNames, boolean expertMode) {
-        Random rand=new Random();
-        //TODO add better random game id generation
-        //this.game=new Game(rand.nextInt(10000)+"_2022");
         this.game=createGame(playerNames,expertMode);
-        turnManager = new TurnManager(game.getPlayers());
-        assistantCardController = new AssistantCardController();
-        islandController = new TileController();
-        playerController = new PlayerController();
+        this.turnManager = new TurnManager(game.getPlayers());
+        this.assistantCardController = new AssistantCardController();
+        this.tileController = new TileController();
+        this.playerController = new PlayerController();
         if(expertMode) {
-            charCardController = new CharCardController();
+            this.charCardController = new CharCardController();
         } else {
-            charCardController = null;
+            this.charCardController = null;
         }
-
-        maxMoves = remainingMoves = game.getClouds().get(0).getMaxSlots();
+        this.maxMoves = this.remainingMoves = game.getClouds().get(0).getMaxSlots();
     }
     public Game createGame(ArrayList<String> playerNames,boolean expertMode) {
+        Game game;
         //TODO: complete method
-        Game g;
-        final int bagFill =26;
-        final int islandNum =12;
-        int cloudNum;
-        final int coins = 20;
-        final int charCardNum = 3;
-        if(playerNames.size()==2||playerNames.size()==4)
-            cloudNum=3;
-        else
-            cloudNum=4;
-        ArrayList<Player> players = PlayerController.genTeams(playerNames);
-        if(expertMode)
-            g = new Game("GameID", players, bagFill, cloudNum,cloudNum,islandNum,coins, charCardController.genNewCharacterCards(charCardNum) );
-        else
-            g = new Game("GameID", players, bagFill, cloudNum,cloudNum,islandNum);
-        return g;
+        Bag_Tile bag=new Bag_Tile(26);
+        ArrayList<Player> players = playerController.genPlayers(playerNames);
+        for (Player p: players) {
+            p.setSchoolBoard(new SchoolBoard_Tile(p.getName(),10,8-2+(playerNames.size()-2),8,assistantCardController.genHand(null),expertMode?1:0));
+        }
+        ArrayList<Team> teams = playerController.getTeams(players);
+        ArrayList<Island_Tile> islands = tileController.genIslands(12,bag);
+        ArrayList<Cloud_Tile> clouds = tileController.genClouds(playerNames.size(),3+playerNames.size()%2,bag);
+        game = new Game("Game",players,teams,bag,clouds,islands,expertMode,expertMode?20:0,expertMode?charCardController.genNewCharacterCards(3):null);
+        return game;
     }
+
     public void playAssistantCard(Player p, AssistantCard assistantCard) throws NotYourTurnException, AssistantCardNotFoundException, MoveNotAllowedException {
         assistantCardController.playAssistantCard(p,assistantCard,turnManager);
     }
@@ -60,11 +52,12 @@ public class Controller {
     }
 
     public void moveStudentsToIsland(Player p, EnumMap<Colour,Integer> students , Island_Tile island_tile) throws NotYourTurnException, NotEnoughStudentsInEntranceException, MoveNotAllowedException {
-        islandController.moveStudentsToIsland(p,students,island_tile,turnManager,game.getClouds().get(0).getMaxSlots());
+        tileController.moveStudentsToIsland(p,students,island_tile,turnManager,game.getClouds().get(0).getMaxSlots());
     }
 
-    public void moveMotherNature(Player p, int n) throws NotYourTurnException, MoveNotAllowedException, MotherNatureValueException {
-        islandController.moveMotherNature(p,n,turnManager, game.getIslands());
+    public void moveMotherNature(Player p, int n) /*throws NotYourTurnException, MoveNotAllowedException, MotherNatureValueException*/ {
+        //TODO: update
+        // tileController.moveMotherNature(p,n,turnManager, game.getIslands());
     }
 
     public void cloudDraw(Player p, Cloud_Tile cloud_tile) throws NotYourTurnException, EmptyCloudTileException, MoveNotAllowedException {

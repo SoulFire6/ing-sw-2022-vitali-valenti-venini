@@ -12,11 +12,12 @@ import static org.junit.Assert.assertFalse;
 public class SchoolBoardTest {
     @Test
     public void testSchoolBoardConstructor() {
+        AssistantCardController assistantCardController=new AssistantCardController();
         String testPlayerName="test";
         int testMaxEntranceSlots=7;
         int testTowers=8;
         int testMaxTowers=8;
-        ArrayList<AssistantCard> testHand=AssistantCardController.genHand(null);
+        ArrayList<AssistantCard> testHand=assistantCardController.genHand(null);
         int testCoins=0;
         SchoolBoard_Tile schoolBoard=new SchoolBoard_Tile(testPlayerName,testMaxEntranceSlots,testTowers,testMaxTowers,testHand,testCoins);
         assertTrue(schoolBoard.getTileID().contains(testPlayerName));
@@ -116,7 +117,8 @@ public class SchoolBoardTest {
     }
     @Test
     public void testPlayAssistantCard() {
-        ArrayList<AssistantCard> hand=AssistantCardController.genHand(null);
+        AssistantCardController assistantCardController=new AssistantCardController();
+        ArrayList<AssistantCard> hand=assistantCardController.genHand(null);
         SchoolBoard_Tile schoolBoard=new SchoolBoard_Tile("test",0,0,0,hand,0);
         AssistantCard testCard;
         int currentHandSize=schoolBoard.getHand().size();

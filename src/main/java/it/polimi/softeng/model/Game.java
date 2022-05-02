@@ -7,32 +7,23 @@ import java.util.ArrayList;
 
 public class Game {
     private final String gameID;
-    private final int diningRoomMaxCapacity;
     private final ArrayList<Player> players;
-    private ArrayList<Team> teams;
-    private Bag_Tile bag;
-    private ArrayList<Cloud_Tile> clouds;
-    private ArrayList<Island_Tile> islands;
-    private boolean expertMode;
+    private final ArrayList<Team> teams;
+    private final Bag_Tile bag;
+    private final ArrayList<Cloud_Tile> clouds;
+    private final ArrayList<Island_Tile> islands;
+    private final boolean expertMode;
     private int coins;
-    private ArrayList<CharacterCard> characterCards;
+    private final ArrayList<CharacterCard> characterCards;
 
-    //Normal game constructor
-    public Game(String gameID, ArrayList<Player> players, int bagFill, int cloudNum, int cloudMax, int islandNum) {
+    public Game(String gameID, ArrayList<Player> players, ArrayList<Team> teams, Bag_Tile bag, ArrayList<Cloud_Tile> clouds, ArrayList<Island_Tile> islands, boolean expertMode, int coins, ArrayList<CharacterCard> characterCards) {
         this.gameID=gameID;
         this.players=players;
-        this.teams= PlayerController.getTeams(this.players);
-        this.bag=new Bag_Tile(bagFill);
-        this.clouds=Cloud_Tile.genClouds(cloudNum,cloudMax);
-        this.islands= TileController.genIslands(islandNum,bag);
-        this.expertMode=false;
-        this.diningRoomMaxCapacity =10;
-    }
-
-    //Expert game constructor
-    public Game(String gameID, ArrayList<Player> players,int bagFill, int cloudNum, int cloudMax,int islandNum, int coins, ArrayList<CharacterCard> characterCards) {
-        this(gameID,players,bagFill,cloudNum,cloudMax,islandNum);
-        this.expertMode=true;
+        this.teams=teams;
+        this.bag=bag;
+        this.clouds=clouds;
+        this.islands=islands;
+        this.expertMode=expertMode;
         this.coins=coins;
         this.characterCards=characterCards;
     }
@@ -61,26 +52,12 @@ public class Game {
         return this.expertMode;
     }
     public int getCoins() {
-        if (this.expertMode) {
-            return this.coins;
-        } else {
-            //System.out.println("Game is not in expert mode");
-            return -1;
-        }
+        return this.coins;
     }
     public void setCoins(int coins) {
         this.coins=coins;
     }
     public ArrayList<CharacterCard> getCharacterCards() {
-        if (this.expertMode) {
-            return this.characterCards;
-        } else {
-            //System.out.println("Game is not in expert mode");
-            return null;
-        }
-    }
-    public int getDiningRoomMaxCapacity()
-    {
-        return diningRoomMaxCapacity;
+        return this.characterCards;
     }
 }

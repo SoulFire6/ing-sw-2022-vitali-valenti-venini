@@ -7,7 +7,7 @@ import java.util.*;
 
 public class PlayerController {
 
-    public static ArrayList<Player> genTeams(ArrayList<String> playerNames) {
+    public ArrayList<Player> genPlayers(ArrayList<String> playerNames) {
         Random rand=new Random();
         ArrayList<Player> players=new ArrayList<>();
         int playerNum=playerNames.size();
@@ -41,7 +41,7 @@ public class PlayerController {
         }
         return players;
     }
-    public static ArrayList<Team> getTeams(ArrayList<Player> players) {
+    public ArrayList<Team> getTeams(ArrayList<Player> players) {
         ArrayList<Team> teams= new ArrayList<>();
         for (Player p: players) {
             if (!teams.contains(p.getTeam())) {
@@ -50,6 +50,7 @@ public class PlayerController {
         }
         return teams;
     }
+
     public static ArrayList<Player> getPlayersOnTeam(ArrayList<Player> players, Team t) {
         ArrayList<Player> res=new ArrayList<>();
         for (Player p: players) {
@@ -98,7 +99,7 @@ public class PlayerController {
             if(students.get(c) > turnManager.getCurrentPlayer().getSchoolBoard().getContents().get(c))
                 throw new NotEnoughStudentsInEntranceException("Error. Not enough students in the entrance");
 
-            if(students.get(c) > (game.getDiningRoomMaxCapacity()-p.getSchoolBoard().getDiningRoomAmount(c)))
+            if(students.get(c) > (10-p.getSchoolBoard().getDiningRoomAmount(c)))
                 throw new NotEnoughSpaceInDiningRoomException("Error. Not enough space in the dining room");
         }
 
