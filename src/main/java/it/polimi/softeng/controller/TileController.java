@@ -8,7 +8,7 @@ import it.polimi.softeng.model.*;
 
 import java.util.*;
 
-public class IslandController {
+public class TileController {
 
     public static ArrayList<Island_Tile> genIslands(int num, Bag_Tile bag) {
         ArrayList<Island_Tile> islands=new ArrayList<>();

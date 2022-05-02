@@ -1,6 +1,6 @@
 package it.polimi.softeng.model;
 
-import it.polimi.softeng.controller.IslandController;
+import it.polimi.softeng.controller.TileController;
 import it.polimi.softeng.controller.PlayerController;
 
 import java.util.ArrayList;
@@ -8,7 +8,6 @@ import java.util.ArrayList;
 public class Game {
     private final String gameID;
     private final int diningRoomMaxCapacity;
-    private final int playerNum;
     private final ArrayList<Player> players;
     private ArrayList<Team> teams;
     private Bag_Tile bag;
@@ -21,12 +20,11 @@ public class Game {
     //Normal game constructor
     public Game(String gameID, ArrayList<Player> players, int bagFill, int cloudNum, int cloudMax, int islandNum) {
         this.gameID=gameID;
-        this.playerNum=players.size();
         this.players=players;
         this.teams= PlayerController.getTeams(this.players);
         this.bag=new Bag_Tile(bagFill);
         this.clouds=Cloud_Tile.genClouds(cloudNum,cloudMax);
-        this.islands=IslandController.genIslands(islandNum,bag);
+        this.islands= TileController.genIslands(islandNum,bag);
         this.expertMode=false;
         this.diningRoomMaxCapacity =10;
     }
@@ -42,7 +40,7 @@ public class Game {
         return this.gameID;
     }
     public int getPlayerNum() {
-        return this.playerNum;
+        return this.players.size();
     }
     public ArrayList<Player> getPlayers() {
         return this.players;

@@ -3,26 +3,32 @@ package it.polimi.softeng.controller;
 import it.polimi.softeng.controller.Exceptions.*;
 import it.polimi.softeng.model.*;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Controller {
     private final Game game;
-    TurnManager turnManager;
-    CharCardController charCardController;
-    AssistantCardController assistantCardController;
-    IslandController islandController;
-    PlayerController playerController;
+    private final TurnManager turnManager;
+    private final CharCardController charCardController;
+    private final AssistantCardController assistantCardController;
+    private final TileController islandController;
+    private final PlayerController playerController;
     int remainingMoves,maxMoves;
 
     public Controller(ArrayList<String> playerNames, boolean expertMode) {
+        Random rand=new Random();
+        //TODO add better random game id generation
+        //this.game=new Game(rand.nextInt(10000)+"_2022");
         this.game=createGame(playerNames,expertMode);
         turnManager = new TurnManager(game.getPlayers());
         assistantCardController = new AssistantCardController();
-        islandController = new IslandController();
+        islandController = new TileController();
         playerController = new PlayerController();
-        if(expertMode)
+        if(expertMode) {
             charCardController = new CharCardController();
+        } else {
+            charCardController = null;
+        }
+
         maxMoves = remainingMoves = game.getClouds().get(0).getMaxSlots();
     }
     public Game createGame(ArrayList<String> playerNames,boolean expertMode) {
