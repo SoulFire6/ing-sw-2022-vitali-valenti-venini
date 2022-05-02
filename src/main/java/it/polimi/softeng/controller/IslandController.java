@@ -1,10 +1,15 @@
 package it.polimi.softeng.controller;
 
+import it.polimi.softeng.controller.Exceptions.MotherNatureValueException;
+import it.polimi.softeng.controller.Exceptions.MoveNotAllowedException;
+import it.polimi.softeng.controller.Exceptions.NotEnoughStudentsInEntranceException;
+import it.polimi.softeng.controller.Exceptions.NotYourTurnException;
 import it.polimi.softeng.model.*;
 
 import java.util.*;
 
 public class IslandController {
+
     public static ArrayList<Island_Tile> genIslands(int num, Bag_Tile bag) {
         ArrayList<Island_Tile> islands=new ArrayList<>();
         ArrayList<String> initialisedIslands=new ArrayList<>();
@@ -50,6 +55,121 @@ public class IslandController {
         }
         return islands;
     }
+
+    public void moveMotherNature(Player p, int n, TurnManager turnManager, ArrayList<Island_Tile> islands) throws NotYourTurnException, MotherNatureValueException, MoveNotAllowedException {
+        if(p != turnManager.getCurrentPlayer())
+            throw new NotYourTurnException("Can't execute this command, it's not the turn of player " + p.getName());
+
+        if(n>p.getSchoolBoard().getLastUsedCard().getMotherNatureValue())
+            throw new MotherNatureValueException("Error. The given number is too high");
+
+        if(turnManager.getTurnState()!= TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE)
+            throw new MoveNotAllowedException("Error. Operation not allowed");
+
+        Island_Tile oldMotherNatureIsland = null;
+        Island_Tile newMotherNatureIsland;
+
+        for(Island_Tile island : islands)                   //loop that assigns to oldMotherNatureIsland the actual MotherNature Island_Tile
+            if(island.getMotherNature()) {
+                oldMotherNatureIsland = island;
+                break;
+            }
+        newMotherNatureIsland = oldMotherNatureIsland;
+
+        for(int i=0;i<n;i++)                                //loop that positions newMotherNatureIsland to the wanted Island
+            newMotherNatureIsland = newMotherNatureIsland.getNext();
+        oldMotherNatureIsland.setMotherNature(false);       //MotherNature attribute on the Island_Tile gets changed
+        newMotherNatureIsland.setMotherNature(true);
+        checkInfluence(newMotherNatureIsland, turnManager.getPlayerOrder());
+        checkUnification(newMotherNatureIsland, islands);
+        turnManager.nextAction();
+    }
+
+    public void checkInfluence(Island_Tile motherNatureIsland, ArrayList<Player> players)                               //TODO: replace with calculateInfluence(?)
+    {
+        int max=0, count=0;
+        Team influenceTeam=null;
+        EnumMap<Colour,Integer> content = motherNatureIsland.getContents();
+        for(Team t : PlayerController.getTeams(players)) {
+            for (Player p : players) {
+                if (p.getTeam() == t) {
+                    for (Colour c : Colour.values()) {
+                        if (p.getSchoolBoard().getProfessor(c))
+                            count += content.get(c);
+                    }
+                    if (p.getTeam() == motherNatureIsland.getTeam() && p.getSchoolBoard().getMaxTowers()>0)         //if player's team controls the island and if the player is the one of the team with towers on the board
+                        count += motherNatureIsland.getTowers();                                 //towers count as additional influence
+                    if (count > max)
+                        influenceTeam = t;
+                    else if (count == max)
+                        if (p.getTeam() == motherNatureIsland.getTeam())                        //If two teams got same influence, the previous influence lead is preserved
+                            influenceTeam = t;
+                    count = 0;
+                }
+            }
+        }
+        if(influenceTeam!=motherNatureIsland.getTeam()) {
+            for(Player p:players) {
+                if (influenceTeam == p.getTeam() && p.getSchoolBoard().getMaxTowers() > 0)      //Add towers of influence team
+                    p.getSchoolBoard().modifyTowers(motherNatureIsland.getTowers());
+                if (motherNatureIsland.getTeam() == p.getTeam() && p.getSchoolBoard().getMaxTowers() >0)
+                    p.getSchoolBoard().modifyTowers(motherNatureIsland.getTowers()*-1);     //Remove towers of the team who lost influence
+            }
+            motherNatureIsland.setTeam(influenceTeam);
+        }
+
+
+    }
+
+    public void checkUnification(Island_Tile island, ArrayList<Island_Tile> islands)                                    //TODO: replace with checkAndMerge(?)
+    {
+        if(island.getTeam()==island.getNext().getTeam()) {
+            island.setNext(island.getNext().getNext());
+            island.setTowers(island.getTowers()+island.getNext().getTowers());
+            islands.remove(island.getNext());
+        }
+        if(island.getTeam()==island.getPrev().getTeam()) {
+            island.setPrev(island.getPrev().getPrev());
+            island.setTowers(island.getTowers()+island.getPrev().getTowers());
+            islands.remove(island.getPrev());
+        }
+    }
+
+    public void moveStudentsToIsland(Player p, EnumMap<Colour,Integer> students , Island_Tile island_tile, TurnManager turnManager, int maxMoves) throws NotYourTurnException, MoveNotAllowedException, NotEnoughStudentsInEntranceException {
+        if(p != turnManager.getCurrentPlayer())
+            throw new NotYourTurnException("Can't execute this command, it's not the turn of player " + p.getName());
+
+        if(turnManager.getTurnState()!= TurnManager.TurnState.MOVE_STUDENTS_PHASE)
+            throw new MoveNotAllowedException("Error. Operation not allowed");
+
+        for(Colour c : Colour.values())
+            if(students.get(c) > turnManager.getCurrentPlayer().getSchoolBoard().getContents().get(c))
+                throw new NotEnoughStudentsInEntranceException("Error. Not enough students present in the entrance");
+
+        int movesRequested=0;
+        int entranceDiscs=0;
+        for(Colour c: Colour.values())
+            entranceDiscs+=p.getSchoolBoard().getContents().get(c);
+
+        int remainingMoves = maxMoves - p.getSchoolBoard().getMaxExntranceSlots() + entranceDiscs;             //entranceDiscs maxSlots - removedDiscs
+
+        for(Colour c : Colour.values())                 //count number of students that the player wants to insert
+            movesRequested+=students.get(c);
+
+        if(movesRequested>remainingMoves)
+            throw new NotEnoughStudentsInEntranceException("Error. You can move only up to" +remainingMoves +" students");
+        island_tile.addStudents(students);
+        for(Colour c : Colour.values()) {
+            p.getSchoolBoard().removeColour(c, students.get(c));
+            remainingMoves--;
+        }
+
+        if(remainingMoves==0)
+            turnManager.nextAction();
+
+    }
+
+
     //NORMAL: charController and cards are null, otherwise calculates with EXPERT mode rules
     public Team calculateInfluence(Player conqueringPlayer, Island_Tile island, ArrayList<Player> players, CharCardController charController,  ArrayList<CharacterCard> cards) {
         Team conqueringTeam=conqueringPlayer.getTeam();
@@ -108,4 +228,6 @@ public class IslandController {
         }
         return islands;
     }
+
+
 }

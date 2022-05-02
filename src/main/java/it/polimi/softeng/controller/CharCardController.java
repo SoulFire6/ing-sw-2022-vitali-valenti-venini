@@ -1,5 +1,7 @@
 package it.polimi.softeng.controller;
 
+import it.polimi.softeng.controller.Exceptions.CharacterCardNotFoundException;
+import it.polimi.softeng.controller.Exceptions.NotEnoughCoinsException;
 import it.polimi.softeng.model.*;
 import it.polimi.softeng.model.CharacterCardSubTypes.ColourBooleanMap_CharCard;
 import it.polimi.softeng.model.CharacterCardSubTypes.ColourPlayerMap_CharCard;
@@ -15,6 +17,7 @@ import java.util.Random;
 
 public class CharCardController {
     private static final String CARD_DATA_PATH="src/main/resources/CardData/CharacterCards.csv";
+
     private enum CharID {
         MONK,HERALD,MAGICPOSTMAN,GRANDMAHERBS,CENTAUR,JESTER,KNIGHT,SHROOMVENDOR,MINSTREL,SPOILEDPRINCESS,THIEF,FARMER;
         //describes whether character card is in current game, this is for extra security
@@ -26,6 +29,7 @@ public class CharCardController {
             this.inPlay=false;
         }
     }
+
     public CharID getCharCardID(CharacterCard card) {
         try {
             return CharID.valueOf(card.getCardID().toUpperCase());
@@ -34,20 +38,22 @@ public class CharCardController {
             return null;
         }
     }
-    public boolean activateCard(CharacterCard card) {
-        try {
-            CharID id=CharID.valueOf(card.getCardID().toUpperCase());
-            if (id.inPlay && !id.active) {
-                id.active=true;
-                return true;
-            } else {
-                return false;
-            }
+    public void activateCard(Player p, CharacterCard card, Game game) throws CharacterCardNotFoundException, NotEnoughCoinsException {
+        if(!game.getCharacterCards().contains(card))
+            throw new CharacterCardNotFoundException("Error. Character card not in play.");
+        if(card.getCost()>p.getSchoolBoard().getCoins())
+            throw new NotEnoughCoinsException("Error. Not enough coins.");
+
+        CharID id=CharID.valueOf(card.getCardID().toUpperCase());
+        if (id.inPlay && !id.active)
+            id.active=true;
+        else
+            throw new CharacterCardNotFoundException("Error. Character card can't be played");
+
         }
-        catch (IllegalArgumentException iae) {
-            return false;
-        }
-    }
+
+
+
     //Deactivates all cards (to be use at end of turn when effect for all cards ends)
     public void deactivateAllCards(ArrayList<CharacterCard> cards) {
         for (CharID id: CharID.values()) {
