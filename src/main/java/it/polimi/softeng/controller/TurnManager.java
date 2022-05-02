@@ -29,17 +29,36 @@ public class TurnManager {
         turnState = TurnState.STUDENTS_DRAW_PHASE;
     }
 
-    public void nextPlayer()
+    public void nextAction()
     {
-        if(currentPlayer.equals(playerOrder.get(playerOrder.size()-1)))    //currentPlayer is the last player of the list
-            if(turnState==TurnState.CHOOSE_CLOUD_TILE_PHASE)        //last phase of the Turn
-                refreshTurnOrder();
-            else {                                                          //last player of playerOrder ended turn not in the last phase
-                currentPlayer = playerOrder.get(0);                         //currentPlayer becomes the first of the List
-                setNextAction();
+        if(turnState==TurnState.CHOOSE_CLOUD_TILE_PHASE)                    //last phase of the Turn
+            if (currentPlayer.equals(playerOrder.get(playerOrder.size() - 1)))    //currentPlayer is the last player of the list
+            {
+                currentPlayer = getNextPlayer();
+                turnState = TurnState.STUDENTS_DRAW_PHASE;
+            } else {                                                          //last player of playerOrder ended turn not in the last phase
+                currentPlayer = getNextPlayer();                        //currentPlayer becomes the first of the List
+                turnState = TurnState.MOVE_STUDENTS_PHASE;
             }
-        else                                                                //currentPlayer is not the last one
-            currentPlayer = playerOrder.get(playerOrder.indexOf(currentPlayer)+1);
+        else if (turnState == TurnState.ASSISTANT_CARDS_PHASE) {
+                if (currentPlayer.equals(playerOrder.get(playerOrder.size() - 1)))
+                    refreshTurnOrder();
+                else {
+                    currentPlayer = getNextPlayer();
+                    turnState = TurnState.STUDENTS_DRAW_PHASE;
+                }
+            }
+
+        else
+            setNextAction();
+
+
+    }
+
+    public Player getNextPlayer()
+    {
+        int currentIndex = playerOrder.indexOf(currentPlayer);
+        return (playerOrder.get((currentIndex+1)% playerOrder.size()));     //return the next player
     }
 
     public void refreshTurnOrder()          //This method is called after the whole round is finished
@@ -48,7 +67,7 @@ public class TurnManager {
             playerOrder.sort((p1, p2) -> Integer.compare(p2.getSchoolBoard().getLastUsedCard().getTurnValue(), p1.getSchoolBoard().getLastUsedCard().getTurnValue()));
 
         currentPlayer=playerOrder.get(0);
-        turnState = TurnState.STUDENTS_DRAW_PHASE;
+        turnState = TurnState.MOVE_STUDENTS_PHASE;
     }
 
 
