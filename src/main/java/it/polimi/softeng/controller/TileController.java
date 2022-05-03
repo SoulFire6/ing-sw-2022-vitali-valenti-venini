@@ -1,12 +1,11 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.controller.Exceptions.MotherNatureValueException;
-import it.polimi.softeng.controller.Exceptions.MoveNotAllowedException;
-import it.polimi.softeng.controller.Exceptions.NotEnoughStudentsInEntranceException;
-import it.polimi.softeng.controller.Exceptions.NotYourTurnException;
+import it.polimi.softeng.exceptions.MotherNatureValueException;
+import it.polimi.softeng.exceptions.MoveNotAllowedException;
+import it.polimi.softeng.exceptions.NotEnoughStudentsInEntranceException;
+import it.polimi.softeng.exceptions.NotYourTurnException;
 import it.polimi.softeng.model.*;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class TileController {

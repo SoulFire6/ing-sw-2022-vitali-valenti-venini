@@ -1,7 +1,7 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.controller.Exceptions.CharacterCardNotFoundException;
-import it.polimi.softeng.controller.Exceptions.NotEnoughCoinsException;
+import it.polimi.softeng.exceptions.CharacterCardNotFoundException;
+import it.polimi.softeng.exceptions.NotEnoughCoinsException;
 import it.polimi.softeng.model.*;
 import it.polimi.softeng.model.CharacterCardSubTypes.ColourBooleanMap_CharCard;
 import it.polimi.softeng.model.CharacterCardSubTypes.ColourPlayerMap_CharCard;

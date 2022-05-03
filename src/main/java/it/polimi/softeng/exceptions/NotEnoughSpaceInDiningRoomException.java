@@ -1,4 +1,4 @@
-package it.polimi.softeng.controller.Exceptions;
+package it.polimi.softeng.exceptions;
 
 public class NotEnoughSpaceInDiningRoomException extends Exception{
     public NotEnoughSpaceInDiningRoomException(String message)

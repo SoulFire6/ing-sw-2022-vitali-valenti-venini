@@ -1,4 +1,4 @@
-package it.polimi.softeng.controller.Exceptions;
+package it.polimi.softeng.exceptions;
 
 public class Exception extends Throwable{
     boolean CLI;                            //TODO: CLI/GUI

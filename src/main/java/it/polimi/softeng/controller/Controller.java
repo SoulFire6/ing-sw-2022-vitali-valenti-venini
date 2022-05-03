@@ -1,6 +1,6 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.controller.Exceptions.*;
+import it.polimi.softeng.exceptions.*;
 import it.polimi.softeng.model.*;
 
 import java.util.*;
@@ -41,7 +41,7 @@ public class Controller {
         game = new Game("Game",players,teams,bag,clouds,islands,expertMode,expertMode?20:0,expertMode?charCardController.genNewCharacterCards(3):null);
         return game;
     }
-
+    /*
     public void playAssistantCard(Player p, AssistantCard assistantCard) throws NotYourTurnException, AssistantCardNotFoundException, MoveNotAllowedException {
         assistantCardController.playAssistantCard(p,assistantCard,turnManager);
     }
@@ -55,9 +55,8 @@ public class Controller {
         tileController.moveStudentsToIsland(p,students,island_tile,turnManager,game.getClouds().get(0).getMaxSlots());
     }
 
-    public void moveMotherNature(Player p, int n) /*throws NotYourTurnException, MoveNotAllowedException, MotherNatureValueException*/ {
-        //TODO: update
-        // tileController.moveMotherNature(p,n,turnManager, game.getIslands());
+    public void moveMotherNature(Player p, int n) throws NotYourTurnException, MoveNotAllowedException, MotherNatureValueException {
+        tileController.moveMotherNature(p,n,turnManager, game.getIslands());
     }
 
     public void cloudDraw(Player p, Cloud_Tile cloud_tile) throws NotYourTurnException, EmptyCloudTileException, MoveNotAllowedException {
@@ -67,11 +66,8 @@ public class Controller {
     public void moveStudentsToDiningRoom(Player p, EnumMap<Colour,Integer> students) throws NotEnoughStudentsInEntranceException, NotEnoughSpaceInDiningRoomException, NotYourTurnException, MoveNotAllowedException {
         playerController.moveStudentsToDiningRoom(p,students,turnManager,game, game.getClouds().get(0).getMaxSlots());          //last parameter is the num of student discs that one player can move per turn
     }
-
-    public Game getGame()
-    {
-        return game;
-    }
+        TODO: condense into message parser
+    */
 
 
 

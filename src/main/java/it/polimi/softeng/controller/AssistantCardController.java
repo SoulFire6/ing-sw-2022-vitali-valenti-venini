@@ -1,8 +1,8 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.controller.Exceptions.AssistantCardNotFoundException;
-import it.polimi.softeng.controller.Exceptions.MoveNotAllowedException;
-import it.polimi.softeng.controller.Exceptions.NotYourTurnException;
+import it.polimi.softeng.exceptions.AssistantCardNotFoundException;
+import it.polimi.softeng.exceptions.MoveNotAllowedException;
+import it.polimi.softeng.exceptions.NotYourTurnException;
 import it.polimi.softeng.model.AssistantCard;
 import it.polimi.softeng.model.Player;
 
