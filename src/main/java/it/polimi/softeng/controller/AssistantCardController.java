@@ -1,5 +1,6 @@
 package it.polimi.softeng.controller;
 
+import it.polimi.softeng.exceptions.AssistantCardAlreadyPlayedException;
 import it.polimi.softeng.exceptions.AssistantCardNotFoundException;
 import it.polimi.softeng.exceptions.MoveNotAllowedException;
 import it.polimi.softeng.exceptions.NotYourTurnException;
@@ -38,24 +39,24 @@ public class AssistantCardController {
         return res;
     }
 
-    public void playAssistantCard(Player p, AssistantCard assistantCard, TurnManager turnManager) throws NotYourTurnException, AssistantCardNotFoundException, MoveNotAllowedException {
-
-        if(p != turnManager.getCurrentPlayer())
-            throw new NotYourTurnException("Can't execute this command, it's not the turn of player " + p.getName());
-        if(!p.getSchoolBoard().getHand().contains(assistantCard))
-            throw new AssistantCardNotFoundException("Error. Card " + assistantCard.getCardID() + "can't be found in " + p.getName() + "'s hand");
-        if(turnManager.getTurnState()!= TurnManager.TurnState.ASSISTANT_CARDS_PHASE)
-            throw new MoveNotAllowedException("Error. Operation not allowed");
-
-        if(p.getSchoolBoard().getHand().size()>1)       //if the Player p hasn't just one card we check cards played by other players in this round
-        {
-            ArrayList<Player> previousPlayers = (ArrayList<Player>) turnManager.getPlayerOrder().subList(0,turnManager.getPlayerOrder().indexOf(p));
-            for(Player player : previousPlayers)
-                if(player.getSchoolBoard().getLastUsedCard().getTurnValue() == assistantCard.getTurnValue())
-                    System.out.println("Error. Play another card");
+    public void playAssistantCard(Player p, String assistID, TurnManager turnManager) throws AssistantCardNotFoundException, AssistantCardAlreadyPlayedException {
+        AssistantCard playedCard=null;
+        for (AssistantCard card: p.getSchoolBoard().getHand()) {
+            if (card.getCardID().equals(assistID)) {
+                playedCard=card;
+            }
         }
-
-        p.getSchoolBoard().playAssistantCard(assistantCard.getCardID());
+        if (playedCard==null) {
+            throw new AssistantCardNotFoundException("Could not find assistant card with id "+ assistID);
+        }
+        ArrayList<AssistantCard> previousPlayedCards= new ArrayList<>();
+        for (Player player: turnManager.getPlayerOrder().subList(0,turnManager.getPlayerOrder().indexOf(p))) {
+            previousPlayedCards.add(player.getSchoolBoard().getLastUsedCard());
+        }
+        if (p.getSchoolBoard().getHand().size()>1 && previousPlayedCards.contains(playedCard)) {
+            throw new AssistantCardAlreadyPlayedException(assistID+" was already played this turn");
+        }
+        p.getSchoolBoard().playAssistantCard(playedCard.getCardID());
         turnManager.nextAction();
     }
 

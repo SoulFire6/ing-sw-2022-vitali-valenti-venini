@@ -11,7 +11,7 @@ public class TurnManager {
     private Player currentPlayer;
 
 
-    enum TurnState {
+    public enum TurnState {
         STUDENTS_DRAW_PHASE,
         ASSISTANT_CARDS_PHASE,
         MOVE_STUDENTS_PHASE,

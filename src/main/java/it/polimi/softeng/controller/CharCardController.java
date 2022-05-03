@@ -38,21 +38,22 @@ public class CharCardController {
             return null;
         }
     }
-    public void activateCard(Player p, CharacterCard card, Game game) throws CharacterCardNotFoundException, NotEnoughCoinsException {
-        if(!game.getCharacterCards().contains(card))
-            throw new CharacterCardNotFoundException("Error. Character card not in play.");
-        if(card.getCost()>p.getSchoolBoard().getCoins())
-            throw new NotEnoughCoinsException("Error. Not enough coins.");
-
-        CharID id=CharID.valueOf(card.getCardID().toUpperCase());
-        if (id.inPlay && !id.active)
-            id.active=true;
-        else
-            throw new CharacterCardNotFoundException("Error. Character card can't be played");
-
+    public void activateCard(Player p,String charID, Game game) throws CharacterCardNotFoundException, NotEnoughCoinsException {
+        CharacterCard playedCard = null;
+        for (CharacterCard card : game.getCharacterCards()) {
+            if (card.getCardID().equals(charID)) {
+                playedCard = card;
+                break;
+            }
+        }
+        if (playedCard == null) {
+            throw new CharacterCardNotFoundException("Character with id " + charID + " is not in play");
+        }
+        if (p.getSchoolBoard().getCoins() < playedCard.getCost()) {
+            throw new NotEnoughCoinsException("Not enough coins (" + p.getSchoolBoard().getCoins() + "/" + playedCard.getCost() + ")");
         }
 
-
+    }
 
     //Deactivates all cards (to be use at end of turn when effect for all cards ends)
     public void deactivateAllCards(ArrayList<CharacterCard> cards) {

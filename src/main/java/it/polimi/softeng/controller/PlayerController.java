@@ -89,41 +89,17 @@ public class PlayerController {
         turnManager.nextAction();
     }
 
-    public void moveStudentsToDiningRoom(Player p, EnumMap<Colour,Integer> students, TurnManager turnManager, Game game, int maxMoves) throws NotYourTurnException, MoveNotAllowedException, NotEnoughStudentsInEntranceException, NotEnoughSpaceInDiningRoomException {
-        if(p != turnManager.getCurrentPlayer())
-            throw new NotYourTurnException("Can't execute this command, it's not the turn of player " + p.getName());
-
-        if(turnManager.getTurnState()!= TurnManager.TurnState.MOVE_STUDENTS_PHASE)
-            throw new MoveNotAllowedException("Error. Operation not allowed");
-
-        for(Colour c : Colour.values()) {
-            if(students.get(c) > turnManager.getCurrentPlayer().getSchoolBoard().getContents().get(c))
-                throw new NotEnoughStudentsInEntranceException("Error. Not enough students in the entrance");
-
-            if(students.get(c) > (10-p.getSchoolBoard().getDiningRoomAmount(c)))
-                throw new NotEnoughSpaceInDiningRoomException("Error. Not enough space in the dining room");
+    public void moveStudentToDiningRoom(Player p, Colour c, boolean expertMode) throws NotEnoughStudentsInEntranceException, NotEnoughSpaceInDiningRoomException {
+        if (p.getSchoolBoard().getContents().get(c)==0) {
+            throw new NotEnoughStudentsInEntranceException("Not enough "+c+" students in entrance");
         }
-
-        int entranceDiscs=0;                                //num of discs in the entrance
-        for(Colour c: Colour.values())
-            entranceDiscs+=p.getSchoolBoard().getContents().get(c);
-        int remainingMoves = maxMoves - p.getSchoolBoard().getMaxExntranceSlots() + entranceDiscs;
-
-        int movesRequested=0;
-        for(Colour c : Colour.values())                 //count number of students that the player wants to insert
-            movesRequested+=students.get(c);
-        if(movesRequested>remainingMoves)
-            throw new NotEnoughStudentsInEntranceException("Error. You can move only up to" +remainingMoves +" students");
-
-        for(Colour c : Colour.values())
-            for(int i=0;i<students.get(c);i++) {
-                p.getSchoolBoard().moveStudentToDiningRoom(c);
-                checkProfessorChange(c,p,game.getPlayers());
-                remainingMoves--;
-            }
-        if(remainingMoves==0)                           //if the exact number of moves has been completed by the player
-            turnManager.nextAction();
-
+        if (p.getSchoolBoard().getDiningRoomAmount(c)==10) {
+            throw new NotEnoughSpaceInDiningRoomException(c+" dining room is full");
+        }
+        p.getSchoolBoard().moveStudentToDiningRoom(c);
+        if (expertMode && p.getSchoolBoard().getDiningRoomAmount(c)%3==0) {
+            p.getSchoolBoard().setCoins(p.getSchoolBoard().getCoins()+1);
+        }
     }
 
     public void checkProfessorChange(Colour c, Player p,ArrayList<Player> players)
@@ -145,7 +121,7 @@ public class PlayerController {
         }
     }
 
-    public static void swapTeamTower(ArrayList<Player> players, Team winningTeam, Team losingTeam, int towerNum) {
+    public void swapTeamTower(ArrayList<Player> players, Team winningTeam, Team losingTeam, int towerNum) {
         if (players.size()==4) {
             ArrayList<Player> winningPlayers=getPlayersOnTeam(players,winningTeam);
             ArrayList<Player> losingPlayers=getPlayersOnTeam(players,losingTeam);

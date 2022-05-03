@@ -19,11 +19,11 @@ public class LobbyListener implements Runnable {
         Message inMessage;
         while (client.getSocket().isConnected()) {
             System.out.println("LISTENER ON");
-            client.printOut(MsgType.INPUT,lobbyName,"","Lobby is listening");
-            inMessage=client.getIn();
+            client.sendMessage(MsgType.INPUT,lobbyName,"","Lobby is listening");
+            inMessage=client.getMessage();
             if (inMessage!=null) {
                 messageQueue.add(inMessage);
-                client.printOut(MsgType.INPUT,lobbyName,"","Added message to queue: "+((Info_Message)inMessage).getInfo());
+                client.sendMessage(MsgType.INPUT,lobbyName,"","Added message to queue: "+((Info_Message)inMessage).getInfo());
                 //TODO: addControllerResponse
             }
         }

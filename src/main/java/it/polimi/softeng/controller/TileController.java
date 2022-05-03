@@ -1,9 +1,6 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.exceptions.MotherNatureValueException;
-import it.polimi.softeng.exceptions.MoveNotAllowedException;
-import it.polimi.softeng.exceptions.NotEnoughStudentsInEntranceException;
-import it.polimi.softeng.exceptions.NotYourTurnException;
+import it.polimi.softeng.exceptions.*;
 import it.polimi.softeng.model.*;
 
 import java.util.*;
@@ -66,33 +63,35 @@ public class TileController {
         }
         return clouds;
     }
-    public void moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards,TurnManager turnManager, ArrayList<Island_Tile> islands) throws NotYourTurnException, MotherNatureValueException, MoveNotAllowedException {
-        if(p != turnManager.getCurrentPlayer())
-            throw new NotYourTurnException("Can't execute this command, it's not the turn of player " + p.getName());
+    public void moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws MaxMoveAmountExceededException {
+        int maxAmount=p.getSchoolBoard().getLastUsedCard().getMotherNatureValue();
+        if (charCardController!=null && charCardController.getActiveStatus("MagicPostman")) {
+            maxAmount+=2;
+            //TODO: switch magic postman off and disable it from being played again
+        }
+        if (n>maxAmount) {
+            throw new MaxMoveAmountExceededException("Cannot move mother nature by "+n+" (Current max: "+maxAmount+")");
+        }
 
-        if(n>p.getSchoolBoard().getLastUsedCard().getMotherNatureValue())
-            throw new MotherNatureValueException("Error. The given number is too high");
+        //loop that assigns to oldMotherNatureIsland the actual MotherNature Island_Tile
+        for (Island_Tile island: islands) {
+            if (island.getMotherNature()) {
+                island.setMotherNature(false);
+                for (int i=0; i<n; i++) {
+                    island=island.getNext();
+                }
+                island.setMotherNature(true);
+                if (!island.getNoEntry()) {
+                    calculateInfluence(p,island,players,charCardController,cards,playerController);
+                    checkAndMerge(islands,island);
+                } /*else {
+                    //TODO: return no entry tile to grandma herbs
+                }
 
-        if(turnManager.getTurnState()!= TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE)
-            throw new MoveNotAllowedException("Error. Operation not allowed");
-
-        Island_Tile oldMotherNatureIsland = null;
-        Island_Tile newMotherNatureIsland;
-
-        for(Island_Tile island : islands)                   //loop that assigns to oldMotherNatureIsland the actual MotherNature Island_Tile
-            if(island.getMotherNature()) {
-                oldMotherNatureIsland = island;
+                */
                 break;
             }
-        newMotherNatureIsland = oldMotherNatureIsland;
-
-        for(int i=0;i<n;i++)                                //loop that positions newMotherNatureIsland to the wanted Island
-            newMotherNatureIsland = newMotherNatureIsland.getNext();
-        oldMotherNatureIsland.setMotherNature(false);       //MotherNature attribute on the Island_Tile gets changed
-        newMotherNatureIsland.setMotherNature(true);
-        calculateInfluence(p,newMotherNatureIsland,players,charCardController,cards);
-        checkAndMerge(islands,newMotherNatureIsland);
-        turnManager.nextAction();
+        }
     }
     public void moveStudentsToIsland(Player p, EnumMap<Colour,Integer> students , Island_Tile island_tile, TurnManager turnManager, int maxMoves) throws NotYourTurnException, MoveNotAllowedException, NotEnoughStudentsInEntranceException {
         if(p != turnManager.getCurrentPlayer())
@@ -128,9 +127,21 @@ public class TileController {
 
     }
 
+    public void refillEntranceFromCloud(Player p, String cloudID, ArrayList<Cloud_Tile> clouds) throws TileNotFoundException {
+        Cloud_Tile refillCloud=null;
+        for (Cloud_Tile cloud: clouds) {
+            if (cloud.getTileID().equals(cloudID)) {
+                refillCloud=cloud;
+            }
+        }
+        if (refillCloud==null) {
+            throw new TileNotFoundException("Cloud could not be found");
+        }
+        p.getSchoolBoard().fillEntrance(refillCloud);
+    }
 
     //NORMAL: charController and cards are null, otherwise calculates with EXPERT mode rules
-    public Team calculateInfluence(Player conqueringPlayer, Island_Tile island, ArrayList<Player> players, CharCardController charController,  ArrayList<CharacterCard> cards) {
+    public Team calculateInfluence(Player conqueringPlayer, Island_Tile island, ArrayList<Player> players, CharCardController charController,  ArrayList<CharacterCard> cards, PlayerController playerController) {
         Team conqueringTeam=conqueringPlayer.getTeam();
         Team currentTeam=island.getTeam();
         EnumMap<Team,Integer> teamInfluence=new EnumMap<>(Team.class);
@@ -167,7 +178,7 @@ public class TileController {
             }
         }
         island.setTeam(maxTeam);
-        //TODO: swap out towers (evenly among team members?)
+        playerController.swapTeamTower(players,maxTeam,island.getTeam(),island.getTowers());
         return maxTeam;
     }
     public static ArrayList<Island_Tile> checkAndMerge(ArrayList<Island_Tile> islands, Island_Tile island) {

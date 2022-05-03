@@ -25,7 +25,7 @@ public class LobbyClient {
     public Socket getSocket() {
         return this.socket;
     }
-    public Message getIn() {
+    public Message getMessage() {
         try {
             return (Message)this.in.readObject();
         }
@@ -33,13 +33,24 @@ public class LobbyClient {
             return null;
         }
     }
-    public void printOut(MsgType type, String lobbyName, String context, Object msg) {
+    public void sendMessage(MsgType type, String lobbyName, String context, Object msg) {
         try {
             this.out.writeObject(MessageCenter.genMessage(type,null,lobbyName,context,msg));
+            this.out.flush();
+            this.out.reset();
         }
         catch (IOException io) {
-            System.out.println("Error sending message to client");
+            System.out.println("Error sending message to "+username);
         }
-
+    }
+    public void sendMessage(Message message) {
+        try {
+            this.out.writeObject(message);
+            this.out.flush();
+            this.out.reset();
+        }
+        catch (IOException io) {
+            System.out.println("Error sending message to "+username);
+        }
     }
 }
