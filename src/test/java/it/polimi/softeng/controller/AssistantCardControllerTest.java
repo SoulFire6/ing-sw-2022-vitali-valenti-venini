@@ -1,11 +1,7 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.controller.Exceptions.AssistantCardNotFoundException;
-import it.polimi.softeng.controller.Exceptions.AssistantCardTurnValueException;
-import it.polimi.softeng.controller.Exceptions.MoveNotAllowedException;
-import it.polimi.softeng.controller.Exceptions.NotYourTurnException;
+import it.polimi.softeng.exceptions.*;
 import it.polimi.softeng.model.AssistantCard;
-import it.polimi.softeng.model.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AssistantCardControllerTest {
     AssistantCardController assistantCardController;
-    Controller controller, expertController;
+    LobbyController controller, expertController;
     ArrayList<AssistantCard> cards;
     @BeforeEach
     void setUp() {
@@ -27,29 +23,28 @@ class AssistantCardControllerTest {
         for (int i=0; i<testPlayerNum; i++) {
             playerNames.add("Player_"+i+1);
         }
-        controller = new Controller(playerNames,false);
-        expertController = new Controller(playerNames,true);
+        controller = new LobbyController(playerNames,false,"normal lobby");
+        expertController = new LobbyController(playerNames,true,"expert lobby");
     }
 
     @Test
     void genHand() {
-        cards = AssistantCardController.genHand(null);
+        AssistantCardController assistantCardController=new AssistantCardController();
+        cards = assistantCardController.genHand(null);
         assertEquals(10, cards.size());
         assertTrue(cards.contains(cards.get(0)));
     }
 
     @Test
-    void playAssistantCard() throws AssistantCardNotFoundException, AssistantCardTurnValueException, NotYourTurnException, MoveNotAllowedException {
-        cards = controller.turnManager.getCurrentPlayer().getSchoolBoard().getHand();
-        assertThrows(NotYourTurnException.class, ()->assistantCardController.playAssistantCard(controller.turnManager.getNextPlayer(), cards.get(0),controller.turnManager ));          //Trying to play a card in another player's turn
-        assertThrows(MoveNotAllowedException.class, ()->assistantCardController.playAssistantCard(controller.turnManager.getCurrentPlayer(),cards.get(0),controller.turnManager ));     //Trying to play a card in a not allowed phase
-        controller.turnManager.setNextAction();
-        assertDoesNotThrow(()->assistantCardController.playAssistantCard(controller.turnManager.getCurrentPlayer(),cards.get(0),controller.turnManager ));
-        assertEquals(controller.turnManager.getPlayerOrder().get(0).getSchoolBoard().getHand().size(),9);           //Verify that after getting played the card got removed
-        assertThrows(MoveNotAllowedException.class,()->assistantCardController.playAssistantCard(controller.turnManager.getCurrentPlayer(),cards.get(0),controller.turnManager ));       //Trying to play an already removed assistantcard
-        controller.turnManager.setNextAction();
-        cards = controller.turnManager.getCurrentPlayer().getSchoolBoard().getHand();
-        assertThrows(AssistantCardTurnValueException.class,()->assistantCardController.playAssistantCard(controller.turnManager.getCurrentPlayer(),cards.get(0),controller.turnManager ));//Trying to play card with same value of the card played by the other player in the same turn
-        assertDoesNotThrow(()->assistantCardController.playAssistantCard(controller.turnManager.getCurrentPlayer(),cards.get(1),controller.turnManager ));
+    void playAssistantCard() {
+        TurnManager turnManager=controller.getTurnManager();
+        cards = turnManager.getCurrentPlayer().getSchoolBoard().getHand();
+        turnManager.setNextAction();
+        assertDoesNotThrow(()->assistantCardController.playAssistantCard(turnManager.getCurrentPlayer(),cards.get(0).getCardID(),turnManager ));
+        assertEquals(turnManager.getPlayerOrder().get(0).getSchoolBoard().getHand().size(),9);           //Verify that after getting played the card got removed
+        turnManager.setNextAction();
+        cards = turnManager.getCurrentPlayer().getSchoolBoard().getHand();
+        assertThrows(AssistantCardAlreadyPlayedException.class,()->assistantCardController.playAssistantCard(turnManager.getCurrentPlayer(),cards.get(0).getCardID(),turnManager));//Trying to play card with same value of the card played by the other player in the same turn
+        assertDoesNotThrow(()->assistantCardController.playAssistantCard(turnManager.getCurrentPlayer(),cards.get(1).getCardID(),turnManager ));
     }
 }

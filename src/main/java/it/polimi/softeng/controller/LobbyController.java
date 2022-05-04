@@ -22,8 +22,6 @@ public class LobbyController {
 
     public LobbyController(ArrayList<String> playerNames, boolean expertMode, String lobbyName) {
         this.lobbyName=lobbyName;
-        this.game=createGame(playerNames,expertMode);
-        this.turnManager = new TurnManager(game.getPlayers());
         this.assistantCardController = new AssistantCardController();
         this.tileController = new TileController();
         this.playerController = new PlayerController();
@@ -32,6 +30,9 @@ public class LobbyController {
         } else {
             this.charCardController = null;
         }
+        this.game=createGame(playerNames,expertMode);
+        this.turnManager = new TurnManager(game.getPlayers());
+        //TODO move max turns into turn manager
         this.maxMoves = this.remainingMoves = game.getClouds().get(0).getMaxSlots();
     }
     public Game createGame(ArrayList<String> playerNames,boolean expertMode) {
@@ -49,6 +50,12 @@ public class LobbyController {
     }
     public Game getGame() {
         return this.game;
+    }
+    public TurnManager getTurnManager() {
+        return this.turnManager;
+    }
+    public AssistantCardController getAssistantCardController() {
+        return this.assistantCardController;
     }
     public Message parseMessage(Message inMessage) {
         MsgType type=inMessage.getSubType();
