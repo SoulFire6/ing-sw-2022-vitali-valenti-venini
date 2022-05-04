@@ -30,7 +30,7 @@ public class Lobby implements Runnable {
         System.out.println("LOBBY CREATED: "+lobbyName);
         setupLobby(clients.get(lobbyMaster));
         LobbyClient currentClient=clients.get(lobbyMaster);
-        currentClient.sendMessage(MsgType.TEXT,lobbyName,"Correct max player set","Set max players to "+maxPlayers);
+        currentClient.sendMessage(MsgType.TEXT,"Correct max player set","Set max players to "+maxPlayers);
         waitForOtherPlayers();
         //TODO add expertmode selection to lobby master
         setupGame(new ArrayList<>(this.clients.keySet()),false);
@@ -39,9 +39,9 @@ public class Lobby implements Runnable {
     }
 
     private void setupLobby(LobbyClient client) {
-        client.sendMessage(MsgType.TEXT,lobbyName,"Lobby welcome message","Welcome to the lobby");
+        client.sendMessage(MsgType.TEXT,"Lobby welcome message","Welcome to the lobby");
         while (maxPlayers<2 || maxPlayers>4) {
-            client.sendMessage(MsgType.INPUT,lobbyName,"Player num select","Player num(2-4):");
+            client.sendMessage(MsgType.INPUT,"Player num select","Player num(2-4):");
             try {
                 maxPlayers=Integer.parseInt(((Info_Message)client.getMessage()).getInfo());
             }
@@ -50,7 +50,7 @@ public class Lobby implements Runnable {
                     //TODO: delete lobby if lobby master disconnects before setup
                     System.out.println("Lobby master "+lobbyMaster+" disconnected, TODO: must delete lobby");
                 } else {
-                    client.sendMessage(MsgType.INPUT,lobbyName,"Format error","Wrong format\nPlayer num(2-4):");
+                    client.sendMessage(MsgType.INPUT,"Format error","Wrong format\nPlayer num(2-4):");
                 }
             }
         }
@@ -61,13 +61,13 @@ public class Lobby implements Runnable {
             synchronized (clients) {
                 while (clients.size()<maxPlayers) {
                     for (String clientName: clients.keySet()) {
-                        clients.get(clientName).sendMessage(MsgType.TEXT,lobbyName,"Connect to lobby msg",maxPlayers+" player game, current num: ["+ clients.size()+"/"+maxPlayers+"]");
+                        clients.get(clientName).sendMessage(MsgType.TEXT,"Connect to lobby msg",maxPlayers+" player game, current num: ["+ clients.size()+"/"+maxPlayers+"]");
                     }
                     clients.wait();
                 }
                 System.out.println("GOT MAX CLIENTS CONNECTED: ");
                 for (String clientName: clients.keySet()) {
-                    clients.get(clientName).sendMessage(MsgType.TEXT,lobbyName,"Lobby full","Lobby now full ["+ clients.size()+"/"+maxPlayers+"]");
+                    clients.get(clientName).sendMessage(MsgType.TEXT,"Lobby full","Lobby now full ["+ clients.size()+"/"+maxPlayers+"]");
                     System.out.println(clientName);
                 }
             }
@@ -92,7 +92,7 @@ public class Lobby implements Runnable {
     public void createLobbyListeners() {
         Thread listener;
         for (String client: clients.keySet()) {
-            listener=new Thread(new LobbyListener(clients.get(client),lobbyName,lobbyMessageQueue));
+            listener=new Thread(new LobbyListener(clients.get(client),lobbyMessageQueue));
             listener.setDaemon(true);
             listener.start();
         }

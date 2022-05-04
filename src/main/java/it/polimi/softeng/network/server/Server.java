@@ -103,7 +103,7 @@ public class Server {
                     lobbyName=response.getInfo();
                     if (lobbies.get(lobbyName) == null) {
                         out.writeObject(MessageCenter.genMessage(MsgType.TEXT,null,"SERVER","Creating lobby","Lobby ["+lobbyName+"] created, entering now"));
-                        lobbies.put(lobbyName, new Lobby(lobbyName, username, new LobbyClient(username, clientSocket, in, out)));
+                        lobbies.put(lobbyName, new Lobby(lobbyName, username, new LobbyClient(username, lobbyName, clientSocket, in, out)));
                         new Thread(lobbies.get(lobbyName)).start();
                         status=true;
                     } else {
@@ -117,7 +117,7 @@ public class Server {
                     if (lobbies.get(lobbyName) == null) {
                         out.writeObject(MessageCenter.genMessage(MsgType.INPUT, null, "SERVER", "Error: lobby does not exist", "Lobby not found"));
                     } else {
-                        joinLobby(lobbies.get(lobbyName), username, clientSocket, in, out);
+                        joinLobby(lobbies.get(lobbyName), lobbyName, username, clientSocket, in, out);
                         status=true;
                     }
                     break;
@@ -138,7 +138,7 @@ public class Server {
         }
     }
 
-    private static void joinLobby(Lobby lobby, String username, Socket socket, ObjectInputStream in, ObjectOutputStream out) {
+    private static void joinLobby(Lobby lobby, String username, String lobbyName,Socket socket, ObjectInputStream in, ObjectOutputStream out) {
         int maxPlayers=lobby.getMaxPlayers();
         try {
             if (maxPlayers==0) {
@@ -149,7 +149,7 @@ public class Server {
                     HashMap<String,LobbyClient> clients=lobby.getClients();
                     if (clients.size()<maxPlayers) {
                         if (clients.get(username)==null) {
-                            clients.put(username,new LobbyClient(username,socket,in,out));
+                            clients.put(username,new LobbyClient(username,lobbyName,socket,in,out));
                             clients.notify();
                         } else {
                             out.writeObject(MessageCenter.genMessage(MsgType.TEXT,null,"SERVER","Username already in use","Player with that username already exists"));

@@ -9,12 +9,14 @@ import java.net.Socket;
 
 public class LobbyClient {
     private final String username;
+    private final String lobbyName;
     private final Socket socket;
     private final ObjectInputStream in;
     private final ObjectOutputStream out;
 
-    public LobbyClient(String username, Socket socket, ObjectInputStream in, ObjectOutputStream out) {
+    public LobbyClient(String username, String lobbyName,Socket socket, ObjectInputStream in, ObjectOutputStream out) {
         this.username=username;
+        this.lobbyName=lobbyName;
         this.socket=socket;
         this.in=in;
         this.out=out;
@@ -33,7 +35,7 @@ public class LobbyClient {
             return null;
         }
     }
-    public void sendMessage(MsgType type, String lobbyName, String context, Object msg) {
+    public void sendMessage(MsgType type, String context, Object msg) {
         try {
             this.out.writeObject(MessageCenter.genMessage(type,null,lobbyName,context,msg));
             this.out.flush();
