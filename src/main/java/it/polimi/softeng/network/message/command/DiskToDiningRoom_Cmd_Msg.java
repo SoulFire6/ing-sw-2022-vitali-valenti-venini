@@ -5,8 +5,8 @@ import it.polimi.softeng.network.message.MsgType;
 
 public class DiskToDiningRoom_Cmd_Msg extends Command_Message {
     Colour colour;
-    DiskToDiningRoom_Cmd_Msg(String sender, String context, Colour colour) {
-        super(sender,context,MsgType.CmdType.DISKTODININGROOM);
+    public DiskToDiningRoom_Cmd_Msg(String sender, String context, Colour colour) {
+        super(MsgType.DISKTODININGROOM,sender,context);
         this.colour=colour;
     }
     public Colour getColour() {

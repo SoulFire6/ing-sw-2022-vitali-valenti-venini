@@ -34,10 +34,10 @@ public class Client {
             ObjectOutputStream toServer=new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream fromServer=new ObjectInputStream(socket.getInputStream());
             //sends username to server for identification
-            toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT,null,username,null,null));
-            while ((inMessage=(Message)fromServer.readObject())!=null && inMessage.getType()!=MsgType.DISCONNECT) {
+            toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT,username,null,null));
+            while ((inMessage=(Message)fromServer.readObject())!=null && inMessage.getSubType()!=MsgType.DISCONNECT) {
                 parseMessage(inMessage);
-                if (inMessage.getType()==MsgType.INPUT) {
+                if (inMessage.getSubType()==MsgType.INPUT) {
                     toServer.writeObject(outMessage(userInput.readLine()));
                 }
             }
@@ -52,7 +52,7 @@ public class Client {
         catch (IOException io) {
             System.out.println("IO exception");
         }
-        if (inMessage!=null && inMessage.getType()==MsgType.DISCONNECT) {
+        if (inMessage!=null && inMessage.getSubType()==MsgType.DISCONNECT) {
             System.out.println("DISCONNECTED");
         } else {
             System.out.println("Error: abrupt disconnect");
@@ -164,18 +164,16 @@ public class Client {
     //TODO: move message methods as NON STATIC methods into client controller
     private static void parseMessage(Message msg) {
         switch (msg.getType()) {
-            case TEXT:
-            case INPUT:
-            case DISCONNECT:
+            case INFO:
                 System.out.println("["+msg.getSender()+"]: "+((Info_Message)msg).getInfo());
                 break;
             case LOAD:
-                System.out.println(((Load_Message) msg).getLoadType()+" "+((Load_Message)msg).getLoadType());
+                System.out.println(msg.getType()+" "+((Load_Message)msg).getLoad());
                 break;
         }
     }
     private static Message outMessage(String msg) {
         //TODO: add more message types
-        return MessageCenter.genMessage(MsgType.TEXT,null,username,"",msg);
+        return MessageCenter.genMessage(MsgType.TEXT,username,"",msg);
     }
 }

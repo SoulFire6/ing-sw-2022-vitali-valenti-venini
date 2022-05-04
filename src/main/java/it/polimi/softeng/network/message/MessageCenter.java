@@ -1,21 +1,34 @@
 package it.polimi.softeng.network.message;
 
 import it.polimi.softeng.model.*;
+import it.polimi.softeng.network.message.command.*;
 import it.polimi.softeng.network.message.load.*;
 
 //Message factory
 public class MessageCenter {
-    public static Message genMessage(MsgType type, MsgType.LoadType loadType, String sender, String context, Object load) {
-        switch (type) {
+    public static Message genMessage(MsgType type, String sender, String context, Object load) {
+        switch (type.getMainType()) {
             //Sender is client/server, context describes who it is sent to or from, load is the message
-            case TEXT:
-            case INPUT:
-            case CONNECT:
-            case DISCONNECT:
+            case INFO:
                 return new Info_Message(type,sender,context,(String)load);
+            case COMMAND:
+                switch (type) {
+                    case PLAYASSISTCARD:
+                        return new AssistCard_Cmd_Msg(sender,context,(String)load);
+                    case DISKTOISLAND:
+                        return new DiskToIsland_Cmd_Msg(sender,context,(Colour)load,context);
+                    case DISKTODININGROOM:
+                        return new DiskToDiningRoom_Cmd_Msg(sender,context,(Colour)load);
+                    case MOVEMN:
+                        return new MoveMotherNature_Cmd_Msg(sender,context,(Integer)load);
+                    case CHOOSECLOUD:
+                        return new ChooseCloud_Cmd_Msg(sender,context,(String)load);
+                    case PLAYCHARCARD:
+                        return null;
+                }
+            //Used for receiving model data from server, sender should always be server, context is data reference (ie what is and where to insert the data), load is object
             case LOAD:
-                //Used for receiving model data from server, sender should always be server, context is data reference (ie what is and where to insert the data), load is object
-                switch (loadType) {
+                switch (type) {
                     case GAME:
                         return new Game_Load_Msg(sender,context,(Game)load);
                     case ISLAND:

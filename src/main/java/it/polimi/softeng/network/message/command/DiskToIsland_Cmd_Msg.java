@@ -6,8 +6,8 @@ import it.polimi.softeng.network.message.MsgType;
 public class DiskToIsland_Cmd_Msg extends Command_Message {
     Colour colour;
     String islandID;
-    DiskToIsland_Cmd_Msg(String sender, String context, Colour colour, String islandID) {
-        super(sender,context, MsgType.CmdType.DISKTOISLAND);
+    public DiskToIsland_Cmd_Msg(String sender, String context, Colour colour, String islandID) {
+        super(MsgType.DISKTOISLAND,sender,context);
         this.colour=colour;
         this.islandID=islandID;
     }

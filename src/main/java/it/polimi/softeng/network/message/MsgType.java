@@ -1,19 +1,39 @@
 package it.polimi.softeng.network.message;
 
 public enum MsgType {
-    //TEXT: some text to display or for when strings are passed to server (Info message)
-    //LOAD: sends objects to load
-    //INPUT: Info Message declaring end of server messages, awaiting client response
-    //WHISPER: Send private message
-    //COMMAND: Sends game command
-    //CONNECT: client sends this along with username
-    //DISCONNECT: Client or server has disconnected (abrupt disconnects send null messages instead)
-    //CLOSE: Server/Lobby is closing, disconnect
-    TEXT,LOAD,INPUT,WHISPER,COMMAND,ERROR,CONNECT,DISCONNECT,CLOSE;
-    public enum LoadType {
-        GAME,ISLAND,CLOUD,BAG,PLAYER,SCHOOLBOARD,CHARACTERCARD,ASSISTANTCARD
+    //Info messages
+    TEXT(MainType.INFO),
+    INPUT(MainType.INFO),
+    WHISPER(MainType.INFO),
+    CONNECT(MainType.INFO),
+    DISCONNECT(MainType.INFO),
+    ERROR(MainType.INFO),
+    CLOSE(MainType.INFO),
+    //Load messages
+    GAME(MainType.LOAD),
+    ISLAND(MainType.LOAD),
+    CLOUD(MainType.LOAD),
+    BAG(MainType.LOAD),
+    PLAYER(MainType.LOAD),
+    SCHOOLBOARD(MainType.LOAD),
+    CHARACTERCARD(MainType.LOAD),
+    ASSISTANTCARD(MainType.LOAD),
+    //Command messages
+    PLAYASSISTCARD(MainType.COMMAND),
+    DISKTOISLAND(MainType.COMMAND),
+    DISKTODININGROOM(MainType.COMMAND),
+    MOVEMN(MainType.COMMAND),
+    CHOOSECLOUD(MainType.COMMAND),
+    PLAYCHARCARD(MainType.COMMAND);
+
+    public enum MainType {
+        INFO, LOAD, COMMAND
     }
-    public enum CmdType {
-        ASSISTCARD, DISKTOISLAND, DISKTODININGROOM, MOVEMN, CHOOSECLOUD, CHARCARD
+    private final MainType mainType;
+    MsgType(MainType mainType) {
+        this.mainType=mainType;
+    }
+    public MainType getMainType() {
+        return mainType;
     }
 }

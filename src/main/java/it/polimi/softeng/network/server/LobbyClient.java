@@ -37,7 +37,7 @@ public class LobbyClient {
     }
     public void sendMessage(MsgType type, String context, Object msg) {
         try {
-            this.out.writeObject(MessageCenter.genMessage(type,null,lobbyName,context,msg));
+            this.out.writeObject(MessageCenter.genMessage(type,lobbyName,context,msg));
             this.out.flush();
             this.out.reset();
         }

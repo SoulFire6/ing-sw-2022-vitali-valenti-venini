@@ -6,7 +6,6 @@ import it.polimi.softeng.network.message.command.*;
 import it.polimi.softeng.network.message.*;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
-import it.polimi.softeng.network.message.MsgType.LoadType;
 
 import java.lang.Exception;
 import java.util.*;
@@ -52,7 +51,7 @@ public class LobbyController {
         return this.game;
     }
     public Message parseMessage(Message inMessage) {
-        MsgType type=inMessage.getType();
+        MsgType type=inMessage.getSubType();
         Player currentPlayer=null;
         boolean playerFound=false;
         try {
@@ -67,23 +66,29 @@ public class LobbyController {
                 throw new Exception("Player not found");
                 //TODO: add PlayerNotFoundException
             }
-            switch (type) {
-                case WHISPER:
-                    return MessageCenter.genMessage(MsgType.WHISPER,null,currentPlayer.getName(),inMessage.getContext(),((Info_Message)inMessage).getInfo());
-                case DISCONNECT:
-                    return MessageCenter.genMessage(MsgType.DISCONNECT,null,lobbyName,currentPlayer.getName()+" has disconnected",null);
+            switch (inMessage.getType()) {
+                case INFO:
+                    switch (inMessage.getSubType()) {
+                        case WHISPER:
+                            return MessageCenter.genMessage(MsgType.WHISPER,currentPlayer.getName(),inMessage.getContext(),((Info_Message)inMessage).getInfo());
+                        case DISCONNECT:
+                            return MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,currentPlayer.getName()+" has disconnected",null);
+
+                    }
+                case LOAD:
+                    throw new MoveNotAllowedException("Cannot load objects on server");
                 case COMMAND:
                     if (currentPlayer!=turnManager.getCurrentPlayer()) {
                         throw new NotYourTurnException("Not your turn, waiting for "+turnManager.getCurrentPlayer().getName());
                     }
-                    switch (((Command_Message)inMessage).getCommandType()) {
-                        case ASSISTCARD:
+                    switch (inMessage.getSubType()) {
+                        case PLAYASSISTCARD:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.ASSISTANT_CARDS_PHASE) {
                                 throw new WrongPhaseException("Cannot use asssistant card during "+turnManager.getTurnState());
                             }
                             assistantCardController.playAssistantCard(currentPlayer,((AssistCard_Cmd_Msg)inMessage).getAssistID(),turnManager);
                             //TODO: replace with reduced model
-                            return MessageCenter.genMessage(MsgType.LOAD,LoadType.ASSISTANTCARD,lobbyName,currentPlayer.getName()+"has played "+((AssistCard_Cmd_Msg)inMessage).getAssistID(),currentPlayer.getSchoolBoard().getHand());
+                            return MessageCenter.genMessage(MsgType.ASSISTANTCARD,lobbyName,currentPlayer.getName()+"has played "+((AssistCard_Cmd_Msg)inMessage).getAssistID(),currentPlayer.getSchoolBoard().getHand());
                         case DISKTOISLAND:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
                                 throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
@@ -108,7 +113,7 @@ public class LobbyController {
                             }
                             tileController.refillEntranceFromCloud(currentPlayer,((ChooseCloud_Cmd_Msg)inMessage).getCloudID(),game.getClouds());
                             break;
-                        case CHARCARD:
+                        case PLAYCHARCARD:
                             charCardController.activateCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),game);
                             break;
                         default:
@@ -118,7 +123,7 @@ public class LobbyController {
         }
         catch (Exception e) {
             System.out.println("["+lobbyName+"] "+currentPlayer+"'s action has thrown "+e.getCause());
-            return MessageCenter.genMessage(MsgType.ERROR,null,lobbyName,e.getMessage(),null);
+            return MessageCenter.genMessage(MsgType.ERROR,lobbyName,e.getMessage(),null);
         }
         //TODO remove
         return null;

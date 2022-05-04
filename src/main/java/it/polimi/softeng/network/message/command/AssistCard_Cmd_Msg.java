@@ -4,8 +4,8 @@ import it.polimi.softeng.network.message.MsgType;
 
 public class AssistCard_Cmd_Msg extends Command_Message {
     String assistID;
-    AssistCard_Cmd_Msg(String sender, String context, String assistID) {
-        super(sender,context,MsgType.CmdType.ASSISTCARD);
+    public AssistCard_Cmd_Msg(String sender, String context, String assistID) {
+        super(MsgType.PLAYASSISTCARD,sender,context);
         this.assistID=assistID;
     }
     public String getAssistID() {

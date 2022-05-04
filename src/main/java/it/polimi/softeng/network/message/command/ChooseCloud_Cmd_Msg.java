@@ -4,8 +4,8 @@ import it.polimi.softeng.network.message.MsgType;
 
 public class ChooseCloud_Cmd_Msg extends Command_Message {
     String cloudID;
-    ChooseCloud_Cmd_Msg(String sender, String context, String cloudID) {
-        super(sender,context, MsgType.CmdType.CHOOSECLOUD);
+    public ChooseCloud_Cmd_Msg(String sender, String context, String cloudID) {
+        super( MsgType.CHOOSECLOUD,sender,context);
         this.cloudID=cloudID;
     }
     public String getCloudID() {
