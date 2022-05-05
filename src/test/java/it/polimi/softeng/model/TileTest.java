@@ -1,10 +1,11 @@
 package it.polimi.softeng.model;
 
-import org.junit.Test;
-
 import java.util.EnumMap;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class TileTest {
     //Class implementation for tests only

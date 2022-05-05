@@ -1,11 +1,7 @@
 package it.polimi.softeng.model;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.ArrayList;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CharacterCardTest {
     @Test
@@ -13,8 +9,8 @@ public class CharacterCardTest {
         String testID="test";
         int testCost=0;
         CharacterCard testCard=new CharacterCard(testID,testCost);
-        Assert.assertEquals(testCard.getCardID(),testID);
-        Assert.assertEquals(testCard.getCost(),testCost);
+        assertEquals(testCard.getCardID(),testID);
+        assertEquals(testCard.getCost(),testCost);
     }
     @Test
     public void testIncrementCost() {

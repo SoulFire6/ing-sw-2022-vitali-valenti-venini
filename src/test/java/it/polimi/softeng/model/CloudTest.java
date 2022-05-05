@@ -1,10 +1,7 @@
 package it.polimi.softeng.model;
 
-import org.junit.Test;
-
-import java.util.ArrayList;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CloudTest {
     @Test
@@ -34,17 +31,4 @@ public class CloudTest {
         assertEquals(maxSlots,cloud.getFillAmount());
         assertEquals(fillAmount-maxSlots,bag.getFillAmount());
     }
-    //TODO: move to controller test
-    /*
-    @Test
-    public void testGenClouds() {
-        int cloudNum=10;
-        int maxSlots=2;
-        ArrayList<Cloud_Tile> clouds=Cloud_Tile.genClouds(cloudNum,maxSlots);
-        assertEquals(cloudNum,clouds.size());
-        for (Cloud_Tile cloud: clouds) {
-            assertEquals(maxSlots,cloud.getMaxSlots());
-        }
-    }
-     */
 }

@@ -1,9 +1,8 @@
 package it.polimi.softeng.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.EnumMap;
 
@@ -13,7 +12,7 @@ public class BagTest {
         Integer initValue=0;
         Bag_Tile b=new Bag_Tile(initValue);
         for (Colour c: Colour.values()) {
-            assertEquals("Bag was not initialised correctly: "+c,initValue,b.getContents().get(c));
+            assertEquals(initValue,b.getContents().get(c));
         }
     }
     @Test
@@ -31,8 +30,8 @@ public class BagTest {
     @Test
     public void testDrawStudentsWithLessThanRequired() {
         EnumMap<Colour,Integer> testDraw;
-        Integer testDrawNum=10;
-        Integer testSum=0;
+        int testDrawNum=10;
+        int testSum=0;
         Bag_Tile b=new Bag_Tile(1);
         testDraw=b.drawStudents(testDrawNum);
         for (Colour c: Colour.values()) {

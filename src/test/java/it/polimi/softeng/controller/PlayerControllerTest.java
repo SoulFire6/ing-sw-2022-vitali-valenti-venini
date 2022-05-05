@@ -7,11 +7,14 @@ import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.Player;
 import it.polimi.softeng.model.SchoolBoard_Tile;
 import it.polimi.softeng.model.Team;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -39,8 +42,8 @@ public class PlayerControllerTest {
         ArrayList<Player> testPlayers;
         for (int i=2; i<5; i++) {
             testPlayers=generateTestTeam(i);
-            assertNotNull("Generating "+i+" players: Failed",testPlayers);
-            assertEquals("Improper amount of players",i,testPlayers.size());
+            assertNotNull(testPlayers);
+            assertEquals(i,testPlayers.size());
             ArrayList<Integer> teamSizes=new ArrayList<>();
             for (Team t: playerController.getTeams(testPlayers)) {
                 teamSizes.add(playerController.getPlayersOnTeam(testPlayers,t).size());
@@ -97,13 +100,13 @@ public class PlayerControllerTest {
                     System.out.println("Checking team "+t);
                 }
                 for (Player p: teamPlayers) {
-                    assertEquals("Player initialised with the wrong team",p.getTeam(),t);
+                    assertEquals(p.getTeam(),t);
                     if (printTestResults) {
                         System.out.println(p.getName()+": "+p.getTeam());
                     }
                 }
             }
-            assertEquals("Player number mismatch",num,i);
+            assertEquals(num,i);
         }
     }
     @Test
@@ -190,7 +193,5 @@ public class PlayerControllerTest {
         playerController.swapTeamTower(testPlayers,winningPlayers.get(0).getTeam(),losingPlayers.get(0).getTeam(),testSwapTowerNum);
         assertEquals(testTowerNum-testSwapTowerNum,winningPlayers.get(0).getSchoolBoard().getTowers()+winningPlayers.get(1).getSchoolBoard().getTowers());
         assertEquals(testSwapTowerNum,losingPlayers.get(0).getSchoolBoard().getTowers()+losingPlayers.get(1).getSchoolBoard().getTowers());
-
-
     }
 }

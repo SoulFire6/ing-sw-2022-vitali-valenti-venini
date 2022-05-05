@@ -1,10 +1,11 @@
 package it.polimi.softeng.model;
 
 import org.junit.Test;
-
-import java.util.ArrayList;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class IslandTest {
     @Test
@@ -59,24 +60,4 @@ public class IslandTest {
         island.setNoEntry(true);
         assertTrue(island.getNoEntry());
     }
-    /*
-    @Test
-    public void testGenIslands() {
-        int num=12;
-        int sum=0;
-        int motherNatureNum=0;
-        ArrayList<Island_Tile> islands=IslandController.genIslands(num, new Bag_Tile(num-2));
-        assertEquals(num,islands.size());
-        for (Island_Tile island: islands) {
-            if (island.getMotherNature()) {
-                assertEquals(0,island.getFillAmount());
-                motherNatureNum++;
-            }
-            sum+=island.getFillAmount();
-        }
-        assertEquals(1,motherNatureNum);
-        assertEquals(num-2,sum);
-    }
-    TODO: move to controller test
-     */
 }
