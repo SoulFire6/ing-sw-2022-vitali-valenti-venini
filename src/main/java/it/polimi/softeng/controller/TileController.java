@@ -1,7 +1,18 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.exceptions.*;
-import it.polimi.softeng.model.*;
+import it.polimi.softeng.exceptions.ExceededMaxMovesException;
+import it.polimi.softeng.exceptions.InsufficientResourceException;
+import it.polimi.softeng.exceptions.TileNotFoundException;
+import it.polimi.softeng.exceptions.TileEmptyException;
+import it.polimi.softeng.model.Island_Tile;
+import it.polimi.softeng.model.Cloud_Tile;
+import it.polimi.softeng.model.Bag_Tile;
+import it.polimi.softeng.model.Player;
+import it.polimi.softeng.model.Colour;
+import it.polimi.softeng.model.Team;
+import it.polimi.softeng.model.CharacterCard;
+
+
 
 import java.util.*;
 
@@ -63,14 +74,14 @@ public class TileController {
         }
         return clouds;
     }
-    public void moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws MaxMoveAmountExceededException {
+    public void moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException {
         int maxAmount=p.getSchoolBoard().getLastUsedCard().getMotherNatureValue();
         if (charCardController!=null && charCardController.getActiveStatus("MagicPostman")) {
             maxAmount+=2;
             //TODO: switch magic postman off and disable it from being played again
         }
         if (n>maxAmount) {
-            throw new MaxMoveAmountExceededException("Cannot move mother nature by "+n+" (Current max: "+maxAmount+")");
+            throw new ExceededMaxMovesException("Cannot move mother nature by "+n+" (Current max: "+maxAmount+")");
         }
 
         //loop that assigns to oldMotherNatureIsland the actual MotherNature Island_Tile
@@ -93,41 +104,24 @@ public class TileController {
             }
         }
     }
-    public void moveStudentsToIsland(Player p, EnumMap<Colour,Integer> students , Island_Tile island_tile, TurnManager turnManager, int maxMoves) throws NotYourTurnException, MoveNotAllowedException, NotEnoughStudentsInEntranceException {
-        if(p != turnManager.getCurrentPlayer())
-            throw new NotYourTurnException("Can't execute this command, it's not the turn of player " + p.getName());
-
-        if(turnManager.getTurnState()!= TurnManager.TurnState.MOVE_STUDENTS_PHASE)
-            throw new MoveNotAllowedException("Error. Operation not allowed");
-
-        for(Colour c : Colour.values())
-            if(students.get(c) > turnManager.getCurrentPlayer().getSchoolBoard().getContents().get(c))
-                throw new NotEnoughStudentsInEntranceException("Error. Not enough students present in the entrance");
-
-        int movesRequested=0;
-        int entranceDiscs=0;
-        for(Colour c: Colour.values())
-            entranceDiscs+=p.getSchoolBoard().getContents().get(c);
-
-        int remainingMoves = maxMoves - p.getSchoolBoard().getMaxExntranceSlots() + entranceDiscs;             //entranceDiscs maxSlots - removedDiscs
-
-        for(Colour c : Colour.values())                 //count number of students that the player wants to insert
-            movesRequested+=students.get(c);
-
-        if(movesRequested>remainingMoves)
-            throw new NotEnoughStudentsInEntranceException("Error. You can move only up to" +remainingMoves +" students");
-        island_tile.addStudents(students);
-        for(Colour c : Colour.values()) {
-            p.getSchoolBoard().removeColour(c, students.get(c));
-            remainingMoves--;
+    public void moveStudentsToIsland(Player p, Colour c, String islandID, ArrayList<Island_Tile> islands, TurnManager turnManager) throws TileNotFoundException, InsufficientResourceException {
+        Island_Tile chosenIsland=null;
+        for (Island_Tile island: islands) {
+            if (island.getTileID().equals(islandID)) {
+                chosenIsland=island;
+            }
         }
-
-        if(remainingMoves==0)
-            turnManager.nextAction();
-
+        if (chosenIsland==null) {
+            throw new TileNotFoundException("Could not find island with id "+islandID);
+        }
+        if (p.getSchoolBoard().getContents().get(c)==0) {
+            throw new InsufficientResourceException("Entrance contains no "+c+" student disks");
+        }
+        chosenIsland.addColour(c,1);
+        //TODO remove 1 move for current player from turnManager this turn
     }
 
-    public void refillEntranceFromCloud(Player p, String cloudID, ArrayList<Cloud_Tile> clouds) throws TileNotFoundException {
+    public void refillEntranceFromCloud(Player p, String cloudID, ArrayList<Cloud_Tile> clouds) throws TileNotFoundException,TileEmptyException {
         Cloud_Tile refillCloud=null;
         for (Cloud_Tile cloud: clouds) {
             if (cloud.getTileID().equals(cloudID)) {
@@ -136,6 +130,9 @@ public class TileController {
         }
         if (refillCloud==null) {
             throw new TileNotFoundException("Cloud could not be found");
+        }
+        if (refillCloud.isEmpty()) {
+            throw new TileEmptyException("Cannot refill from empty cloud");
         }
         p.getSchoolBoard().fillEntrance(refillCloud);
     }

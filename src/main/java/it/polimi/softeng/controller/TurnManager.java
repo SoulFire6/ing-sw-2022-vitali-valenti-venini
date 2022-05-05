@@ -64,25 +64,20 @@ public class TurnManager {
 
     //Set turnState to the next state (the order is defined by its order in the enum declaration)
     public void setNextAction() {
-        int nextIndex = turnState.ordinal()+1;
         TurnState[] turnStates = TurnState.values();
-        nextIndex %= turnStates.length;
-        turnState = turnStates[nextIndex];
+        turnState = turnStates[(turnState.ordinal()+1)%turnStates.length];
     }
 
-    public Player getCurrentPlayer()
-    {
-        return currentPlayer;
+    public Player getCurrentPlayer() {
+        return this.currentPlayer;
     }
 
-    public TurnState getTurnState()
-    {
-        return turnState;
+    public TurnState getTurnState() {
+        return this.turnState;
     }
 
-    public ArrayList<Player> getPlayerOrder()
-    {
-        return playerOrder;
+    public ArrayList<Player> getPlayerOrder() {
+        return this.playerOrder;
     }
 
 }

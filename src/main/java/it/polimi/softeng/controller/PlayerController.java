@@ -1,10 +1,17 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.exceptions.*;
-import it.polimi.softeng.exceptions.*;
-import it.polimi.softeng.model.*;
+import it.polimi.softeng.exceptions.DiningRoomFullException;
+import it.polimi.softeng.exceptions.InsufficientResourceException;
 
-import java.util.*;
+import it.polimi.softeng.model.Player;
+import it.polimi.softeng.model.Colour;
+import it.polimi.softeng.model.Team;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.Collections;
+
 
 public class PlayerController {
 
@@ -13,6 +20,7 @@ public class PlayerController {
         ArrayList<Player> players=new ArrayList<>();
         int playerNum=playerNames.size();
         if (playerNum<2 || playerNum>4) {
+            //TODO: add custom exception (GameGenerationErrorException?)
             throw new IllegalArgumentException("Could not generate teams\nExpected players: 2-4\nActual: "+playerNum);
         }
         //Randomises what teams each player gets by shuffling their names
@@ -74,27 +82,12 @@ public class PlayerController {
         }
         return colours;
     }
-
-    public void cloudDraw(Player p, Cloud_Tile cloud_tile, TurnManager turnManager) throws NotYourTurnException, EmptyCloudTileException, MoveNotAllowedException {
-        if(p != turnManager.getCurrentPlayer())
-            throw new NotYourTurnException("Can't execute this command, it's not the turn of player " + p.getName());
-
-        if(cloud_tile.isEmpty())
-            throw new EmptyCloudTileException("Error. Empty cloud tile.");
-
-        if(turnManager.getTurnState()!= TurnManager.TurnState.CHOOSE_CLOUD_TILE_PHASE)
-            throw new MoveNotAllowedException("Error. Operation not allowed");
-
-        p.getSchoolBoard().fillEntrance(cloud_tile);
-        turnManager.nextAction();
-    }
-
-    public void moveStudentToDiningRoom(Player p, Colour c, boolean expertMode) throws NotEnoughStudentsInEntranceException, NotEnoughSpaceInDiningRoomException {
+    public void moveStudentToDiningRoom(Player p, Colour c, boolean expertMode) throws InsufficientResourceException,DiningRoomFullException {
         if (p.getSchoolBoard().getContents().get(c)==0) {
-            throw new NotEnoughStudentsInEntranceException("Not enough "+c+" students in entrance");
+            throw new InsufficientResourceException("Not enough "+c+" students in entrance");
         }
         if (p.getSchoolBoard().getDiningRoomAmount(c)==10) {
-            throw new NotEnoughSpaceInDiningRoomException(c+" dining room is full");
+            throw new DiningRoomFullException(c+" dining room is full");
         }
         p.getSchoolBoard().moveStudentToDiningRoom(c);
         if (expertMode && p.getSchoolBoard().getDiningRoomAmount(c)%3==0) {
@@ -139,6 +132,5 @@ public class PlayerController {
                 }
             }
         }
-
     }
 }

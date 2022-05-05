@@ -1,8 +1,12 @@
 package it.polimi.softeng.controller;
 
 import it.polimi.softeng.exceptions.CharacterCardNotFoundException;
-import it.polimi.softeng.exceptions.NotEnoughCoinsException;
-import it.polimi.softeng.model.*;
+import it.polimi.softeng.exceptions.InsufficientResourceException;
+import it.polimi.softeng.model.Game;
+import it.polimi.softeng.model.Colour;
+import it.polimi.softeng.model.Bag_Tile;
+import it.polimi.softeng.model.CharacterCard;
+import it.polimi.softeng.model.Player;
 import it.polimi.softeng.model.CharacterCardSubTypes.ColourBooleanMap_CharCard;
 import it.polimi.softeng.model.CharacterCardSubTypes.ColourPlayerMap_CharCard;
 import it.polimi.softeng.model.CharacterCardSubTypes.Int_CharCard;
@@ -38,7 +42,7 @@ public class CharCardController {
             return null;
         }
     }
-    public void activateCard(Player p,String charID, Game game) throws CharacterCardNotFoundException, NotEnoughCoinsException {
+    public void activateCard(Player p,String charID, Game game) throws CharacterCardNotFoundException, InsufficientResourceException {
         CharacterCard playedCard = null;
         for (CharacterCard card : game.getCharacterCards()) {
             if (card.getCardID().equals(charID)) {
@@ -50,7 +54,7 @@ public class CharCardController {
             throw new CharacterCardNotFoundException("Character with id " + charID + " is not in play");
         }
         if (p.getSchoolBoard().getCoins() < playedCard.getCost()) {
-            throw new NotEnoughCoinsException("Not enough coins (" + p.getSchoolBoard().getCoins() + "/" + playedCard.getCost() + ")");
+            throw new InsufficientResourceException("Not enough coins (" + p.getSchoolBoard().getCoins() + "/" + playedCard.getCost() + ")");
         }
 
     }

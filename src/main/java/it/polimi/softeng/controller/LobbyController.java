@@ -1,6 +1,8 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.exceptions.*;
+import it.polimi.softeng.exceptions.MoveNotAllowedException;
+import it.polimi.softeng.exceptions.NotYourTurnException;
+import it.polimi.softeng.exceptions.WrongPhaseException;
 import it.polimi.softeng.model.*;
 import it.polimi.softeng.network.message.command.*;
 import it.polimi.softeng.network.message.*;
@@ -8,7 +10,7 @@ import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 
 import java.lang.Exception;
-import java.util.*;
+import java.util.ArrayList;
 
 public class LobbyController {
     private final Game game;
@@ -58,7 +60,6 @@ public class LobbyController {
         return this.assistantCardController;
     }
     public Message parseMessage(Message inMessage) {
-        MsgType type=inMessage.getSubType();
         Player currentPlayer=null;
         boolean playerFound=false;
         try {
@@ -100,7 +101,7 @@ public class LobbyController {
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
                                 throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
                             }
-                            //TODO: move student disk to island
+                            tileController.moveStudentsToIsland(currentPlayer,((DiskToIsland_Cmd_Msg)inMessage).getColour(),inMessage.getContext(),game.getIslands(),turnManager);
                             break;
                         case DISKTODININGROOM:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
