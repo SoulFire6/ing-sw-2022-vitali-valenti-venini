@@ -60,7 +60,6 @@ public class TileController {
         }
         return islands;
     }
-
     public ArrayList<Cloud_Tile> genClouds(int num, int max, Bag_Tile bag) {
         ArrayList<Cloud_Tile> clouds=new ArrayList<>();
         for (int i=0; i<num; i++) {
@@ -115,7 +114,7 @@ public class TileController {
             throw new InsufficientResourceException("Entrance contains no "+c+" student disks");
         }
         chosenIsland.addColour(c,1);
-        //TODO remove 1 move for current player from turnManager this turn
+        turnManager.nextAction();
     }
     public void refillClouds(ArrayList<Cloud_Tile> clouds, Bag_Tile bag) throws TileNotEmptyException {
         for (Cloud_Tile cloud : clouds) {
@@ -124,7 +123,6 @@ public class TileController {
             }
             cloud.fillCloud(bag);
         }
-
     }
     public void refillEntranceFromCloud(Player p, String cloudID, ArrayList<Cloud_Tile> clouds) throws TileNotFoundException,TileEmptyException {
         Cloud_Tile refillCloud=null;
@@ -182,7 +180,7 @@ public class TileController {
         playerController.swapTeamTower(players,maxTeam,island.getTeam(),island.getTowers());
         return maxTeam;
     }
-    public static ArrayList<Island_Tile> checkAndMerge(ArrayList<Island_Tile> islands, Island_Tile island) {
+    public ArrayList<Island_Tile> checkAndMerge(ArrayList<Island_Tile> islands, Island_Tile island) {
         if (islands.contains(island) && islands.size()>3) {
             if (island.getTeam()==island.getNext().getTeam()) {
                 island.setTowers(island.getTowers()+island.getNext().getTowers());
@@ -199,6 +197,4 @@ public class TileController {
         }
         return islands;
     }
-
-
 }
