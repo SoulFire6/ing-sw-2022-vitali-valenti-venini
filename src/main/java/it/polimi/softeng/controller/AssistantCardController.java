@@ -48,8 +48,10 @@ public class AssistantCardController {
             throw new AssistantCardNotFoundException("Could not find assistant card with id "+ assistID);
         }
         ArrayList<String> previousPlayedCards= new ArrayList<>();
-        for (Player player: turnManager.getPlayerOrder().subList(0,turnManager.getPlayerOrder().indexOf(p))) {
-            previousPlayedCards.add(player.getSchoolBoard().getLastUsedCard().getCardID());
+        if (p!=turnManager.getPlayerOrder().get(0)) {
+            for (Player player: turnManager.getPlayerOrder().subList(0,turnManager.getPlayerOrder().indexOf(p))) {
+                previousPlayedCards.add(player.getSchoolBoard().getLastUsedCard().getCardID());
+            }
         }
         if (p.getSchoolBoard().getHand().size()>1 && previousPlayedCards.contains(assistID)) {
             throw new AssistantCardAlreadyPlayedException(assistID+" was already played this turn");

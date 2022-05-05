@@ -2,6 +2,7 @@ package it.polimi.softeng.controller;
 
 import it.polimi.softeng.exceptions.MoveNotAllowedException;
 import it.polimi.softeng.exceptions.NotYourTurnException;
+import it.polimi.softeng.exceptions.PlayerNotFoundException;
 import it.polimi.softeng.exceptions.WrongPhaseException;
 import it.polimi.softeng.model.*;
 import it.polimi.softeng.network.message.command.*;
@@ -20,7 +21,6 @@ public class LobbyController {
     private final AssistantCardController assistantCardController;
     private final TileController tileController;
     private final PlayerController playerController;
-    int remainingMoves,maxMoves;
 
     public LobbyController(ArrayList<String> playerNames, boolean expertMode, String lobbyName) {
         this.lobbyName=lobbyName;
@@ -33,9 +33,7 @@ public class LobbyController {
             this.charCardController = null;
         }
         this.game=createGame(playerNames,expertMode);
-        this.turnManager = new TurnManager(game.getPlayers());
-        //TODO move max turns into turn manager
-        this.maxMoves = this.remainingMoves = game.getClouds().get(0).getMaxSlots();
+        this.turnManager = new TurnManager(game.getPlayers(),game.getClouds().get(0).getMaxSlots());
     }
     public Game createGame(ArrayList<String> playerNames,boolean expertMode) {
         Game game;
@@ -71,8 +69,7 @@ public class LobbyController {
                 }
             }
             if (!playerFound) {
-                throw new Exception("Player not found");
-                //TODO: add PlayerNotFoundException
+                throw new PlayerNotFoundException("Player not found");
             }
             switch (inMessage.getType()) {
                 case INFO:
@@ -120,8 +117,14 @@ public class LobbyController {
                                 throw new WrongPhaseException("Cannot choose cloud during  "+turnManager.getTurnState());
                             }
                             tileController.refillEntranceFromCloud(currentPlayer,((ChooseCloud_Cmd_Msg)inMessage).getCloudID(),game.getClouds());
+                            if (currentPlayer==turnManager.getLastPlayer()) {
+                                tileController.refillClouds(game.getClouds(),game.getBag());
+                            }
                             break;
                         case PLAYCHARCARD:
+                            if (turnManager.getTurnState()==TurnManager.TurnState.ASSISTANT_CARDS_PHASE) {
+                                throw new WrongPhaseException("Cannot play character cards  "+turnManager.getTurnState());
+                            }
                             charCardController.activateCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),game);
                             break;
                         default:

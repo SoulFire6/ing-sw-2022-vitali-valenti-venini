@@ -1,9 +1,6 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.exceptions.ExceededMaxMovesException;
-import it.polimi.softeng.exceptions.InsufficientResourceException;
-import it.polimi.softeng.exceptions.TileNotFoundException;
-import it.polimi.softeng.exceptions.TileEmptyException;
+import it.polimi.softeng.exceptions.*;
 import it.polimi.softeng.model.Island_Tile;
 import it.polimi.softeng.model.Cloud_Tile;
 import it.polimi.softeng.model.Bag_Tile;
@@ -120,7 +117,15 @@ public class TileController {
         chosenIsland.addColour(c,1);
         //TODO remove 1 move for current player from turnManager this turn
     }
+    public void refillClouds(ArrayList<Cloud_Tile> clouds, Bag_Tile bag) throws TileNotEmptyException {
+        for (Cloud_Tile cloud : clouds) {
+            if (cloud.getFillAmount()>0) {
+                throw new TileNotEmptyException(cloud.getTileID()+" was not empty before refill");
+            }
+            cloud.fillCloud(bag);
+        }
 
+    }
     public void refillEntranceFromCloud(Player p, String cloudID, ArrayList<Cloud_Tile> clouds) throws TileNotFoundException,TileEmptyException {
         Cloud_Tile refillCloud=null;
         for (Cloud_Tile cloud: clouds) {
@@ -136,7 +141,6 @@ public class TileController {
         }
         p.getSchoolBoard().fillEntrance(refillCloud);
     }
-
     //NORMAL: charController and cards are null, otherwise calculates with EXPERT mode rules
     public Team calculateInfluence(Player conqueringPlayer, Island_Tile island, ArrayList<Player> players, CharCardController charController,  ArrayList<CharacterCard> cards, PlayerController playerController) {
         Team conqueringTeam=conqueringPlayer.getTeam();

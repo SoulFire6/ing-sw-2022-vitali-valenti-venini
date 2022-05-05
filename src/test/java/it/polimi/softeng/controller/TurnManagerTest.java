@@ -21,7 +21,7 @@ class TurnManagerTest {
         int testPlayerNum=2;
         ArrayList<String> playerNames=new ArrayList<>();
         for (int i=0; i<testPlayerNum; i++) {
-            playerNames.add("Player_"+i+1);
+            playerNames.add("Player_"+(i+1));
         }
         controller = new LobbyController(playerNames,false,"normal lobby");
         expertController = new LobbyController(playerNames,true,"expert lobby");
@@ -31,62 +31,52 @@ class TurnManagerTest {
     @Test
     void nextAction() throws AssistantCardNotFoundException, AssistantCardAlreadyPlayedException {
         Player firstPlayer = turnManager.getCurrentPlayer();
-        Player secondPlayer = turnManager.getPlayerOrder().get(1);
+        Player secondPlayer = turnManager.getNextPlayer();
         //Planning phase Tests
-        assertEquals(turnManager.getCurrentPlayer(), firstPlayer);
-        assertEquals(turnManager.getTurnState(), TurnManager.TurnState.STUDENTS_DRAW_PHASE);
-        turnManager.nextAction();
-        assertEquals(turnManager.getCurrentPlayer(), firstPlayer);
-        assertEquals(turnManager.getTurnState(), TurnManager.TurnState.ASSISTANT_CARDS_PHASE);
-        controller.getAssistantCardController().playAssistantCard(firstPlayer,firstPlayer.getSchoolBoard().getHand().get(2).getCardID(),turnManager);
-        assertEquals(turnManager.getCurrentPlayer(), secondPlayer);
-        assertEquals(turnManager.getTurnState(), TurnManager.TurnState.STUDENTS_DRAW_PHASE);
-        turnManager.nextAction();
-        assertEquals(turnManager.getCurrentPlayer(), secondPlayer);
-        assertEquals(turnManager.getTurnState(), TurnManager.TurnState.ASSISTANT_CARDS_PHASE);
-        controller.getAssistantCardController().playAssistantCard(secondPlayer,secondPlayer.getSchoolBoard().getHand().get(0).getCardID(),turnManager);
+        assertEquals(TurnManager.TurnState.ASSISTANT_CARDS_PHASE,turnManager.getTurnState());
+        assertEquals(firstPlayer,turnManager.getCurrentPlayer());
+        controller.getAssistantCardController().playAssistantCard(turnManager.getCurrentPlayer(),turnManager.getCurrentPlayer().getSchoolBoard().getHand().get(1).getCardID(),turnManager);
+        assertEquals(TurnManager.TurnState.ASSISTANT_CARDS_PHASE,turnManager.getTurnState());
+        assertEquals(secondPlayer,turnManager.getCurrentPlayer());
+        controller.getAssistantCardController().playAssistantCard(turnManager.getCurrentPlayer(),turnManager.getCurrentPlayer().getSchoolBoard().getHand().get(0).getCardID(),turnManager);
+        assertEquals(secondPlayer,turnManager.getCurrentPlayer());
         //Action phase Tests
         //Check if the turn is actually swapped (secondPlayer played a lower assistant turnvalue card
-        assertEquals(turnManager.getCurrentPlayer(), secondPlayer);
-        assertEquals(turnManager.getTurnState(), TurnManager.TurnState.MOVE_STUDENTS_PHASE);
+        assertEquals(secondPlayer,turnManager.getCurrentPlayer());
+        assertEquals(TurnManager.TurnState.MOVE_STUDENTS_PHASE,turnManager.getTurnState());
+        //skipping student disk moving
+        while (turnManager.getTurnState()==TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
+            turnManager.nextAction();
+        }
+        assertEquals(secondPlayer,turnManager.getCurrentPlayer());
+        assertEquals(TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE,turnManager.getTurnState());
         turnManager.nextAction();
         assertEquals(turnManager.getCurrentPlayer(), secondPlayer);
-        assertEquals(turnManager.getTurnState(), TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE);
-        turnManager.nextAction();
-        assertEquals(turnManager.getCurrentPlayer(), secondPlayer);
-        assertEquals(turnManager.getTurnState(), TurnManager.TurnState.CHOOSE_CLOUD_TILE_PHASE);
+        assertEquals(TurnManager.TurnState.CHOOSE_CLOUD_TILE_PHASE,turnManager.getTurnState());
         turnManager.nextAction();
         assertEquals(turnManager.getCurrentPlayer(), firstPlayer);
-        assertEquals(turnManager.getTurnState(), TurnManager.TurnState.MOVE_STUDENTS_PHASE);
+        assertEquals(TurnManager.TurnState.MOVE_STUDENTS_PHASE,turnManager.getTurnState());
+        while (turnManager.getTurnState()==TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
+            turnManager.nextAction();
+        }
+        assertEquals(turnManager.getCurrentPlayer(), firstPlayer);
+        assertEquals(TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE,turnManager.getTurnState());
         turnManager.nextAction();
         assertEquals(turnManager.getCurrentPlayer(), firstPlayer);
-        assertEquals(turnManager.getTurnState(), TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE);
-        turnManager.nextAction();
-        assertEquals(turnManager.getCurrentPlayer(), firstPlayer);
-        assertEquals(turnManager.getTurnState(), TurnManager.TurnState.CHOOSE_CLOUD_TILE_PHASE);
+        assertEquals(TurnManager.TurnState.CHOOSE_CLOUD_TILE_PHASE,turnManager.getTurnState());
         turnManager.nextAction();
         assertEquals(turnManager.getCurrentPlayer(), secondPlayer);                                     //New Round
-        assertEquals(turnManager.getTurnState(), TurnManager.TurnState.STUDENTS_DRAW_PHASE);
-    }
-
-    @Test
-    void getNextPlayer() {
-        Player currentPlayer = turnManager.getCurrentPlayer();
-        assertEquals(turnManager.getNextPlayer(),turnManager.getPlayerOrder().get((turnManager.getPlayerOrder().indexOf(currentPlayer)+1)%turnManager.getPlayerOrder().size()));
+        assertEquals(TurnManager.TurnState.ASSISTANT_CARDS_PHASE,turnManager.getTurnState());
     }
 
     @Test
     void refreshTurnOrder() throws AssistantCardNotFoundException, AssistantCardAlreadyPlayedException {
-        turnManager.setNextAction();                                //to be able to play cards
         Player firstPlayer = turnManager.getCurrentPlayer();
         Player secondPlayer = turnManager.getPlayerOrder().get(1);
         controller.getAssistantCardController().playAssistantCard(firstPlayer,firstPlayer.getSchoolBoard().getHand().get(2).getCardID(),turnManager);
-        turnManager.setNextAction();                                //to be able to play cards
         controller.getAssistantCardController().playAssistantCard(secondPlayer,secondPlayer.getSchoolBoard().getHand().get(0).getCardID(),turnManager);
-
         assertEquals(secondPlayer,turnManager.getCurrentPlayer());
         assertEquals(firstPlayer,turnManager.getNextPlayer());
-
     }
 
     @Test

@@ -21,7 +21,7 @@ class AssistantCardControllerTest {
         int testPlayerNum=2;
         ArrayList<String> playerNames=new ArrayList<>();
         for (int i=0; i<testPlayerNum; i++) {
-            playerNames.add("Player_"+i+1);
+            playerNames.add("Player_"+(i+1));
         }
         controller = new LobbyController(playerNames,false,"normal lobby");
         expertController = new LobbyController(playerNames,true,"expert lobby");
@@ -39,10 +39,8 @@ class AssistantCardControllerTest {
     void playAssistantCard() {
         TurnManager turnManager=controller.getTurnManager();
         cards = turnManager.getCurrentPlayer().getSchoolBoard().getHand();
-        turnManager.setNextAction();
-        assertDoesNotThrow(()->assistantCardController.playAssistantCard(turnManager.getCurrentPlayer(),cards.get(0).getCardID(),turnManager ));
-        assertEquals(turnManager.getPlayerOrder().get(0).getSchoolBoard().getHand().size(),9);           //Verify that after getting played the card got removed
-        turnManager.setNextAction();
+        assertDoesNotThrow(()->assistantCardController.playAssistantCard(turnManager.getCurrentPlayer(),cards.get(0).getCardID(),turnManager));
+        assertEquals(9,turnManager.getPlayerOrder().get(0).getSchoolBoard().getHand().size());           //Verify that after getting played the card got removed
         cards = turnManager.getCurrentPlayer().getSchoolBoard().getHand();
         assertThrows(AssistantCardAlreadyPlayedException.class,()->assistantCardController.playAssistantCard(turnManager.getCurrentPlayer(),cards.get(0).getCardID(),turnManager));//Trying to play card with same value of the card played by the other player in the same turn
         assertDoesNotThrow(()->assistantCardController.playAssistantCard(turnManager.getCurrentPlayer(),cards.get(1).getCardID(),turnManager ));

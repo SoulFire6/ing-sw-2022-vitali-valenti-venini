@@ -8,10 +8,11 @@ import java.util.Comparator;
 public class TurnManager {
     private final ArrayList<Player> playerOrder;
     private Player currentPlayer;
+    private final int maxMoves;
+    private int remainingMoves;
 
 
     public enum TurnState {
-        STUDENTS_DRAW_PHASE,
         ASSISTANT_CARDS_PHASE,
         MOVE_STUDENTS_PHASE,
         MOVE_MOTHER_NATURE_PHASE,
@@ -20,40 +21,61 @@ public class TurnManager {
 
     TurnState turnState;
 
+    TurnState[] turnStates = TurnState.values();
 
-    public TurnManager(ArrayList<Player> playerOrder) {
+
+    public TurnManager(ArrayList<Player> playerOrder, int maxMoves) {
         this.playerOrder = playerOrder;
-        currentPlayer = playerOrder.get(0);
-        turnState = TurnState.STUDENTS_DRAW_PHASE;
+        this.maxMoves=maxMoves;
+        this.remainingMoves=maxMoves;
+        this.currentPlayer = playerOrder.get(0);
+        this.turnState = TurnState.ASSISTANT_CARDS_PHASE;
+    }
+    //TODO remove
+    public void printPlayerOrder() {
+        System.out.println();
+        for (Player p: playerOrder) {
+            System.out.print(p.getName()+" ");
+        }
     }
 
     public void nextAction() {
-        //last phase of the Turn
-        if(turnState==TurnState.CHOOSE_CLOUD_TILE_PHASE)
-            //currentPlayer is the last player of the list
-            if (currentPlayer.equals(playerOrder.get(playerOrder.size() - 1)))    {
-                currentPlayer = getNextPlayer();
-                turnState = TurnState.STUDENTS_DRAW_PHASE;
-            } else {                                                          //last player of playerOrder ended turn not in the last phase
-                currentPlayer = getNextPlayer();                        //currentPlayer becomes the first of the List
-                turnState = TurnState.MOVE_STUDENTS_PHASE;
-            }
-        else if (turnState == TurnState.ASSISTANT_CARDS_PHASE) {
-                if (currentPlayer.equals(playerOrder.get(playerOrder.size() - 1)))
+        switch (turnState) {
+            case ASSISTANT_CARDS_PHASE:
+                //if there are still players left that need to play switch player and refresh remaining moves
+                if (currentPlayer!=getLastPlayer()) {
+                    currentPlayer=getNextPlayer();
+                } else {
                     refreshTurnOrder();
-                else {
-                    currentPlayer = getNextPlayer();
-                    turnState = TurnState.STUDENTS_DRAW_PHASE;
+                    currentPlayer=playerOrder.get(0);
+                    turnState=TurnState.MOVE_STUDENTS_PHASE;
                 }
-            }
-        else
-            setNextAction();
+                break;
+            case CHOOSE_CLOUD_TILE_PHASE:
+                //if last player has finished his action phase return to planning phase, otherwise start next player's action phase
+                if (currentPlayer==getLastPlayer()) {
+                    turnState=TurnState.ASSISTANT_CARDS_PHASE;
+                    currentPlayer=playerOrder.get(0);
+                } else {
+                    turnState=TurnState.MOVE_STUDENTS_PHASE;
+                    remainingMoves=maxMoves;
+                    currentPlayer=getNextPlayer();
+                }
+                break;
+            case MOVE_STUDENTS_PHASE:
+                if (remainingMoves==1) {
+                    remainingMoves=maxMoves;
+                    turnState=turnStates[(turnState.ordinal()+1)%turnStates.length];
+                } else {
+                    remainingMoves--;
+                }
+                break;
+            default:
+                turnState=turnStates[(turnState.ordinal()+1)%turnStates.length];
+                break;
+        }
     }
 
-    public Player getNextPlayer() {
-        int currentIndex = playerOrder.indexOf(currentPlayer);
-        return (playerOrder.get((currentIndex+1)% playerOrder.size()));     //return the next player
-    }
     //This method is called after the whole round is finished
     public void refreshTurnOrder() {
         //Order the list based on the last played card by each Player
@@ -62,20 +84,24 @@ public class TurnManager {
         turnState = TurnState.MOVE_STUDENTS_PHASE;
     }
 
-    //Set turnState to the next state (the order is defined by its order in the enum declaration)
-    public void setNextAction() {
-        TurnState[] turnStates = TurnState.values();
-        turnState = turnStates[(turnState.ordinal()+1)%turnStates.length];
-    }
-
     public Player getCurrentPlayer() {
         return this.currentPlayer;
     }
-
+    public Player getNextPlayer() {
+        return this.playerOrder.get((playerOrder.indexOf(currentPlayer)+1)%playerOrder.size());
+    }
+    public Player getLastPlayer() {
+        return this.playerOrder.get(playerOrder.size()-1);
+    }
     public TurnState getTurnState() {
         return this.turnState;
     }
-
+    public int getMaxMoves() {
+        return this.maxMoves;
+    }
+    public int getRemainingMoves() {
+        return this.remainingMoves;
+    }
     public ArrayList<Player> getPlayerOrder() {
         return this.playerOrder;
     }
