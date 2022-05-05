@@ -9,9 +9,11 @@ import it.polimi.softeng.network.message.command.*;
 import it.polimi.softeng.network.message.*;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
+import it.polimi.softeng.network.server.LobbyClient;
 
 import java.lang.Exception;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class LobbyController {
     private final Game game;
@@ -56,6 +58,9 @@ public class LobbyController {
     }
     public AssistantCardController getAssistantCardController() {
         return this.assistantCardController;
+    }
+    public CharCardController getCharCardController() {
+        return this.charCardController;
     }
     public Message parseMessage(Message inMessage) {
         Player currentPlayer=null;
@@ -126,6 +131,7 @@ public class LobbyController {
                                 throw new WrongPhaseException("Cannot play character cards  "+turnManager.getTurnState());
                             }
                             charCardController.activateCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),game);
+                            //TODO add immediate effects for specific cards, if the effect is passive
                             break;
                         default:
                             throw new MoveNotAllowedException("This should not be reachable");

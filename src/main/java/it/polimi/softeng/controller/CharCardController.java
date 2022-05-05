@@ -56,7 +56,9 @@ public class CharCardController {
         if (p.getSchoolBoard().getCoins() < playedCard.getCost()) {
             throw new InsufficientResourceException("Not enough coins (" + p.getSchoolBoard().getCoins() + "/" + playedCard.getCost() + ")");
         }
-
+        p.getSchoolBoard().setCoins(p.getSchoolBoard().getCoins()-playedCard.getCost());
+        getCharCardID(playedCard).active=true;
+        playedCard.incrementCost();
     }
 
     //Deactivates all cards (to be use at end of turn when effect for all cards ends)
@@ -119,6 +121,8 @@ public class CharCardController {
             return null;
         }
     }
+    /*
+    TODO: determine if method is needed based on how serialised objects can be loaded from save
     public ArrayList<CharacterCard> genCharCardsFromSave(String PATH_TO_SAVE) {
         ArrayList<CharacterCard> res=new ArrayList<>();
         String card;
@@ -138,6 +142,7 @@ public class CharCardController {
             return null;
         }
     }
+    */
     public boolean checkDisabledColour(Colour c, ArrayList<CharacterCard> cards) {
         ColourBooleanMap_CharCard ShroomVendor=null;
         for (CharacterCard card: cards) {
