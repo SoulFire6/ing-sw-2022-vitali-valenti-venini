@@ -91,7 +91,6 @@ class TurnManagerTest {
         }
     }
 
-
     @Test
     void getCurrentPlayer() {
         Player firstPlayer = turnManager.getPlayerOrder().get(0);
@@ -104,7 +103,16 @@ class TurnManagerTest {
     }
 
     @Test
-    void getPlayerOrder() {
-        //Basic getter, no test
+    void testGetMoves() {
+        int testMaxMoves=controller.getGame().getClouds().get(0).getMaxSlots();
+        for (Player p: controller.getGame().getPlayers()) {
+            p.getSchoolBoard().playAssistantCard("Cheetah");
+        }
+        while(turnManager.getTurnState()!= TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
+            turnManager.nextAction();
+        }
+        assertEquals(testMaxMoves,turnManager.getMaxMoves());
+        turnManager.nextAction();
+        assertEquals(testMaxMoves-1,turnManager.getRemainingMoves());
     }
 }

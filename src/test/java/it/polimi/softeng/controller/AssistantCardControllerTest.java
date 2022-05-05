@@ -5,26 +5,24 @@ import it.polimi.softeng.model.AssistantCard;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class AssistantCardControllerTest {
-    AssistantCardController assistantCardController;
-    LobbyController controller, expertController;
-    ArrayList<AssistantCard> cards;
+    AssistantCardController assistantCardController=new AssistantCardController();
+    LobbyController controller;
+    ArrayList<AssistantCard> cards = new ArrayList<>();
     @BeforeEach
     void setUp() {
-        cards = new ArrayList<>();
-        assistantCardController=new AssistantCardController();
-
         int testPlayerNum=2;
         ArrayList<String> playerNames=new ArrayList<>();
         for (int i=0; i<testPlayerNum; i++) {
             playerNames.add("Player_"+(i+1));
         }
         controller = new LobbyController(playerNames,false,"normal lobby");
-        expertController = new LobbyController(playerNames,true,"expert lobby");
     }
 
     @Test
@@ -44,5 +42,6 @@ class AssistantCardControllerTest {
         cards = turnManager.getCurrentPlayer().getSchoolBoard().getHand();
         assertThrows(AssistantCardAlreadyPlayedException.class,()->assistantCardController.playAssistantCard(turnManager.getCurrentPlayer(),cards.get(0).getCardID(),turnManager));//Trying to play card with same value of the card played by the other player in the same turn
         assertDoesNotThrow(()->assistantCardController.playAssistantCard(turnManager.getCurrentPlayer(),cards.get(1).getCardID(),turnManager ));
+        assertThrows(AssistantCardNotFoundException.class,()->assistantCardController.playAssistantCard(turnManager.getCurrentPlayer(),"illegal id",turnManager));
     }
 }

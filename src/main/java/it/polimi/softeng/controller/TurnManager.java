@@ -31,13 +31,6 @@ public class TurnManager {
         this.currentPlayer = playerOrder.get(0);
         this.turnState = TurnState.ASSISTANT_CARDS_PHASE;
     }
-    //TODO remove
-    public void printPlayerOrder() {
-        System.out.println();
-        for (Player p: playerOrder) {
-            System.out.print(p.getName()+" ");
-        }
-    }
 
     public void nextAction() {
         switch (turnState) {
