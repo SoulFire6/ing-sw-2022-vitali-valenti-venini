@@ -150,7 +150,7 @@ public class TileController {
         //Setup
         for (Team t: Team.values()) {
             teamInfluence.put(t,0);
-            teamColours.put(t,PlayerController.getTeamColours(t,players));
+            teamColours.put(t,playerController.getTeamColours(t,players));
         }
         //Tower influence
         if (charController==null) {

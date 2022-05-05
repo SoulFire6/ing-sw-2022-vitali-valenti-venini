@@ -3,6 +3,7 @@ package it.polimi.softeng.controller;
 import it.polimi.softeng.exceptions.DiningRoomFullException;
 import it.polimi.softeng.exceptions.InsufficientResourceException;
 
+import it.polimi.softeng.exceptions.InvalidPlayerNumException;
 import it.polimi.softeng.model.Player;
 import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.Team;
@@ -15,13 +16,12 @@ import java.util.Collections;
 
 public class PlayerController {
 
-    public ArrayList<Player> genPlayers(ArrayList<String> playerNames) {
+    public ArrayList<Player> genPlayers(ArrayList<String> playerNames) throws InvalidPlayerNumException{
         Random rand=new Random();
         ArrayList<Player> players=new ArrayList<>();
         int playerNum=playerNames.size();
         if (playerNum<2 || playerNum>4) {
-            //TODO: add custom exception (GameGenerationErrorException?)
-            throw new IllegalArgumentException("Could not generate teams\nExpected players: 2-4\nActual: "+playerNum);
+            throw new InvalidPlayerNumException("Could not generate teams\nExpected players: 2-4\nActual: "+playerNum);
         }
         //Randomises what teams each player gets by shuffling their names
         for (int i=0; i<playerNum; i++) {
@@ -60,7 +60,7 @@ public class PlayerController {
         return teams;
     }
 
-    public static ArrayList<Player> getPlayersOnTeam(ArrayList<Player> players, Team t) {
+    public ArrayList<Player> getPlayersOnTeam(ArrayList<Player> players, Team t) {
         ArrayList<Player> res=new ArrayList<>();
         for (Player p: players) {
             if (p.getTeam()==t) {
@@ -69,7 +69,7 @@ public class PlayerController {
         }
         return res;
     }
-    public static ArrayList<Colour> getTeamColours(Team t, ArrayList<Player> players) {
+    public ArrayList<Colour> getTeamColours(Team t, ArrayList<Player> players) {
         ArrayList<Colour> colours=new ArrayList<>();
         for (Player p: players) {
             if (p.getTeam()==t) {
@@ -82,7 +82,7 @@ public class PlayerController {
         }
         return colours;
     }
-    public void moveStudentToDiningRoom(Player p, Colour c, boolean expertMode) throws InsufficientResourceException,DiningRoomFullException {
+    public void moveStudentToDiningRoom(Player p, ArrayList<Player> players, Colour c, boolean expertMode) throws InsufficientResourceException,DiningRoomFullException {
         if (p.getSchoolBoard().getContents().get(c)==0) {
             throw new InsufficientResourceException("Not enough "+c+" students in entrance");
         }
@@ -93,24 +93,11 @@ public class PlayerController {
         if (expertMode && p.getSchoolBoard().getDiningRoomAmount(c)%3==0) {
             p.getSchoolBoard().setCoins(p.getSchoolBoard().getCoins()+1);
         }
-    }
-
-    public void checkProfessorChange(Colour c, Player p,ArrayList<Player> players)
-    {
-        int count,max=0;
-        Player professorPlayer=null;
-        for(Player player : players) {                           //set professorPlayer to the player controlling the professor of color c
-            if(player.getSchoolBoard().getProfessor(c))
-                professorPlayer = player;
-        }
-        if(professorPlayer==null)                                       //First dining room filled
-        {
-            p.getSchoolBoard().setProfessor(c,true);
-            return;
-        }
-        if(p.getSchoolBoard().getDiningRoomAmount(c)>professorPlayer.getSchoolBoard().getDiningRoomAmount(c)) {
-            p.getSchoolBoard().setProfessor(c, true);
-            professorPlayer.getSchoolBoard().setProfessor(c,false);
+        for (Player professorPlayer: players) {
+            if (p.getSchoolBoard().getDiningRoomAmount(c)>professorPlayer.getSchoolBoard().getDiningRoomAmount(c) && professorPlayer.getSchoolBoard().getProfessor(c)) {
+                p.getSchoolBoard().setProfessor(c,true);
+                professorPlayer.getSchoolBoard().setProfessor(c,false);
+            }
         }
     }
 
@@ -119,16 +106,24 @@ public class PlayerController {
             ArrayList<Player> winningPlayers=getPlayersOnTeam(players,winningTeam);
             ArrayList<Player> losingPlayers=getPlayersOnTeam(players,losingTeam);
             for (int i=0; i<towerNum; i++) {
-                winningPlayers.get(i%2).getSchoolBoard().modifyTowers(1);
-                losingPlayers.get(i%2).getSchoolBoard().modifyTowers(-1);
+                if (winningPlayers.get(0).getSchoolBoard().getTowers()>winningPlayers.get(1).getSchoolBoard().getTowers()) {
+                    winningPlayers.get(0).getSchoolBoard().modifyTowers(-1);
+                } else {
+                    winningPlayers.get(1).getSchoolBoard().modifyTowers(-1);
+                }
+                if (losingPlayers.get(0).getSchoolBoard().getTowers()>losingPlayers.get(1).getSchoolBoard().getTowers()) {
+                    losingPlayers.get(1).getSchoolBoard().modifyTowers(1);
+                } else {
+                    losingPlayers.get(0).getSchoolBoard().modifyTowers(1);
+                }
             }
         } else {
             for (Player p: players) {
                 if (p.getTeam()==winningTeam) {
-                    p.getSchoolBoard().modifyTowers(towerNum);
+                    p.getSchoolBoard().modifyTowers(-towerNum);
                 }
                 if (p.getTeam()==losingTeam) {
-                    p.getSchoolBoard().modifyTowers(-towerNum);
+                    p.getSchoolBoard().modifyTowers(towerNum);
                 }
             }
         }

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -66,8 +65,7 @@ public class CharCardControllerTest {
 
     @Test
     public void testDisabledColour() {
-        Random rand=new Random();
-        Colour c=Colour.values()[rand.nextInt(Colour.values().length)];
+        Colour c=Colour.getRandomColour();
         ArrayList<String> names=new ArrayList<>(Arrays.asList("1","2"));
         LobbyController controller=null;
         CharacterCard shroomVendor=null;

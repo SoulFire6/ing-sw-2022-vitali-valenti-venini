@@ -1,9 +1,6 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.exceptions.MoveNotAllowedException;
-import it.polimi.softeng.exceptions.NotYourTurnException;
-import it.polimi.softeng.exceptions.PlayerNotFoundException;
-import it.polimi.softeng.exceptions.WrongPhaseException;
+import it.polimi.softeng.exceptions.*;
 import it.polimi.softeng.model.*;
 import it.polimi.softeng.network.message.command.*;
 import it.polimi.softeng.network.message.*;
@@ -40,7 +37,13 @@ public class LobbyController {
     public Game createGame(ArrayList<String> playerNames,boolean expertMode) {
         Game game;
         Bag_Tile bag=new Bag_Tile(24);
-        ArrayList<Player> players = playerController.genPlayers(playerNames);
+        ArrayList<Player> players;
+        try {
+            players = playerController.genPlayers(playerNames);
+        }
+        catch (InvalidPlayerNumException ipne) {
+            return null;
+        }
         for (Player p: players) {
             p.setSchoolBoard(new SchoolBoard_Tile(p.getName(),7+2*(playerNames.size()%2),8-2*(playerNames.size()-2),8,assistantCardController.genHand(null),expertMode?1:0));
         }
@@ -109,7 +112,7 @@ public class LobbyController {
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
                                 throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
                             }
-                            playerController.moveStudentToDiningRoom(currentPlayer,((DiskToDiningRoom_Cmd_Msg)inMessage).getColour(),game.isExpertMode());
+                            playerController.moveStudentToDiningRoom(currentPlayer,game.getPlayers(),((DiskToDiningRoom_Cmd_Msg)inMessage).getColour(),game.isExpertMode());
                             break;
                         case MOVEMN:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE) {
