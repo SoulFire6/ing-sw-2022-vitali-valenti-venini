@@ -23,9 +23,14 @@ class TurnManagerTest {
         for (int i=0; i<testPlayerNum; i++) {
             playerNames.add("Player_"+(i+1));
         }
-        controller = new LobbyController(playerNames,false,"normal lobby");
-        expertController = new LobbyController(playerNames,true,"expert lobby");
-        turnManager = controller.getTurnManager();
+        try {
+            controller = new LobbyController(playerNames,false,"normal lobby");
+            expertController = new LobbyController(playerNames,true,"expert lobby");
+            turnManager = controller.getTurnManager();
+        }
+        catch (InvalidPlayerNumException ipne) {
+            fail();
+        }
     }
 
     @Test

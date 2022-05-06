@@ -2,6 +2,7 @@ package it.polimi.softeng.controller;
 
 import it.polimi.softeng.exceptions.CharacterCardNotFoundException;
 import it.polimi.softeng.exceptions.InsufficientResourceException;
+import it.polimi.softeng.exceptions.InvalidPlayerNumException;
 import it.polimi.softeng.model.*;
 
 import it.polimi.softeng.model.CharacterCardSubTypes.ColourBooleanMap_CharCard;
@@ -44,17 +45,23 @@ public class CharCardControllerTest {
         ArrayList<String> playerNames=new ArrayList<>();
         playerNames.add(player.getName());
         playerNames.add("test 2");
-        Game game=new LobbyController(playerNames,true,null).getGame();
-        CharacterCard card=game.getCharacterCards().get(0);
-        int initialCost=card.getCost();
-        player.setSchoolBoard(new SchoolBoard_Tile("test",0,0,0,null,0));
-        assertThrows(InsufficientResourceException.class,()->charController.activateCard(player,card.getCardID(),game));
-        player.getSchoolBoard().setCoins(initialCost);
-        assertDoesNotThrow(()->charController.activateCard(player,card.getCardID(),game));
-        assertEquals(0,player.getSchoolBoard().getCoins());
-        assertEquals(initialCost+1,card.getCost());
-        assertThrows(CharacterCardNotFoundException.class,()->charController.activateCard(player,"illegal id",game));
-        assertTrue(charController.getActiveStatus(card.getCardID()));
+        Game game;
+        try {
+            game=new LobbyController(playerNames,true,null).getGame();
+            CharacterCard card=game.getCharacterCards().get(0);
+            int initialCost=card.getCost();
+            player.setSchoolBoard(new SchoolBoard_Tile("test",0,0,0,null,0));
+            assertThrows(InsufficientResourceException.class,()->charController.activateCard(player,card.getCardID(),game));
+            player.getSchoolBoard().setCoins(initialCost);
+            assertDoesNotThrow(()->charController.activateCard(player,card.getCardID(),game));
+            assertEquals(0,player.getSchoolBoard().getCoins());
+            assertEquals(initialCost+1,card.getCost());
+            assertThrows(CharacterCardNotFoundException.class,()->charController.activateCard(player,"illegal id",game));
+            assertTrue(charController.getActiveStatus(card.getCardID()));
+        }
+        catch (InvalidPlayerNumException ipne) {
+            fail();
+        }
     }
 
     @Test
@@ -71,13 +78,18 @@ public class CharCardControllerTest {
         LobbyController controller=null;
         CharacterCard shroomVendor=null;
         while (shroomVendor==null) {
-            controller=new LobbyController(names,true,"testController");
-            for (CharacterCard card: controller.getGame().getCharacterCards()) {
-                if (card.getCardID().equals("ShroomVendor")) {
-                    shroomVendor=card;
-                    controller.getGame().getPlayers().get(0).getSchoolBoard().setCoins(shroomVendor.getCost());
-                    break;
+            try {
+                controller=new LobbyController(names,true,"testController");
+                for (CharacterCard card: controller.getGame().getCharacterCards()) {
+                    if (card.getCardID().equals("ShroomVendor")) {
+                        shroomVendor=card;
+                        controller.getGame().getPlayers().get(0).getSchoolBoard().setCoins(shroomVendor.getCost());
+                        break;
+                    }
                 }
+            }
+            catch (InvalidPlayerNumException ipne) {
+                fail();
             }
         }
         final LobbyController lobbyController=controller;
@@ -107,12 +119,17 @@ public class CharCardControllerTest {
         names.add("test2");
         LobbyController controller=null;
         while (!cardsWithSetup) {
-            controller = new LobbyController(names,true,"test");
-            for (CharacterCard card: controller.getGame().getCharacterCards()) {
-                if (card.getCardID().equals("Monk") || card.getCardID().equals("SpoiledPrincess") || card.getCardID().equals("Jester")) {
-                    cardsWithSetup=true;
-                    break;
+            try {
+                controller = new LobbyController(names,true,"test");
+                for (CharacterCard card: controller.getGame().getCharacterCards()) {
+                    if (card.getCardID().equals("Monk") || card.getCardID().equals("SpoiledPrincess") || card.getCardID().equals("Jester")) {
+                        cardsWithSetup=true;
+                        break;
+                    }
                 }
+            }
+            catch (InvalidPlayerNumException ipne) {
+                fail();
             }
         }
         int testFillAmount=controller.getGame().getBag().getFillAmount();

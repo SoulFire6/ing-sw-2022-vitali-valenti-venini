@@ -1,6 +1,7 @@
 package it.polimi.softeng.network.server;
 
 import it.polimi.softeng.controller.LobbyController;
+import it.polimi.softeng.exceptions.InvalidPlayerNumException;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MsgType;
@@ -17,7 +18,7 @@ public class Lobby implements Runnable {
     private final HashMap<String,LobbyClient> clients=new HashMap<>();
     private final String lobbyMaster;
     private int maxPlayers=0;
-    private LobbyController controller;
+    private LobbyController controller=null;
 
     public Lobby(String lobbyName,String username, LobbyClient lobbyMaster) {
         this.lobbyName=lobbyName;
@@ -33,9 +34,14 @@ public class Lobby implements Runnable {
         currentClient.sendMessage(MsgType.TEXT,"Correct max player set","Set max players to "+maxPlayers);
         waitForOtherPlayers();
         //TODO add expertmode selection to lobby master
-        setupGame(new ArrayList<>(this.clients.keySet()),false);
-        createLobbyListeners();
-        processMessageQueue();
+        try {
+            setupGame(new ArrayList<>(this.clients.keySet()),false);
+            createLobbyListeners();
+            processMessageQueue();
+        }
+        catch (InvalidPlayerNumException ipne) {
+            System.out.println("Invalid player num, closing lobby");
+        }
     }
 
     private void setupLobby(LobbyClient client) {
@@ -76,7 +82,7 @@ public class Lobby implements Runnable {
             ie.printStackTrace();
         }
     }
-    private void setupGame(ArrayList<String> playerNames, boolean expertMode) {
+    private void setupGame(ArrayList<String> playerNames, boolean expertMode) throws InvalidPlayerNumException {
         this.controller=new LobbyController(playerNames,expertMode,lobbyName);
         Message gameLoad=new Game_Load_Msg(lobbyName,"Game created",controller.getGame());
         for (String client: clients.keySet()) {

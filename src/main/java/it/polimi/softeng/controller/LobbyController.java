@@ -21,7 +21,7 @@ public class LobbyController {
     private final TileController tileController;
     private final PlayerController playerController;
 
-    public LobbyController(ArrayList<String> playerNames, boolean expertMode, String lobbyName) {
+    public LobbyController(ArrayList<String> playerNames, boolean expertMode, String lobbyName) throws InvalidPlayerNumException {
         this.lobbyName=lobbyName;
         this.assistantCardController = new AssistantCardController();
         this.tileController = new TileController();
@@ -34,16 +34,11 @@ public class LobbyController {
         this.game=createGame(playerNames,expertMode);
         this.turnManager = new TurnManager(game.getPlayers(),game.getClouds().get(0).getMaxSlots());
     }
-    public Game createGame(ArrayList<String> playerNames,boolean expertMode) {
+    public Game createGame(ArrayList<String> playerNames,boolean expertMode) throws InvalidPlayerNumException {
         Game game;
         Bag_Tile bag=new Bag_Tile(24);
         ArrayList<Player> players;
-        try {
-            players = playerController.genPlayers(playerNames);
-        }
-        catch (InvalidPlayerNumException ipne) {
-            return null;
-        }
+        players = playerController.genPlayers(playerNames);
         for (Player p: players) {
             p.setSchoolBoard(new SchoolBoard_Tile(p.getName(),7+2*(playerNames.size()%2),8-2*(playerNames.size()-2),8,assistantCardController.genHand(null),expertMode?1:0));
         }
@@ -100,25 +95,28 @@ public class LobbyController {
                                 throw new WrongPhaseException("Cannot use asssistant card during "+turnManager.getTurnState());
                             }
                             assistantCardController.playAssistantCard(currentPlayer,((AssistCard_Cmd_Msg)inMessage).getAssistID(),turnManager);
-                            //TODO: replace with reduced model
+                            //TODO: return updated schoolboard
                             return MessageCenter.genMessage(MsgType.ASSISTANTCARD,lobbyName,currentPlayer.getName()+"has played "+((AssistCard_Cmd_Msg)inMessage).getAssistID(),currentPlayer.getSchoolBoard().getHand());
                         case DISKTOISLAND:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
                                 throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
                             }
                             tileController.moveStudentsToIsland(currentPlayer,((DiskToIsland_Cmd_Msg)inMessage).getColour(),inMessage.getContext(),game.getIslands(),turnManager);
+                            //TODO: return updated islands and schoolboard
                             break;
                         case DISKTODININGROOM:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
                                 throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
                             }
                             playerController.moveStudentToDiningRoom(currentPlayer,game.getPlayers(),((DiskToDiningRoom_Cmd_Msg)inMessage).getColour(),game.isExpertMode());
+                            //TODO: return updated player schoolboard
                             break;
                         case MOVEMN:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE) {
                                 throw new WrongPhaseException("Cannot move mother nature during "+turnManager.getTurnState());
                             }
                             tileController.moveMotherNature(currentPlayer,((MoveMotherNature_Cmd_Msg)inMessage).getMoveAmount(),charCardController,game.getPlayers(),game.getCharacterCards(),game.getIslands(),playerController);
+                            //TODO: send updated islands and schoolboards if towers where placed/swapped
                             break;
                         case CHOOSECLOUD:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.CHOOSE_CLOUD_TILE_PHASE) {
@@ -128,6 +126,7 @@ public class LobbyController {
                             if (currentPlayer==turnManager.getLastPlayer()) {
                                 tileController.refillClouds(game.getClouds(),game.getBag());
                             }
+                            //TODO: send updated schoolboard and clouds
                             break;
                         case PLAYCHARCARD:
                             if (turnManager.getTurnState()==TurnManager.TurnState.ASSISTANT_CARDS_PHASE) {
@@ -135,7 +134,7 @@ public class LobbyController {
                             }
                             charCardController.activateCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),game);
                             //TODO add immediate effects for specific cards, if the effect is passive
-                            break;
+                            return MessageCenter.genMessage(MsgType.CHARACTERCARD,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),game.getCharacterCards());
                         default:
                             throw new MoveNotAllowedException("This should not be reachable");
                     }
@@ -145,7 +144,7 @@ public class LobbyController {
             System.out.println("["+lobbyName+"] "+currentPlayer+"'s action has thrown "+e.getCause());
             return MessageCenter.genMessage(MsgType.ERROR,lobbyName,e.getMessage(),null);
         }
-        //TODO remove
+        //TODO: remove once all cases are solved
         return null;
     }
 }
