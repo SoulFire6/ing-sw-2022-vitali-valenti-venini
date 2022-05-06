@@ -35,6 +35,7 @@ public class GameTest {
         Game game = new Game(testID,players,teams,bag,clouds,islands,expertModeTest,testCoins,cards);
         assertEquals(testID,game.getGameID());
         assertEquals(players,game.getPlayers());
+        assertEquals(players.size(),game.getPlayerNum());
         assertEquals(teams,game.getTeams());
         assertEquals(bag,game.getBag());
         assertEquals(clouds,game.getClouds());

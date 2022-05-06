@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TileTest {
     //Class implementation for tests only
@@ -56,7 +57,7 @@ public class TileTest {
         int secondNum=3;
         Colour randColour=Colour.getRandomColour();
         Tile tile=new Test_Tile(num);
-        tile.removeColour(randColour,secondNum);
+        assertEquals(true,tile.removeColour(randColour,secondNum));
         for (Colour c: Colour.values()) {
             if (c==randColour) {
                 assertEquals(num-secondNum,tile.getContents().get(c).intValue());
@@ -64,6 +65,8 @@ public class TileTest {
                 assertEquals(num,tile.getContents().get(c).intValue());
             }
         }
+        assertEquals(false,tile.removeColour(randColour,10));
+        assertNull(tile.removeColour(randColour,-1));
     }
     @Test
     public void testRemoveColourWithValueHigherThanCurrent() {

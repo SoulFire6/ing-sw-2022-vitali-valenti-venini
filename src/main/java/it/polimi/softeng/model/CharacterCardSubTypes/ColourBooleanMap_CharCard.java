@@ -9,13 +9,13 @@ public class ColourBooleanMap_CharCard extends CharacterCard {
     EnumMap<Colour,Boolean> memory;
     public ColourBooleanMap_CharCard(String id, int cost,EnumMap<Colour,Boolean> memory) {
         super(id,cost);
-        this.memory=memory;
+        this.memory=memory.clone();
     }
     public EnumMap<Colour,Boolean> getMemory() {
-        return this.memory;
+        return this.memory.clone();
     }
     public void setMemory(EnumMap<Colour,Boolean> memory) {
-        this.memory=memory;
+        this.memory=memory.clone();
     }
     public void resetMemory() {
         for (Colour c: Colour.values()) {
