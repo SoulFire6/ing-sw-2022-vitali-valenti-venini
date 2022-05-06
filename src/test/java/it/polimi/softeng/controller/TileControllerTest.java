@@ -2,13 +2,16 @@ package it.polimi.softeng.controller;
 
 import it.polimi.softeng.exceptions.*;
 import it.polimi.softeng.model.*;
-import org.hamcrest.core.Is;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TileControllerTest {
     private static final TileController tileController=new TileController();
