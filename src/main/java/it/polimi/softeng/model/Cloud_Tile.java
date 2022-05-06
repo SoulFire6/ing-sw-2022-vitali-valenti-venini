@@ -1,6 +1,5 @@
 package it.polimi.softeng.model;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 
 public class Cloud_Tile extends Tile {

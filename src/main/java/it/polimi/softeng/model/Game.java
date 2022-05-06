@@ -1,8 +1,5 @@
 package it.polimi.softeng.model;
 
-import it.polimi.softeng.controller.TileController;
-import it.polimi.softeng.controller.PlayerController;
-
 import java.util.ArrayList;
 
 public class Game {

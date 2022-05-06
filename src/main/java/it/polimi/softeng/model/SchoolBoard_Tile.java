@@ -4,12 +4,12 @@ import java.util.EnumMap;
 import java.util.ArrayList;
 
 public class SchoolBoard_Tile extends Tile{
-    private int maxEntranceSlots;
-    private EnumMap<Colour,Integer> diningRoom;
-    private EnumMap<Colour,Boolean> professorTable;
+    private final int maxEntranceSlots;
+    private final EnumMap<Colour,Integer> diningRoom;
+    private final EnumMap<Colour,Boolean> professorTable;
     private int towers;
-    private int maxTowers;
-    private ArrayList<AssistantCard> hand;
+    private final int maxTowers;
+    private final ArrayList<AssistantCard> hand;
     private AssistantCard lastUsedCard;
     private int coins;
 
@@ -46,6 +46,12 @@ public class SchoolBoard_Tile extends Tile{
         } else {
             System.out.println("Error filling schoolboard entrance");
         }
+    }
+    public EnumMap<Colour,Integer> getDiningRoom() {
+        return this.diningRoom;
+    }
+    public EnumMap<Colour,Boolean> getProfessorTable() {
+        return this.professorTable;
     }
     public int getDiningRoomAmount(Colour c) {
         return this.diningRoom.get(c);
