@@ -25,7 +25,7 @@ public class Eriantys {
         String[] clientArgs={null,null,null};
         //port
         String[] serverArgs={null};
-        boolean client = false, server = false, cli = false, gui = false, stop=false;
+        boolean isClient = false, isServer = false, cli = false, gui = false, stop=false;
         if (args.length > 0) {
             for (int i = 0; i<args.length && !stop; i++) {
                 switch (args[i].toLowerCase()) {
@@ -37,17 +37,17 @@ public class Eriantys {
                         break;
                     case "-client":
                     case "-c":
-                        if (server) {
+                        if (isServer) {
                             throw new IllegalArgumentException("Already server: cannot be client");
                         }
-                        client = true;
+                        isClient = true;
                         break;
                     case "-server":
                     case "-s":
-                        if (client) {
+                        if (isClient) {
                             throw new IllegalArgumentException("Already client: cannot be server");
                         }
-                        server=true;
+                        isServer=true;
                         break;
                     case "-user":
                     case "-u":
@@ -95,9 +95,10 @@ public class Eriantys {
             }
             if (!stop) {
                 try {
-                    if (client && (cli || gui)) {
-                        Client.main(clientArgs);
-                    } else if (server) {
+                    if (isClient && (cli || gui)) {
+                        Client client=new Client(clientArgs);
+                        client.start();
+                    } else if (isServer) {
                         Server.main(serverArgs);
                     } else {
                         throw new IllegalArgumentException("Did not specify client or server");

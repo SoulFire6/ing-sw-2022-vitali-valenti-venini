@@ -1,179 +1,126 @@
 package it.polimi.softeng.network.client;
 
-import it.polimi.softeng.network.message.Info_Message;
+import it.polimi.softeng.model.ReducedModel.ReducedGame;
+import it.polimi.softeng.network.client.view.CLI;
+import it.polimi.softeng.network.client.view.GUI;
+import it.polimi.softeng.network.client.view.View;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
-import it.polimi.softeng.network.message.load.Load_Message;
-
 
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class Client {
-    private static String username=null;
-    //TODO: add client controller attribute that processes messages
+    private String username;
+    private ReducedGame model;
+    private View view;
+
     private static final String DEFAULT_IP="127.0.0.1";
     private static final Integer DEFAULT_PORT=50033;
-    private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-9])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-9])$";
-    public static void main(String[] args) throws IOException{
-        Message inMessage=null;
-        Socket socket;
-        BufferedReader userInput=new BufferedReader(new InputStreamReader(System.in));
-        socket=connectToServer(args,userInput);
-        if (socket==null) {
-            throw new IOException("Error connecting to server");
+    private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$";
+
+    private Socket socket=null;
+    private ObjectOutputStream toServer=null;
+    private ObjectInputStream fromServer=null;
+
+    public Client(String[] args) {
+        this.model=null;
+        this.view=(args[3].equals("GUI")?new GUI():new CLI());
+        connectToServer(args);
+    }
+    //TODO: remove, this is for testing purposes only (so it's easier to start clients)
+    public static void main(String[] args) {
+        String[] testArgs={null,null,null,"cli"};
+        Client client=new Client(testArgs);
+        client.start();
+    }
+    public void start() {
+        if (socket == null) {
+            System.out.println("Error: did not initialise client first");
+            return;
         }
+        Message inMessage = null;
         try {
-            ObjectOutputStream toServer=new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream fromServer=new ObjectInputStream(socket.getInputStream());
-            //sends username to server for identification
-            toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT,username,null,null));
-            while ((inMessage=(Message)fromServer.readObject())!=null && inMessage.getSubType()!=MsgType.DISCONNECT) {
-                parseMessage(inMessage);
-                if (inMessage.getSubType()==MsgType.INPUT) {
-                    toServer.writeObject(outMessage(userInput.readLine()));
-                }
+            toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT, username, null, null));
+            while ((inMessage = (Message) fromServer.readObject()) != null && inMessage.getSubType() != MsgType.DISCONNECT) {
+                parseMessageFromServer(inMessage);
+                //TODO make view send out messages
             }
-            userInput.close();
             toServer.close();
             fromServer.close();
             socket.close();
-        }
-        catch (ClassNotFoundException cnfe) {
+        } catch (ClassNotFoundException cnfe) {
             System.out.println("Error reading message from server");
-        }
-        catch (IOException io) {
+        } catch (IOException io) {
             System.out.println("IO exception");
         }
-        if (inMessage!=null && inMessage.getSubType()==MsgType.DISCONNECT) {
+        if (inMessage != null && inMessage.getSubType() == MsgType.DISCONNECT) {
             System.out.println("DISCONNECTED");
         } else {
             System.out.println("Error: abrupt disconnect");
         }
-
     }
 
-    private static Socket connectToServer(String[] args, BufferedReader in) {
-        Socket socket=null;
-        while (username==null) {
-            if (args.length==0) {
-                System.out.print("Username: ");
-                try {
-                    username=in.readLine();
-                }
-                catch (IOException io) {
-                    System.out.println("Error reading username");
-                }
-            } else {
-                setUsername(args[0],in);
-            }
-        }
-        try {
-            switch (args.length) {
-                case 4:
-                    //TODO setup cli/gui based on 4th value
-                    break;
-                case 3:
-                    socket=new Socket(setIP(args[1],in),setPort(args[2],in));
-                    break;
-                default:
-                    socket=new Socket(setIP(null,in),setPort(null,in));
-                    break;
-            }
-
-            if (socket!=null && socket.isConnected()) {
-                return socket;
-            } else {
-                throw new IOException();
-            }
-        }
-        catch (IOException io) {
-            System.out.println("Error connecting to server");
-            return null;
-        }
-    }
-    private static void setUsername(String name, BufferedReader in) {
-        while (username==null) {
-            System.out.print("Choose a username: ");
-            try {
-                username=in.readLine();
-            }
-            catch (IOException io) {
-                System.out.println("Error reading input for username");
-            }
-        }
-    }
-    private static String setIP(String ip, BufferedReader in) {
+    private void connectToServer(String[] args) {
+        String serverIP;
+        int serverPort=0;
         Pattern pattern=Pattern.compile(IP_FORMAT);
         Matcher matcher;
-        if (ip!=null && !pattern.matcher(ip).matches()) {
-            ip=null;
-        }
-        while (ip==null) {
-            System.out.print("Server ip (default local): ");
+        this.username=args[0]!=null?args[0]:view.setUsername();
+        while (this.socket==null) {
             try {
-                if ((ip = in.readLine()).length()!=0 && !ip.equals("local")) {
-                    matcher=pattern.matcher(ip);
-                    if (!matcher.matches()) {
-                        System.out.println("Wrong format for ip address");
-                        ip=null;
+                if (args[1]!=null && pattern.matcher(args[1]).matches()) {
+                    serverIP=args[1];
+                } else {
+                    do {
+                        serverIP=view.setIP(DEFAULT_IP);
+                        matcher=pattern.matcher(serverIP);
+                    }while(!matcher.matches());
+                }
+                if (args[2]!=null) {
+                    try {
+                        serverPort=Integer.parseInt(args[2]);
                     }
-                } else {
-                    ip=DEFAULT_IP;
+                    catch (NumberFormatException nfe) {
+                        view.display("Provided value for port \"+args[2]+\" is not a number");
+                    }
                 }
+                while(serverPort<49152 || serverPort>65535) {
+                    view.display("Server port (default 50033, range 49152-65535): ");
+                    serverPort=view.setPort(DEFAULT_PORT);
+                }
+                this.socket=new Socket(serverIP,serverPort);
             }
             catch (IOException io) {
-                System.out.println("Error reading input");
+                System.out.println("Error connecting to server");
             }
         }
-        return ip;
-    }
-    private static int setPort(String portNumber, BufferedReader in) {
-        Integer port;
         try {
-            port=Integer.parseInt(portNumber);
+            this.toServer=new ObjectOutputStream(socket.getOutputStream());
+            this.fromServer=new ObjectInputStream(socket.getInputStream());
         }
-        catch (NumberFormatException nfe) {
-            port=null;
-        }
-        while (port==null || port<49152 || port>65535) {
-            try {
-                System.out.print("Server port (default 50033, range 49152-65535): ");
-                if ((portNumber=in.readLine()).length()!=0 && !portNumber.equals("local")) {
-                    port=Integer.parseInt(portNumber);
-                } else {
-                    port=DEFAULT_PORT;
-                }
-            }
-            catch (IOException io) {
-                System.out.println("Error reading input");
-            }
-            catch (NumberFormatException nfe) {
-                System.out.println("Not a valid number");
-            }
-        }
-        return port;
-    }
-    //TODO: move message methods as NON STATIC methods into client controller
-    private static void parseMessage(Message msg) {
-        switch (msg.getType()) {
-            case INFO:
-                System.out.println("["+msg.getSender()+"]: "+((Info_Message)msg).getInfo());
-                break;
-            case LOAD:
-                System.out.println(msg.getType()+" "+((Load_Message)msg).getLoad());
-                break;
+        catch (IOException io) {
+            System.out.println("IO exception occurred");
+            //retrying
+            connectToServer(args);
         }
     }
-    private static Message outMessage(String msg) {
-        //TODO: add more message types
-        return MessageCenter.genMessage(MsgType.TEXT,username,"",msg);
+    //TODO implement
+    public void parseMessageFromServer(Message message) {
+
+    }
+    //TODO finish cli string parsing
+    public static Message parseInput(String input) {
+        return null;
+    }
+    //TODO add gui event parsing
+    public static Message parseInput() {
+        return null;
     }
 }
