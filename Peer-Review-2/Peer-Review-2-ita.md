@@ -2,7 +2,7 @@
 
 Marco Vitali, Daniele Valenti, Callum Venini
 
-Gruppo 53
+Gruppo 33
 
 Valutazione dei diagrammi di model, controller e network del gruppo 53.
 
