@@ -6,11 +6,9 @@ import it.polimi.softeng.network.message.command.*;
 import it.polimi.softeng.network.message.*;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
-import it.polimi.softeng.network.server.LobbyClient;
 
 import java.lang.Exception;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 public class LobbyController {
     private final Game game;
@@ -60,28 +58,31 @@ public class LobbyController {
     public CharCardController getCharCardController() {
         return this.charCardController;
     }
-    public Message parseMessage(Message inMessage) {
+    public ArrayList<Message> parseMessage(Message inMessage) {
         Player currentPlayer=null;
-        boolean playerFound=false;
+        ArrayList<Message> response=new ArrayList<>();
         try {
             for (Player p: game.getPlayers()) {
                 if (p.getName().equals(inMessage.getSender())) {
                     currentPlayer=p;
-                    playerFound=true;
                     break;
                 }
             }
-            if (!playerFound) {
+            if (currentPlayer==null) {
                 throw new PlayerNotFoundException("Player not found");
             }
             switch (inMessage.getType()) {
                 case INFO:
                     switch (inMessage.getSubType()) {
                         case WHISPER:
-                            return MessageCenter.genMessage(MsgType.WHISPER,currentPlayer.getName(),inMessage.getContext(),((Info_Message)inMessage).getInfo());
+                            response.add(MessageCenter.genMessage(MsgType.WHISPER,currentPlayer.getName(),inMessage.getContext(),((Info_Message)inMessage).getInfo()));
+                            break;
                         case DISCONNECT:
-                            return MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,currentPlayer.getName()+" has disconnected",null);
-
+                            //this message is for the lobby and disconnecting client only
+                            response.add(MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,currentPlayer.getName(),null));
+                            //this message informs the other players of the disconnect
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" has disconnected",null));
+                            break;
                     }
                 case LOAD:
                     throw new MoveNotAllowedException("Cannot load objects on server");
@@ -96,27 +97,32 @@ public class LobbyController {
                             }
                             assistantCardController.playAssistantCard(currentPlayer,((AssistCard_Cmd_Msg)inMessage).getAssistID(),turnManager);
                             //TODO: return updated schoolboard
-                            return MessageCenter.genMessage(MsgType.ASSISTANTCARD,lobbyName,currentPlayer.getName()+"has played "+((AssistCard_Cmd_Msg)inMessage).getAssistID(),currentPlayer.getSchoolBoard().getHand());
+                            response.add(MessageCenter.genMessage(MsgType.ASSISTANTCARD,lobbyName,currentPlayer.getName()+"has played "+((AssistCard_Cmd_Msg)inMessage).getAssistID(),currentPlayer.getSchoolBoard().getHand()));
                         case DISKTOISLAND:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
                                 throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
                             }
                             tileController.moveStudentsToIsland(currentPlayer,((DiskToIsland_Cmd_Msg)inMessage).getColour(),inMessage.getContext(),game.getIslands(),turnManager);
-                            //TODO: return updated islands and schoolboard
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" has moved a "+((DiskToIsland_Cmd_Msg)inMessage).getColour()+" to "+inMessage.getContext(),null));
+                            response.add(MessageCenter.genMessage(MsgType.ISLAND,lobbyName,inMessage.getContext(),game.getIslands()));
+                            response.add(MessageCenter.genMessage(MsgType.SCHOOLBOARD,lobbyName,inMessage.getSender(),currentPlayer.getSchoolBoard()));
                             break;
                         case DISKTODININGROOM:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
                                 throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
                             }
                             playerController.moveStudentToDiningRoom(currentPlayer,game.getPlayers(),((DiskToDiningRoom_Cmd_Msg)inMessage).getColour(),game.isExpertMode());
-                            //TODO: return updated player schoolboard
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" has moved a "+((DiskToIsland_Cmd_Msg)inMessage).getColour()+" to their dining room",null));
+                            response.add(MessageCenter.genMessage(MsgType.SCHOOLBOARD,lobbyName,inMessage.getSender(),currentPlayer.getSchoolBoard()));
                             break;
                         case MOVEMN:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE) {
                                 throw new WrongPhaseException("Cannot move mother nature during "+turnManager.getTurnState());
                             }
                             tileController.moveMotherNature(currentPlayer,((MoveMotherNature_Cmd_Msg)inMessage).getMoveAmount(),charCardController,game.getPlayers(),game.getCharacterCards(),game.getIslands(),playerController);
-                            //TODO: send updated islands and schoolboards if towers where placed/swapped
+                            response.add(MessageCenter.genMessage(MsgType.ISLAND,lobbyName,"Moved mother nature",game.getIslands()));
+                            //TODO only load new schoolboards if team was swapped
+                            response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,"Swapped team",game.getPlayers()));
                             break;
                         case CHOOSECLOUD:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.CHOOSE_CLOUD_TILE_PHASE) {
@@ -124,9 +130,17 @@ public class LobbyController {
                             }
                             tileController.refillEntranceFromCloud(currentPlayer,((ChooseCloud_Cmd_Msg)inMessage).getCloudID(),game.getClouds());
                             if (currentPlayer==turnManager.getLastPlayer()) {
+                                if (currentPlayer.getSchoolBoard().getHand().size()==0) {
+                                    throw new GameIsOverException("No assistant cards left to play another round");
+                                }
+                                if (game.getBag().getFillAmount()<game.getClouds().get(0).getMaxSlots()*game.getClouds().size()) {
+                                    throw new GameIsOverException("Student disks finished, not enough to fill clouds");
+                                }
                                 tileController.refillClouds(game.getClouds(),game.getBag());
                             }
-                            //TODO: send updated schoolboard and clouds
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" has chosen "+inMessage.getContext(),null));
+                            response.add(MessageCenter.genMessage(MsgType.CLOUD,lobbyName,inMessage.getContext(),game.getClouds()));
+                            response.add(MessageCenter.genMessage(MsgType.SCHOOLBOARD,lobbyName,currentPlayer.getName(),currentPlayer.getSchoolBoard()));
                             break;
                         case PLAYCHARCARD:
                             if (turnManager.getTurnState()==TurnManager.TurnState.ASSISTANT_CARDS_PHASE) {
@@ -134,17 +148,44 @@ public class LobbyController {
                             }
                             charCardController.activateCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),game);
                             //TODO add immediate effects for specific cards, if the effect is passive
-                            return MessageCenter.genMessage(MsgType.CHARACTERCARD,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),game.getCharacterCards());
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),null));
+                            response.add(MessageCenter.genMessage(MsgType.CHARACTERCARD,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),game.getCharacterCards()));
                         default:
                             throw new MoveNotAllowedException("This should not be reachable");
                     }
             }
         }
+        catch (GameIsOverException gameOver) {
+            Team winningTeam=calculateWinningTeam();
+            System.out.println("["+lobbyName+"] GAME OVER - Team "+winningTeam+" has won");
+            response.add(MessageCenter.genMessage(MsgType.GAMEOVER,lobbyName,"Game is over: Team "+winningTeam+" has won",null));
+        }
         catch (Exception e) {
             System.out.println("["+lobbyName+"] "+currentPlayer+"'s action has thrown "+e.getCause());
-            return MessageCenter.genMessage(MsgType.ERROR,lobbyName,e.getMessage(),null);
+            response.add(MessageCenter.genMessage(MsgType.ERROR,lobbyName,e.getMessage(),null));
         }
-        //TODO: remove once all cases are solved
-        return null;
+        return response;
+    }
+    private Team calculateWinningTeam() {
+        EnumMap<Team,Integer> teamTowers=new EnumMap<>(Team.class);
+        EnumMap<Team,Integer> teamProfessors=new EnumMap<>(Team.class);
+        for (Team t : game.getTeams()) {
+            teamTowers.put(t,0);
+            teamProfessors.put(t,0);
+        }
+        for (Player p: game.getPlayers()) {
+            teamTowers.put(p.getTeam(),teamTowers.get(p.getTeam())+p.getSchoolBoard().getTowers());
+            for (Colour c: Colour.values()) {
+                teamProfessors.put(p.getTeam(),teamProfessors.get(p.getTeam())+(p.getSchoolBoard().getProfessor(c)?1:0));
+            }
+        }
+        Team winningTowers=Collections.min(teamTowers.entrySet(), Map.Entry.comparingByValue()).getKey();
+        Team winningProfessors=Collections.min(teamProfessors.entrySet(), Map.Entry.comparingByValue()).getKey();
+        for (Team t : game.getTeams()) {
+            if (t!=winningTowers && teamTowers.get(t).intValue()==teamTowers.get(winningTowers).intValue()) {
+                return winningProfessors;
+            }
+        }
+       return winningTowers;
     }
 }

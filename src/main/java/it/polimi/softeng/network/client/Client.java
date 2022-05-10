@@ -36,7 +36,7 @@ public class Client {
     }
     //TODO: remove, this is for testing purposes only (so it's easier to start clients)
     public static void main(String[] args) {
-        String[] testArgs={null,null,null,"cli"};
+        String[] testArgs={null,null,null,"CLI"};
         Client client=new Client(testArgs);
         client.start();
     }
@@ -99,21 +99,33 @@ public class Client {
             }
             catch (IOException io) {
                 System.out.println("Error connecting to server");
+                serverPort=0;
             }
         }
         try {
             this.toServer=new ObjectOutputStream(socket.getOutputStream());
             this.fromServer=new ObjectInputStream(socket.getInputStream());
+            view.setToServer(toServer);
+            new Thread(()->((Runnable)view).run()).start();
         }
         catch (IOException io) {
-            System.out.println("IO exception occurred");
+            System.out.println("Error getting i/o stream");
             //retrying
             connectToServer(args);
         }
     }
     //TODO implement
     public void parseMessageFromServer(Message message) {
-
+        switch (message.getType()) {
+            case INFO:
+                view.display(message.getContext());
+                break;
+            case LOAD:
+                break;
+            default:
+                view.display("Unexpected message received");
+                break;
+        }
     }
     //TODO finish cli string parsing
     public static Message parseInput(String input) {

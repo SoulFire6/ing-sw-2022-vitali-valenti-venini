@@ -111,6 +111,21 @@ public class Lobby implements Runnable {
                 while(clients.size()>0) {
                     while (lobbyMessageQueue.size()>0) {
                         msg=lobbyMessageQueue.poll();
+                        for (Message message : controller.parseMessage(msg)) {
+                            switch (message.getSubType()) {
+                                case WHISPER:
+                                    clients.get(message.getContext()).sendMessage(message);
+                                    break;
+                                case ERROR:
+                                    clients.get(msg.getSender()).sendMessage(message);
+                                    break;
+                                default:
+                                    for (String client : clients.keySet()) {
+                                        clients.get(client).sendMessage(message);
+                                    }
+                                    break;
+                            }
+                        }
                         //Check print
                         System.out.println("["+lobbyName+"]: processed message ("+((Info_Message)msg).getInfo()+"), queue size: "+lobbyMessageQueue.size());
                         //controller.processMessage(msg,clients.get(msg.getSender()));

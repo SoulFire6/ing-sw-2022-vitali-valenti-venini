@@ -8,6 +8,7 @@ public enum MsgType {
     CONNECT(MainType.INFO),
     DISCONNECT(MainType.INFO),
     ERROR(MainType.INFO),
+    GAMEOVER(MainType.INFO),
     CLOSE(MainType.INFO),
     //Load messages
     GAME(MainType.LOAD),

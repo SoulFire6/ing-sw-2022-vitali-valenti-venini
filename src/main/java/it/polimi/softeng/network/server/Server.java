@@ -77,14 +77,7 @@ public class Server {
             System.out.println("Client ["+username+"]'s request processed");
         }
         catch (IOException io) {
-            System.out.println("IO EXCEPTION");
-        }
-        catch (NullPointerException npe) {
-            if (username==null) {
-                System.out.println("Client disconnected abruptly");
-            } else {
-                System.out.println(username+" disconnected abruptly");
-            }
+            System.out.println(username+" disconnected abruptly");
         }
         catch (ClassNotFoundException cnfe) {
             System.out.println("Could not determine what client has sent");
