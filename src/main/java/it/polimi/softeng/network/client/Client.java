@@ -18,8 +18,8 @@ import java.util.regex.Pattern;
 
 public class Client {
     private String username;
-    private ReducedGame model;
-    private View view;
+    private final ReducedGame model;
+    private final View view;
 
     private static final String DEFAULT_IP="127.0.0.1";
     private static final Integer DEFAULT_PORT=50033;
@@ -32,11 +32,12 @@ public class Client {
     public Client(String[] args) {
         this.model=null;
         this.view=(args[3].equals("GUI")?new GUI():new CLI());
+        new Thread(view::main).start();
         connectToServer(args);
     }
     //TODO: remove, this is for testing purposes only (so it's easier to start clients)
     public static void main(String[] args) {
-        String[] testArgs={null,null,null,"CLI"};
+        String[] testArgs={null,null,null,"GUI"};
         Client client=new Client(testArgs);
         client.start();
     }

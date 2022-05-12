@@ -5,6 +5,7 @@ import it.polimi.softeng.network.message.Message;
 import java.io.ObjectOutputStream;
 
 public interface View {
+    void main();
     void setToServer(ObjectOutputStream toServer);
     void sendMessage(Message message);
     String setUsername();

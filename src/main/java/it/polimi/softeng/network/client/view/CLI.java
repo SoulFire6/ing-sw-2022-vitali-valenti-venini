@@ -17,6 +17,11 @@ public class CLI implements View, Runnable {
     }
 
     @Override
+    public void main() {
+        System.out.println("Welcome to Eriantys");
+    }
+
+    @Override
     public void run() {
         display("Not yet implemented");
         //TODO: runs once model is loaded from server, update view every time model changes

@@ -21,11 +21,11 @@ public class Eriantys {
             "-port | -p : specify server port, if not found will default to " + DEFAULT_PORT};
 
     public static void main(String[] args) throws IllegalArgumentException{
-        //username,ip,port
-        String[] clientArgs={null,null,null};
+        //username,ip,port,cli/gui
+        String[] clientArgs={null,null,null,null};
         //port
         String[] serverArgs={null};
-        boolean isClient = false, isServer = false, cli = false, gui = false, stop=false;
+        boolean isClient = false, isServer = false, stop=false;
         if (args.length > 0) {
             for (int i = 0; i<args.length && !stop; i++) {
                 switch (args[i].toLowerCase()) {
@@ -63,16 +63,16 @@ public class Eriantys {
                         clientArgs[0]=args[++i];
                         break;
                     case "-cli":
-                        if (gui) {
+                        if (clientArgs[3]!=null) {
                             throw new IllegalArgumentException("Cannot be both cli and gui");
                         }
-                        cli=true;
+                        clientArgs[3]="CLI";
                         break;
                     case "-gui":
-                        if (cli) {
+                        if (clientArgs[3]!=null) {
                             throw new IllegalArgumentException("Cannot be both cli and gui");
                         }
-                        gui=true;
+                        clientArgs[3]="GUI";
                         break;
                     case "-ip":
                         if (clientArgs[1]!=null) {
@@ -95,7 +95,7 @@ public class Eriantys {
             }
             if (!stop) {
                 try {
-                    if (isClient && (cli || gui)) {
+                    if (isClient && clientArgs[3]!=null) {
                         Client client=new Client(clientArgs);
                         client.start();
                     } else if (isServer) {
