@@ -4,34 +4,28 @@ import it.polimi.softeng.network.message.Message;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.FutureTask;
 
 public class GUI extends Application implements View, Runnable {
 
     private ObjectOutputStream toServer;
-    @FXML
-    private TextField textField;
-    @FXML
-    private Button button;
-    @FXML
-    private Label label;
+
+    private static GUI_ActionHandler controller;
 
     private static final ConcurrentLinkedQueue<String> userInputs=new ConcurrentLinkedQueue<>();
 
     public GUI() {
+    }
+    public static void main(String[] args) {
+        new GUI().main();
     }
     public void main() {
         System.out.println("STARTING");
@@ -40,7 +34,9 @@ public class GUI extends Application implements View, Runnable {
     @Override
     @FXML
     public void start(Stage stage) throws Exception {
+        controller=new GUI_ActionHandler(this,userInputs);
         FXMLLoader loader=new FXMLLoader(getClass().getResource("/fxml/RequestString.fxml"));
+        loader.setController(controller);
         Parent root=loader.load();
         stage.setTitle("Eriantys");
         stage.setScene(new Scene(root));
@@ -72,71 +68,75 @@ public class GUI extends Application implements View, Runnable {
     @Override
     @FXML
     public String setUsername() {
-        //TODO finish
-        FutureTask<String> task=new FutureTask<>(()->{
-            label.setText("Username: ");
-            synchronized (userInputs) {
-                while (userInputs.size() == 0) {
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException ie) {
-                        ie.printStackTrace();
-                    }
+        synchronized (userInputs) {
+            while(userInputs.size()==0) {
+                System.out.println("Waiting for username...");
+                try {
+                    Thread.sleep(3000);
                 }
-                System.out.println("DONE");
-                return userInputs.poll();
+                catch (Exception e) {
+                    System.out.println("Woke up");
+                }
             }
-        });
-        Platform.runLater(task);
-        try {
-            return task.get();
-        }
-        catch (Exception e) {
-            System.out.println("Error getting username");
-            return null;
+            String username=userInputs.poll();
+            System.out.println("Got username: "+username);
+            return username;
         }
     }
 
     @Override
     public String setIP(String defaultIP) {
-        /*
+        Platform.runLater(()-> controller.getLabel().setText("Server ip (local or empty for default localhost): "));
         synchronized (userInputs) {
-            while (userInputs.size() == 0) {
-
+            while(userInputs.size()==0) {
+                System.out.println("Waiting for ip address...");
+                try {
+                    Thread.sleep(3000);
+                }
+                catch (Exception e) {
+                    System.out.println("Woke up");
+                }
             }
-            return userInputs.poll();
+            String ip=userInputs.poll();
+            if (ip.equals("") || ip.equals("local")) {
+                return defaultIP;
+            }
+            System.out.println("Got ip: "+ip);
+            return ip;
         }
-         */
-        return null;
     }
 
     @Override
     public int setPort(int defaultPort) {
-        /*
+        Platform.runLater(()-> controller.getLabel().setText("Server port (local or empty for default 50033): "));
         synchronized (userInputs) {
-            while (userInputs.size() == 0) {
-
+            while(userInputs.size()==0) {
+                System.out.println("Waiting for port...");
+                try {
+                    Thread.sleep(3000);
+                }
+                catch (Exception e) {
+                    System.out.println("Woke up");
+                }
             }
-            return userInputs.poll();
+            try {
+                String port=userInputs.poll();
+                System.out.println("Got ip: "+port);
+                if (port.equals("")) {
+                    return defaultPort;
+                }
+                return Integer.parseInt(port);
+            }
+            catch (NumberFormatException nfe) {
+                System.out.println("Error getting port, value is not a number");
+                return 0;
+            }
         }
-         */
-        return 0;
     }
 
     @Override
     @FXML
     public void display(String message) {
-        textField.setText(message);
-    }
-
-    public synchronized void saveAndClear(ActionEvent actionEvent) {
-        userInputs.add(textField.getText());
-        System.out.println(textField.getCharacters().toString());
-        textField.clear();
-    }
-
-    public void closeApp(ActionEvent actionEvent) {
-        Platform.exit();
-        System.exit(0);
+        //Platform.runLater(()-> controller.getLabel().setText(message));
     }
 }

@@ -89,11 +89,10 @@ public class Client {
                         serverPort=Integer.parseInt(args[2]);
                     }
                     catch (NumberFormatException nfe) {
-                        view.display("Provided value for port \"+args[2]+\" is not a number");
+                        view.display("Provided value for port "+args[2]+" is not a number");
                     }
                 }
                 while(serverPort<49152 || serverPort>65535) {
-                    view.display("Server port (default 50033, range 49152-65535): ");
                     serverPort=view.setPort(DEFAULT_PORT);
                 }
                 this.socket=new Socket(serverIP,serverPort);

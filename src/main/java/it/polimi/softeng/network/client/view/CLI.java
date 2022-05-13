@@ -50,8 +50,8 @@ public class CLI implements View, Runnable {
     public String setUsername() {
         String username=null;
         while (username==null) {
+            System.out.print("Username: ");
             try {
-                display("Username: ");
                 username=in.readLine();
             }
             catch (IOException io) {
@@ -65,7 +65,7 @@ public class CLI implements View, Runnable {
     public String setIP(String defaultIP) {
         String ip;
         try {
-            display("Server ip (format: [0-255].[0-255].[0-255].[0-255], local or empty for default localhost): ");
+            System.out.print("Server ip (local or empty for default localhost): ");
             ip=in.readLine();
             if (ip.equals("") || ip.equals("local")) {
                 return defaultIP;
@@ -82,6 +82,7 @@ public class CLI implements View, Runnable {
     public int setPort(int defaultPort) {
         String port=null;
         try {
+            System.out.print("Server port (local or empty for default 50033): ");
             port=in.readLine();
             if (port.equals("") || port.equals("local")) {
                 return defaultPort;
