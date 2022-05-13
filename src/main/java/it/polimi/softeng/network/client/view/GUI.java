@@ -24,8 +24,11 @@ public class GUI extends Application implements View, Runnable {
 
     public GUI() {
     }
-    public static void main(String[] args) {
-        new GUI().main();
+    public static void main(String[] args) throws InterruptedException {
+        new Thread(()-> new GUI().main()).start();
+        Thread.sleep(1000);
+        Platform.runLater(()->controller.getTextField().setText("HELLO"));
+
     }
     public void main() {
         System.out.println("STARTING");
@@ -71,12 +74,7 @@ public class GUI extends Application implements View, Runnable {
         synchronized (userInputs) {
             while(userInputs.size()==0) {
                 System.out.println("Waiting for username...");
-                try {
-                    Thread.sleep(3000);
-                }
-                catch (Exception e) {
-                    System.out.println("Woke up");
-                }
+                threadSleep(3000);
             }
             String username=userInputs.poll();
             System.out.println("Got username: "+username);
@@ -86,16 +84,12 @@ public class GUI extends Application implements View, Runnable {
 
     @Override
     public String setIP(String defaultIP) {
+        threadSleep(300);
         Platform.runLater(()-> controller.getLabel().setText("Server ip (local or empty for default localhost): "));
         synchronized (userInputs) {
             while(userInputs.size()==0) {
                 System.out.println("Waiting for ip address...");
-                try {
-                    Thread.sleep(3000);
-                }
-                catch (Exception e) {
-                    System.out.println("Woke up");
-                }
+                threadSleep(3000);
             }
             String ip=userInputs.poll();
             if (ip.equals("") || ip.equals("local")) {
@@ -112,12 +106,7 @@ public class GUI extends Application implements View, Runnable {
         synchronized (userInputs) {
             while(userInputs.size()==0) {
                 System.out.println("Waiting for port...");
-                try {
-                    Thread.sleep(3000);
-                }
-                catch (Exception e) {
-                    System.out.println("Woke up");
-                }
+                threadSleep(3000);
             }
             try {
                 String port=userInputs.poll();
@@ -138,5 +127,14 @@ public class GUI extends Application implements View, Runnable {
     @FXML
     public void display(String message) {
         //Platform.runLater(()-> controller.getLabel().setText(message));
+    }
+
+    private void threadSleep(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        }
+        catch (Exception e) {
+            System.out.println("Error: woke up too soon");
+        }
     }
 }

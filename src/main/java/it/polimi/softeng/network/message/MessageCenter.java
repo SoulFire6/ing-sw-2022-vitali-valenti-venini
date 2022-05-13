@@ -4,6 +4,8 @@ import it.polimi.softeng.model.*;
 import it.polimi.softeng.network.message.command.*;
 import it.polimi.softeng.network.message.load.*;
 
+import java.util.ArrayList;
+
 //Message factory
 public class MessageCenter {
     public static Message genMessage(MsgType type, String sender, String context, Object load) {
@@ -31,20 +33,20 @@ public class MessageCenter {
                 switch (type) {
                     case GAME:
                         return new Game_Load_Msg(sender,context,(Game)load);
-                    case ISLAND:
-                        return new Island_Load_Msg(sender,context,(Island_Tile)load);
-                    case CLOUD:
-                        return new Cloud_Load_Msg(sender,context,(Cloud_Tile) load);
+                    case ISLANDS:
+                        return new Island_Load_Msg(sender,context,(ArrayList<Island_Tile>)load);
+                    case CLOUDS:
+                        return new Cloud_Load_Msg(sender,context,(ArrayList<Cloud_Tile>) load);
                     case BAG:
                         return new Bag_Load_Msg(sender,context,(Bag_Tile) load);
                     case PLAYER:
                         return new Player_Load_Msg(sender,context,(Player) load);
                     case SCHOOLBOARD:
                         return new SchoolBoard_Load_Msg(sender,context,(SchoolBoard_Tile)load);
-                    case CHARACTERCARD:
-                        return new CharCard_Load_Msg(sender,context,(CharacterCard)load);
-                    case ASSISTANTCARD:
-                        return new AssistCard_Load_Msg(sender,context,(AssistantCard)load);
+                    case CHARACTERCARDS:
+                        return new CharCard_Load_Msg(sender,context,(ArrayList<CharacterCard>) load);
+                    case ASSISTANTCARDS:
+                        return new AssistCard_Load_Msg(sender,context,(ArrayList<AssistantCard>) load);
                     default:
                         System.out.println("Wrong format");
                         return null;

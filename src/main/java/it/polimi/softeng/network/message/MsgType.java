@@ -12,13 +12,13 @@ public enum MsgType {
     CLOSE(MainType.INFO),
     //Load messages
     GAME(MainType.LOAD),
-    ISLAND(MainType.LOAD),
-    CLOUD(MainType.LOAD),
+    ISLANDS(MainType.LOAD),
+    CLOUDS(MainType.LOAD),
     BAG(MainType.LOAD),
     PLAYER(MainType.LOAD),
     SCHOOLBOARD(MainType.LOAD),
-    CHARACTERCARD(MainType.LOAD),
-    ASSISTANTCARD(MainType.LOAD),
+    CHARACTERCARDS(MainType.LOAD),
+    ASSISTANTCARDS(MainType.LOAD),
     //Command messages
     PLAYASSISTCARD(MainType.COMMAND),
     DISKTOISLAND(MainType.COMMAND),

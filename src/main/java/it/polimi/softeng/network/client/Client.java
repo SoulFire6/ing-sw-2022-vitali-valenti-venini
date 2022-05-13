@@ -7,6 +7,8 @@ import it.polimi.softeng.network.client.view.View;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
+import it.polimi.softeng.network.message.load.Game_Load_Msg;
+import it.polimi.softeng.network.message.load.Load_Message;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -18,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class Client {
     private String username;
-    private final ReducedGame model;
+    private ReducedGame model;
     private final View view;
 
     private static final String DEFAULT_IP="127.0.0.1";
@@ -121,6 +123,14 @@ public class Client {
                 view.display(message.getContext());
                 break;
             case LOAD:
+                switch (message.getSubType()) {
+                    case GAME:
+                        model=((Game_Load_Msg)message).getLoad();
+                        break;
+                    default:
+                        //TODO add other loads
+                        break;
+                }
                 break;
             default:
                 view.display("Unexpected message received");
