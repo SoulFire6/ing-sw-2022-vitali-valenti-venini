@@ -63,6 +63,16 @@ public class ReducedGame implements Serializable {
     public void setPlayers(ArrayList<ReducedPlayer> players) {
         this.players=players;
     }
+    public boolean setPlayer(ReducedPlayer player) {
+        for (ReducedPlayer reducedPlayer : this.players) {
+            if (reducedPlayer.getName().equals(player.getName())) {
+                this.players.set(this.players.indexOf(reducedPlayer),player);
+                //notify();
+                return true;
+            }
+        }
+        return false;
+    }
     public ReducedBag getBag() {
         return this.bag;
     }

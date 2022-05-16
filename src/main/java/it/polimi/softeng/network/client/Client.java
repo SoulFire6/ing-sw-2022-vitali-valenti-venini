@@ -9,6 +9,7 @@ import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import it.polimi.softeng.network.message.load.Game_Load_Msg;
 import it.polimi.softeng.network.message.load.Load_Message;
+import it.polimi.softeng.network.message.load.Player_Load_Msg;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -125,8 +126,10 @@ public class Client {
             case LOAD:
                 switch (message.getSubType()) {
                     case GAME:
-                        model=((Game_Load_Msg)message).getLoad();
+                        this.model=((Game_Load_Msg)message).getLoad();
                         break;
+                    case PLAYER:
+                        this.model.setPlayer(((Player_Load_Msg)message).getLoad());
                     default:
                         //TODO add other loads
                         break;

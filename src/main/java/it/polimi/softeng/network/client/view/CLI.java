@@ -1,6 +1,7 @@
 package it.polimi.softeng.network.client.view;
 
 import it.polimi.softeng.network.message.Message;
+import it.polimi.softeng.network.message.MsgType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,6 +24,17 @@ public class CLI implements View, Runnable {
 
     @Override
     public void run() {
+        String input;
+        Message outMessage=null;
+        while (outMessage==null || outMessage.getSubType()!= MsgType.DISCONNECT) {
+            try {
+                outMessage=parseMessage(in.readLine().split(" "));
+            }
+            catch (IOException io) {
+                System.out.println("Error reading input");
+            }
+
+        }
         display("Not yet implemented");
         //TODO: runs once model is loaded from server, update view every time model changes
         //TODO: add loop for sending messages
@@ -102,5 +114,9 @@ public class CLI implements View, Runnable {
     @Override
     public void display(String message) {
         System.out.println(message);
+    }
+
+    public Message parseMessage(String[] input) {
+        return null;
     }
 }

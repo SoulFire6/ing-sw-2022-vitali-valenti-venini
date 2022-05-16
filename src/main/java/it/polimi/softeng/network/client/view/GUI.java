@@ -27,7 +27,6 @@ public class GUI extends Application implements View, Runnable {
     public static void main(String[] args) throws InterruptedException {
         new Thread(()-> new GUI().main()).start();
         Thread.sleep(1000);
-        Platform.runLater(()->controller.getTextField().setText("HELLO"));
 
     }
     public void main() {
@@ -37,7 +36,7 @@ public class GUI extends Application implements View, Runnable {
     @Override
     @FXML
     public void start(Stage stage) throws Exception {
-        controller=new GUI_ActionHandler(this,userInputs);
+        controller=new GUI_ActionHandler(userInputs);
         FXMLLoader loader=new FXMLLoader(getClass().getResource("/fxml/RequestString.fxml"));
         loader.setController(controller);
         Parent root=loader.load();
@@ -54,6 +53,8 @@ public class GUI extends Application implements View, Runnable {
     @Override
     public void setToServer(ObjectOutputStream toServer) {
         this.toServer=toServer;
+        //TODO swap out gui from input fields to game
+        new Thread(this).start();
     }
 
     @Override
@@ -69,62 +70,63 @@ public class GUI extends Application implements View, Runnable {
     }
 
     @Override
-    @FXML
     public String setUsername() {
-        synchronized (userInputs) {
-            while(userInputs.size()==0) {
-                System.out.println("Waiting for username...");
-                threadSleep(3000);
-            }
-            String username=userInputs.poll();
-            System.out.println("Got username: "+username);
-            return username;
+        while (controller==null) {
+            System.out.println("Waiting for controller");
+            threadSleep(3000);
         }
+        while (!controller.getUsernameField().isDisabled()) {
+            System.out.println("Waiting for username...");
+            threadSleep(3000);
+        }
+        String username=controller.getUsernameField().getText();
+        if (username.equals("")) {
+            Platform.runLater(()->{
+                controller.getUsernameField().setDisable(false);
+                controller.getUsernameField().setPromptText("Username must not be empty");
+            });
+            username=setUsername();
+        }
+        return username;
     }
 
     @Override
     public String setIP(String defaultIP) {
-        threadSleep(300);
-        Platform.runLater(()-> controller.getLabel().setText("Server ip (local or empty for default localhost): "));
-        synchronized (userInputs) {
-            while(userInputs.size()==0) {
-                System.out.println("Waiting for ip address...");
-                threadSleep(3000);
-            }
-            String ip=userInputs.poll();
-            if (ip.equals("") || ip.equals("local")) {
-                return defaultIP;
-            }
-            System.out.println("Got ip: "+ip);
-            return ip;
+        while (!controller.getIpField().isDisabled()) {
+            System.out.println("Waiting for ip...");
+            threadSleep(3000);
         }
+        String ip=controller.getIpField().getText();
+        if (ip.equals("") || ip.equals("local")) {
+            return defaultIP;
+        }
+        return ip;
     }
 
     @Override
     public int setPort(int defaultPort) {
-        Platform.runLater(()-> controller.getLabel().setText("Server port (local or empty for default 50033): "));
-        synchronized (userInputs) {
-            while(userInputs.size()==0) {
-                System.out.println("Waiting for port...");
-                threadSleep(3000);
-            }
-            try {
-                String port=userInputs.poll();
-                System.out.println("Got ip: "+port);
-                if (port.equals("")) {
-                    return defaultPort;
-                }
-                return Integer.parseInt(port);
-            }
-            catch (NumberFormatException nfe) {
-                System.out.println("Error getting port, value is not a number");
-                return 0;
-            }
+        while (!controller.getPortField().isDisabled()) {
+            System.out.println("Waiting for port...");
+            threadSleep(3000);
+        }
+        String port=controller.getPortField().getText();
+        if (port.equals("") || port.equals("local")) {
+            return defaultPort;
+        }
+        try {
+            return Integer.parseInt(port);
+        }
+        catch (NumberFormatException nfe) {
+            Platform.runLater(()->{
+                controller.getPortField().clear();
+                controller.getPortField().setDisable(false);
+                controller.getPortField().setPromptText("Port must be a number");
+            });
+            return setPort(defaultPort);
         }
     }
 
     @Override
-    @FXML
     public void display(String message) {
         //Platform.runLater(()-> controller.getLabel().setText(message));
     }

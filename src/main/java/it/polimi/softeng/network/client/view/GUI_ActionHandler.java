@@ -1,14 +1,12 @@
 package it.polimi.softeng.network.client.view;
 
+import it.polimi.softeng.network.message.Message;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Labeled;
 import javafx.scene.control.TextField;
-import org.w3c.dom.Text;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -17,41 +15,43 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 //GUI Controller
 public class GUI_ActionHandler implements Initializable {
 
-    private final GUI gui;
     private final ConcurrentLinkedQueue<String> userInputs;
 
     @FXML
-    private Label label;
-    @FXML
-    private TextField textField;
+    private TextField usernameField,ipField,portField;
     @FXML
     private Button button;
 
 
-    public GUI_ActionHandler(GUI gui,ConcurrentLinkedQueue<String> userInputs) {
-        this.gui=gui;
+    public GUI_ActionHandler(ConcurrentLinkedQueue<String> userInputs) {
         this.userInputs=userInputs;
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.textField.setOnAction(this::saveAndClear);
+        this.usernameField.setOnAction(this::saveField);
+        this.ipField.setOnAction(this::saveField);
+        this.portField.setOnAction(this::saveField);
         this.button.setOnAction(this::closeApp);
     }
 
-    public void saveAndClear(ActionEvent actionEvent) {
-        userInputs.add(textField.getText());
-        System.out.println(textField.getCharacters().toString());
-        textField.clear();
+    public void saveField(ActionEvent actionEvent) {
+        TextField trigger=(TextField) actionEvent.getSource();
+        System.out.println(trigger.getId()+": "+trigger.getText());
+        trigger.setDisable(true);
     }
     public void closeApp(ActionEvent actionEvent) {
         Platform.exit();
         System.exit(0);
     }
 
-    public TextField getTextField() {
-        return this.textField;
+    public TextField getUsernameField() {
+        return this.usernameField;
     }
-    public Label getLabel() {
-        return this.label;
+    public TextField getIpField() {
+        return this.ipField;
     }
+    public TextField getPortField() {
+        return this.portField;
+    }
+    //TODO add commands from game fxml
 }
