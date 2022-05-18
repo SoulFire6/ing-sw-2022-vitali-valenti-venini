@@ -1,5 +1,6 @@
 package it.polimi.softeng.network.client.view;
 
+import it.polimi.softeng.model.ReducedModel.ReducedGame;
 import it.polimi.softeng.network.message.Message;
 
 import javafx.application.Application;
@@ -18,6 +19,8 @@ public class GUI extends Application implements View, Runnable {
 
     private ObjectOutputStream toServer;
 
+    private ReducedGame model=null;
+
     private static GUI_ActionHandler controller;
 
     private static final ConcurrentLinkedQueue<String> userInputs=new ConcurrentLinkedQueue<>();
@@ -25,7 +28,10 @@ public class GUI extends Application implements View, Runnable {
     public GUI() {
     }
     public static void main(String[] args) throws InterruptedException {
-        new Thread(()-> new GUI().main()).start();
+        GUI gui=new GUI();
+        new Thread(gui::main).start();
+        //gui.display("Testing popup");
+
         Thread.sleep(1000);
 
     }
@@ -37,7 +43,7 @@ public class GUI extends Application implements View, Runnable {
     @FXML
     public void start(Stage stage) throws Exception {
         controller=new GUI_ActionHandler(userInputs);
-        FXMLLoader loader=new FXMLLoader(getClass().getResource("/fxml/RequestString.fxml"));
+        FXMLLoader loader=new FXMLLoader(getClass().getResource("/fxml/Eriantys.fxml"));
         loader.setController(controller);
         Parent root=loader.load();
         stage.setTitle("Eriantys");
@@ -47,6 +53,23 @@ public class GUI extends Application implements View, Runnable {
     }
     @Override
     public void run() {
+        while (model==null) {
+            threadSleep(3000);
+            System.out.println("Waiting for model");
+        }
+        synchronized (model) {
+            try {
+                while (true) {
+                    wait();
+                    //update model
+                }
+            }
+            catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
+            //update gui
+
+        }
         //TODO: runs once model is loaded from server, update view every time model changes
     }
 
@@ -55,6 +78,11 @@ public class GUI extends Application implements View, Runnable {
         this.toServer=toServer;
         //TODO swap out gui from input fields to game
         new Thread(this).start();
+    }
+
+    @Override
+    public void setModel(ReducedGame model) {
+        this.model=model;
     }
 
     @Override
@@ -128,7 +156,29 @@ public class GUI extends Application implements View, Runnable {
 
     @Override
     public void display(String message) {
-        //Platform.runLater(()-> controller.getLabel().setText(message));
+        while (controller==null) {
+            System.out.println("Waiting for controller");
+            threadSleep(2000);
+        }
+        Platform.runLater(()-> {
+            try {
+                FXMLLoader popupLoader=new FXMLLoader(getClass().getResource("/fxml/Display.fxml"));
+                popupLoader.setController(controller);
+                Parent popupRoot=popupLoader.load();
+                Stage popupStage=new Stage();
+                popupStage.setScene(new Scene(popupRoot));
+                while (controller.getPopupLabel()==null) {
+                    System.out.println("Waiting for popup label");
+                    threadSleep(2000);
+                }
+                controller.getPopupLabel().setText(message);
+                popupStage.show();
+
+            }
+            catch (IOException io) {
+                io.printStackTrace();
+            }
+        });
     }
 
     private void threadSleep(int milliseconds) {

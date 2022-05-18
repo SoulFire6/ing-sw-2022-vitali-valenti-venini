@@ -1,5 +1,6 @@
 package it.polimi.softeng.network.client.view;
 
+import it.polimi.softeng.model.ReducedModel.ReducedGame;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MsgType;
 
@@ -12,6 +13,7 @@ public class CLI implements View, Runnable {
 
     private final BufferedReader in;
     private ObjectOutputStream toServer;
+    private ReducedGame model;
 
     public CLI() {
         this.in=new BufferedReader(new InputStreamReader(System.in));
@@ -43,6 +45,11 @@ public class CLI implements View, Runnable {
     @Override
     public void setToServer(ObjectOutputStream toServer) {
         this.toServer=toServer;
+    }
+
+    @Override
+    public void setModel(ReducedGame model) {
+        this.model=model;
     }
 
     @Override
