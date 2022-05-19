@@ -1,5 +1,6 @@
 package it.polimi.softeng.network.client.view;
 
+import it.polimi.softeng.network.message.Message;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,7 +22,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 //GUI Controller
 public class GUI_ActionHandler implements Initializable {
 
-    private final ConcurrentLinkedQueue<String> userInputs;
+    private final ConcurrentLinkedQueue<Message> userInputs;
 
     @FXML
     private VBox setupVBox,gameVBox;
@@ -38,7 +40,7 @@ public class GUI_ActionHandler implements Initializable {
     private ToolBar assistantCards;
 
 
-    public GUI_ActionHandler(ConcurrentLinkedQueue<String> userInputs) {
+    public GUI_ActionHandler(ConcurrentLinkedQueue<Message> userInputs) {
         this.userInputs=userInputs;
     }
     @Override
@@ -81,6 +83,9 @@ public class GUI_ActionHandler implements Initializable {
         Platform.exit();
         System.exit(0);
     }
+    public void closeWindow(ActionEvent actionEvent) {
+        ((Stage)((Button)actionEvent.getSource()).getScene().getWindow()).close();
+    }
 
     public TextField getUsernameField() {
         return this.usernameField;
@@ -93,6 +98,9 @@ public class GUI_ActionHandler implements Initializable {
     }
     public Label getPopupLabel() {
         return this.popupLabel;
+    }
+    public Button getClosePopupButton() {
+        return this.closePopupButton;
     }
     //TODO add commands from game fxml
 }

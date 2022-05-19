@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            prefHeight="20.0" prefWidth="30.0">
-    <Label fx:id="popupLabel" alignment="TOP_CENTER"/>
-    <Button fx:id="closePopupButton" alignment="BOTTOM_CENTER" text="X"/>
+<AnchorPane prefHeight="93.0" prefWidth="118.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+    <Label fx:id="popupLabel" alignment="TOP_CENTER" layoutX="8.0" layoutY="14.0" prefHeight="45.0" prefWidth="102.0" text="Message" />
+    <Button fx:id="closePopupButton" alignment="BOTTOM_CENTER" layoutX="46.0" layoutY="66.0" prefHeight="17.0" prefWidth="20.0" text="X" />
 
 </AnchorPane>

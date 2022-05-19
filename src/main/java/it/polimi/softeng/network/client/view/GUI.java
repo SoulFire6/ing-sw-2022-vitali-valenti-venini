@@ -23,14 +23,14 @@ public class GUI extends Application implements View, Runnable {
 
     private static GUI_ActionHandler controller;
 
-    private static final ConcurrentLinkedQueue<String> userInputs=new ConcurrentLinkedQueue<>();
+    private static final ConcurrentLinkedQueue<Message> userInputs=new ConcurrentLinkedQueue<>();
 
     public GUI() {
     }
     public static void main(String[] args) throws InterruptedException {
         GUI gui=new GUI();
         new Thread(gui::main).start();
-        //gui.display("Testing popup");
+        gui.display("Testing popup");
 
         Thread.sleep(1000);
 
@@ -171,6 +171,7 @@ public class GUI extends Application implements View, Runnable {
                     System.out.println("Waiting for popup label");
                     threadSleep(2000);
                 }
+                controller.getClosePopupButton().setOnAction(controller::closeWindow);
                 controller.getPopupLabel().setText(message);
                 popupStage.show();
 
