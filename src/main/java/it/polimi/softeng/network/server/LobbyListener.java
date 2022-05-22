@@ -1,8 +1,6 @@
 package it.polimi.softeng.network.server;
 
-import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
-import it.polimi.softeng.network.message.MsgType;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -17,12 +15,11 @@ public class LobbyListener implements Runnable {
         Message inMessage;
         while (client.getSocket().isConnected()) {
             System.out.println("LISTENER ON");
-            client.sendMessage(MsgType.INPUT,"","Lobby is listening");
+            //client.sendMessage(MsgType.INPUT,"","Lobby is listening");
             inMessage=client.getMessage();
             if (inMessage!=null) {
                 messageQueue.add(inMessage);
-                client.sendMessage(MsgType.INPUT,"","Added message to queue: "+((Info_Message)inMessage).getInfo());
-                //TODO: addControllerResponse
+                //client.sendMessage(MsgType.INPUT,"","Added message to queue: "+ inMessage.getClass());
             }
         }
         System.out.println("LISTENER OFF");

@@ -26,7 +26,7 @@ public class MessageCenter {
                     case CHOOSECLOUD:
                         return new ChooseCloud_Cmd_Msg(sender,context,(String)load);
                     case PLAYCHARCARD:
-                        return null;
+                        return new CharCard_Cmd_Msg(sender,context,(String)load);
                 }
             //Used for receiving model data from server, sender should always be server, context is data reference (ie what is and where to insert the data), load is object
             case LOAD:

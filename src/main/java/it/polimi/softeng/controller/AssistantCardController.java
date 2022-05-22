@@ -13,17 +13,13 @@ import java.util.ArrayList;
 public class AssistantCardController {
     private static final String CARD_DATA_PATH="src/main/resources/CardData/AssistantCards.csv";
 
-    public ArrayList<AssistantCard> genHand(String PATH_TO_SAVE) {
+    public ArrayList<AssistantCard> genHand() {
         ArrayList<AssistantCard> res=new ArrayList<>();
         String[] card;
         String cardValue;
         BufferedReader reader;
         try {
-            if (PATH_TO_SAVE==null) {
-                reader = new BufferedReader(new FileReader(CARD_DATA_PATH));
-            } else {
-                reader = new BufferedReader(new FileReader(PATH_TO_SAVE));
-            }
+            reader = new BufferedReader(new FileReader(CARD_DATA_PATH));
             //Skipping header of csv file
             reader.readLine();
             while((cardValue= reader.readLine())!=null){

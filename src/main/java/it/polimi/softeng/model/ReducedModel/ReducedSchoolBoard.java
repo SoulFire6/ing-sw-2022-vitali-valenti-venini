@@ -23,7 +23,7 @@ public class ReducedSchoolBoard implements Serializable {
         this.professorTable=schoolboard.getProfessorTable();
         this.towers=schoolboard.getTowers();
         this.hand=setHand(schoolboard.getHand());
-        this.lastUsedCard=new ReducedAssistantCard(schoolboard.getLastUsedCard());
+        this.lastUsedCard=schoolboard.getLastUsedCard()==null?null:new ReducedAssistantCard(schoolboard.getLastUsedCard());
         this.coins=schoolboard.getCoins();
     }
     private ArrayList<ReducedAssistantCard> setHand(ArrayList<AssistantCard> hand) {

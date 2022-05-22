@@ -31,9 +31,11 @@ class AssistantCardControllerTest {
     @Test
     void genHand() {
         AssistantCardController assistantCardController=new AssistantCardController();
-        cards = assistantCardController.genHand(null);
+        cards = assistantCardController.genHand();
         assertEquals(10, cards.size());
-        assertTrue(cards.contains(cards.get(0)));
+        for (AssistantCard card : cards) {
+            assertNotNull(card);
+        }
     }
 
     @Test

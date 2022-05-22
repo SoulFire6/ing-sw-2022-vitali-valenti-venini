@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GUI extends Application implements View, Runnable {
 
+    private String username=null;
     private ObjectOutputStream toServer;
 
     private ReducedGame model=null;
@@ -115,6 +116,7 @@ public class GUI extends Application implements View, Runnable {
             });
             username=setUsername();
         }
+        this.username=username;
         return username;
     }
 

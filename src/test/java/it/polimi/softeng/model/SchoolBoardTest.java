@@ -17,7 +17,7 @@ public class SchoolBoardTest {
         int testMaxEntranceSlots=7;
         int testTowers=8;
         int testMaxTowers=8;
-        ArrayList<AssistantCard> testHand=assistantCardController.genHand(null);
+        ArrayList<AssistantCard> testHand=assistantCardController.genHand();
         int testCoins=0;
         SchoolBoard_Tile schoolBoard=new SchoolBoard_Tile(testPlayerName,testMaxEntranceSlots,testTowers,testMaxTowers,testHand,testCoins);
         assertTrue(schoolBoard.getTileID().contains(testPlayerName));
@@ -118,7 +118,7 @@ public class SchoolBoardTest {
     @Test
     public void testPlayAssistantCard() {
         AssistantCardController assistantCardController=new AssistantCardController();
-        ArrayList<AssistantCard> hand=assistantCardController.genHand(null);
+        ArrayList<AssistantCard> hand=assistantCardController.genHand();
         SchoolBoard_Tile schoolBoard=new SchoolBoard_Tile("test",0,0,0,hand,0);
         AssistantCard testCard;
         int currentHandSize=schoolBoard.getHand().size();

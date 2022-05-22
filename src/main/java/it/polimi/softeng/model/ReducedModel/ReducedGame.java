@@ -23,7 +23,7 @@ public class ReducedGame implements Serializable {
         this.islands=setupIslands(game.getIslands());
         this.expertMode=game.isExpertMode();
         this.coins=game.getCoins();
-        this.characterCards=setupCharacterCards(game.getCharacterCards());
+        this.characterCards=this.expertMode?setupCharacterCards(game.getCharacterCards()):null;
     }
     private ArrayList<ReducedPlayer> setupPlayers(ArrayList<Player> gamePlayers) {
         ArrayList<ReducedPlayer> reducedPlayers=new ArrayList<>();

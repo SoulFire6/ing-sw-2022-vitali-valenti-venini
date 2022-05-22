@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Lobby implements Runnable {
     private final String lobbyName;
-    //TODO: pass messages from queue to controller and add [maxPlayer] daemon thread to receive messages to put on the queue
     private final ConcurrentLinkedQueue<Message> lobbyMessageQueue=new ConcurrentLinkedQueue<>();
     private final HashMap<String,LobbyClient> clients=new HashMap<>();
     private final String lobbyMaster;
@@ -66,14 +65,16 @@ public class Lobby implements Runnable {
         try {
             synchronized (clients) {
                 while (clients.size()<maxPlayers) {
+
                     for (String clientName: clients.keySet()) {
-                        clients.get(clientName).sendMessage(MsgType.TEXT,"Connect to lobby msg",maxPlayers+" player game, current num: ["+ clients.size()+"/"+maxPlayers+"]");
+                        clients.get(clientName).sendMessage(MsgType.TEXT,"Connect to lobby msg","["+lobbyName+"] "+maxPlayers+" player game, current players: ["+ clients.size()+"/"+maxPlayers+"]");
                     }
                     clients.wait();
                 }
                 System.out.println("GOT MAX CLIENTS CONNECTED: ");
+                System.out.println();
                 for (String clientName: clients.keySet()) {
-                    clients.get(clientName).sendMessage(MsgType.TEXT,"Lobby full","Lobby now full ["+ clients.size()+"/"+maxPlayers+"]");
+                    clients.get(clientName).sendMessage(MsgType.TEXT,"Lobby full","["+lobbyName+"] Lobby now full ["+ clients.size()+"/"+maxPlayers+"]");
                     System.out.println(clientName);
                 }
             }
@@ -84,7 +85,7 @@ public class Lobby implements Runnable {
     }
     private void setupGame(ArrayList<String> playerNames, boolean expertMode) throws InvalidPlayerNumException {
         this.controller=new LobbyController(playerNames,expertMode,lobbyName);
-        Message gameLoad=new Game_Load_Msg(lobbyName,"Game created",controller.getGame());
+        Message gameLoad=new Game_Load_Msg(lobbyName,"["+lobbyName+"] Game created",controller.getGame());
         for (String client: clients.keySet()) {
             clients.get(client).sendMessage(gameLoad);
         }
@@ -127,7 +128,7 @@ public class Lobby implements Runnable {
                             }
                         }
                         //Check print
-                        System.out.println("["+lobbyName+"]: processed message ("+((Info_Message)msg).getInfo()+"), queue size: "+lobbyMessageQueue.size());
+                        System.out.println("["+lobbyName+"]: processed message ("+msg.getSender()+": "+msg.getClass()+"), queue size: "+lobbyMessageQueue.size());
                         //controller.processMessage(msg,clients.get(msg.getSender()));
                     }
                 }

@@ -38,7 +38,7 @@ public class LobbyController {
         ArrayList<Player> players;
         players = playerController.genPlayers(playerNames);
         for (Player p: players) {
-            p.setSchoolBoard(new SchoolBoard_Tile(p.getName(),7+2*(playerNames.size()%2),8-2*(playerNames.size()-2),8,assistantCardController.genHand(null),expertMode?1:0));
+            p.setSchoolBoard(new SchoolBoard_Tile(p.getName(),7+2*(playerNames.size()%2),8-2*(playerNames.size()-2),8,assistantCardController.genHand(),expertMode?1:0));
         }
         ArrayList<Team> teams = playerController.getTeams(players);
         ArrayList<Island_Tile> islands = tileController.genIslands(12,new Bag_Tile(2));
@@ -112,7 +112,7 @@ public class LobbyController {
                                 throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
                             }
                             playerController.moveStudentToDiningRoom(currentPlayer,game.getPlayers(),((DiskToDiningRoom_Cmd_Msg)inMessage).getColour(),game.isExpertMode());
-                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" has moved a "+((DiskToIsland_Cmd_Msg)inMessage).getColour()+" to their dining room",null));
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" has moved a "+((DiskToDiningRoom_Cmd_Msg)inMessage).getColour()+" to their dining room",null));
                             response.add(MessageCenter.genMessage(MsgType.SCHOOLBOARD,lobbyName,inMessage.getSender(),currentPlayer.getSchoolBoard()));
                             break;
                         case MOVEMN:
@@ -161,7 +161,7 @@ public class LobbyController {
             response.add(MessageCenter.genMessage(MsgType.GAMEOVER,lobbyName,"Game is over: Team "+winningTeam+" has won",null));
         }
         catch (Exception e) {
-            System.out.println("["+lobbyName+"] "+currentPlayer+"'s action has thrown "+e.getCause());
+            System.out.println("["+lobbyName+"] "+currentPlayer.getName()+"'s action has thrown "+e.getCause());
             response.add(MessageCenter.genMessage(MsgType.ERROR,lobbyName,e.getMessage(),null));
         }
         return response;

@@ -4,6 +4,7 @@ import it.polimi.softeng.model.ReducedModel.ReducedGame;
 import it.polimi.softeng.network.client.view.CLI;
 import it.polimi.softeng.network.client.view.GUI;
 import it.polimi.softeng.network.client.view.View;
+import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
@@ -40,7 +41,7 @@ public class Client {
     }
     //TODO: remove, this is for testing purposes only (so it's easier to start clients)
     public static void main(String[] args) {
-        String[] testArgs={null,null,null,"GUI"};
+        String[] testArgs={null,null,null,"CLI"};
         Client client=new Client(testArgs);
         client.start();
     }
@@ -69,6 +70,7 @@ public class Client {
         } else {
             System.out.println("Error: abrupt disconnect");
         }
+        System.exit(0);
     }
 
     private void connectToServer(String[] args) {
@@ -121,7 +123,7 @@ public class Client {
     public void parseMessageFromServer(Message message) {
         switch (message.getType()) {
             case INFO:
-                view.display(message.getContext());
+                view.display(((Info_Message)message).getInfo());
                 break;
             case LOAD:
                 switch (message.getSubType()) {
@@ -139,13 +141,5 @@ public class Client {
                 view.display("Unexpected message received");
                 break;
         }
-    }
-    //TODO finish cli string parsing
-    public static Message parseInput(String input) {
-        return null;
-    }
-    //TODO add gui event parsing
-    public static Message parseInput() {
-        return null;
     }
 }
