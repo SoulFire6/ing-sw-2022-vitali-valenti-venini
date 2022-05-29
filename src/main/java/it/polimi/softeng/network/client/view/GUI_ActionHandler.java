@@ -5,10 +5,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -17,13 +14,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ResourceBundle;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 //GUI Controller
 public class GUI_ActionHandler implements Initializable {
-
-    private final ConcurrentLinkedQueue<Message> userInputs;
-
     @FXML
     private VBox setupVBox,gameVBox;
     @FXML
@@ -40,8 +33,7 @@ public class GUI_ActionHandler implements Initializable {
     private ToolBar assistantCards;
 
 
-    public GUI_ActionHandler(ConcurrentLinkedQueue<Message> userInputs) {
-        this.userInputs=userInputs;
+    public GUI_ActionHandler() {
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -49,7 +41,9 @@ public class GUI_ActionHandler implements Initializable {
         this.ipField.setOnAction(this::saveField);
         this.portField.setOnAction(this::saveField);
         this.exitButton.setOnAction(this::closeApp);
+
         this.testChangeUIButton.setOnAction(this::testChangeUI);
+        this.testChangeUIButton.setTooltip(new Tooltip("Click to change UI"));
         this.toggleHandButton.setOnAction(this::testToggleHand);
 
         this.setupVBox.setVisible(true);

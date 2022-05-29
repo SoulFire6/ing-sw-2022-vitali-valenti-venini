@@ -16,9 +16,8 @@ public enum MsgType {
     CLOUDS(MainType.LOAD),
     BAG(MainType.LOAD),
     PLAYER(MainType.LOAD),
-    SCHOOLBOARD(MainType.LOAD),
+    PLAYERS(MainType.LOAD),
     CHARACTERCARDS(MainType.LOAD),
-    ASSISTANTCARDS(MainType.LOAD),
     //Command messages
     PLAYASSISTCARD(MainType.COMMAND),
     DISKTOISLAND(MainType.COMMAND),

@@ -17,6 +17,7 @@ public class Lobby implements Runnable {
     private final HashMap<String,LobbyClient> clients=new HashMap<>();
     private final String lobbyMaster;
     private int maxPlayers=0;
+    private Boolean expertMode=null;
     private LobbyController controller=null;
 
     public Lobby(String lobbyName,String username, LobbyClient lobbyMaster) {
@@ -29,12 +30,11 @@ public class Lobby implements Runnable {
     public void run() {
         System.out.println("LOBBY CREATED: "+lobbyName);
         setupLobby(clients.get(lobbyMaster));
-        LobbyClient currentClient=clients.get(lobbyMaster);
-        currentClient.sendMessage(MsgType.TEXT,"Correct max player set","Set max players to "+maxPlayers);
+        clients.get(lobbyMaster).sendMessage(MsgType.TEXT,"Game setup params","Game parameters\nPlayer num: "+maxPlayers+"\nExpert mode: "+expertMode);
         waitForOtherPlayers();
         //TODO add expertmode selection to lobby master
         try {
-            setupGame(new ArrayList<>(this.clients.keySet()),false);
+            setupGame(new ArrayList<>(this.clients.keySet()),expertMode);
             createLobbyListeners();
             processMessageQueue();
         }
@@ -59,22 +59,39 @@ public class Lobby implements Runnable {
                 }
             }
         }
+        client.sendMessage(MsgType.INPUT,"Expert mode selection","Expert mode (y/n):");
+        while (expertMode==null) {
+            switch(((Info_Message)client.getMessage()).getInfo().toUpperCase()) {
+                case "Y":
+                case "T":
+                case "TRUE":
+                    expertMode=true;
+                    break;
+                case "N":
+                case "F":
+                case "FALSE":
+                    expertMode=false;
+                    break;
+                default:
+                    client.sendMessage(MsgType.INPUT,"Format error","Wrong format\nExpert mode (y/n):");
+                    break;
+            }
+        }
     }
-
     private void waitForOtherPlayers() {
         try {
             synchronized (clients) {
                 while (clients.size()<maxPlayers) {
 
                     for (String clientName: clients.keySet()) {
-                        clients.get(clientName).sendMessage(MsgType.TEXT,"Connect to lobby msg","["+lobbyName+"] "+maxPlayers+" player game, current players: ["+ clients.size()+"/"+maxPlayers+"]");
+                        clients.get(clientName).sendMessage(MsgType.TEXT,"Connect to lobby msg",maxPlayers+" player "+(expertMode?"expert":"normal")+" game, current players: ["+ clients.size()+"/"+maxPlayers+"]");
                     }
                     clients.wait();
                 }
                 System.out.println("GOT MAX CLIENTS CONNECTED: ");
                 System.out.println();
                 for (String clientName: clients.keySet()) {
-                    clients.get(clientName).sendMessage(MsgType.TEXT,"Lobby full","["+lobbyName+"] Lobby now full ["+ clients.size()+"/"+maxPlayers+"]");
+                    clients.get(clientName).sendMessage(MsgType.TEXT,"Lobby full"," Lobby now full ["+ clients.size()+"/"+maxPlayers+"]");
                     System.out.println(clientName);
                 }
             }
@@ -85,7 +102,7 @@ public class Lobby implements Runnable {
     }
     private void setupGame(ArrayList<String> playerNames, boolean expertMode) throws InvalidPlayerNumException {
         this.controller=new LobbyController(playerNames,expertMode,lobbyName);
-        Message gameLoad=new Game_Load_Msg(lobbyName,"["+lobbyName+"] Game created",controller.getGame());
+        Message gameLoad=new Game_Load_Msg(lobbyName,"Game created",controller.getGame());
         for (String client: clients.keySet()) {
             clients.get(client).sendMessage(gameLoad);
         }
@@ -112,6 +129,10 @@ public class Lobby implements Runnable {
                 while(clients.size()>0) {
                     while (lobbyMessageQueue.size()>0) {
                         msg=lobbyMessageQueue.poll();
+                        if (msg.getSubType()==MsgType.CLOSE) {
+                            System.out.println(msg.getContext());
+                            return;
+                        }
                         for (Message message : controller.parseMessage(msg)) {
                             switch (message.getSubType()) {
                                 case WHISPER:

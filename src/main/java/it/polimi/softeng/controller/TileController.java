@@ -70,8 +70,9 @@ public class TileController {
         }
         return clouds;
     }
-    public void moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException {
+    public boolean moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException {
         int maxAmount=p.getSchoolBoard().getLastUsedCard().getMotherNatureValue();
+        boolean teamChanged=false;
         if (charCardController!=null && charCardController.getActiveStatus("MagicPostman")) {
             maxAmount+=2;
             //TODO: switch magic postman off and disable it from being played again
@@ -79,7 +80,6 @@ public class TileController {
         if (n>maxAmount) {
             throw new ExceededMaxMovesException("Cannot move mother nature by "+n+" (Current max: "+maxAmount+")");
         }
-
         //loop that assigns to oldMotherNatureIsland the actual MotherNature Island_Tile
         for (Island_Tile island: islands) {
             if (island.getMotherNature()) {
@@ -89,16 +89,19 @@ public class TileController {
                 }
                 island.setMotherNature(true);
                 if (!island.getNoEntry()) {
+                    Team currentTeam=island.getTeam();
                     calculateInfluence(p,island,players,charCardController,cards,playerController);
                     checkAndMerge(islands,island);
-                } /*else {
+                    if (currentTeam!=island.getTeam()) {
+                        return true;
+                    }
+                } else {
                     //TODO: return no entry tile to grandma herbs
                 }
-
-                */
                 break;
             }
         }
+        return false;
     }
     public void moveStudentsToIsland(Player p, Colour c, String islandID, ArrayList<Island_Tile> islands, TurnManager turnManager) throws TileNotFoundException, InsufficientResourceException {
         Island_Tile chosenIsland=null;

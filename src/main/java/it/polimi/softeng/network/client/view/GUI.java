@@ -41,9 +41,8 @@ public class GUI extends Application implements View, Runnable {
         Application.launch();
     }
     @Override
-    @FXML
     public void start(Stage stage) throws Exception {
-        controller=new GUI_ActionHandler(userInputs);
+        controller=new GUI_ActionHandler();
         FXMLLoader loader=new FXMLLoader(getClass().getResource("/fxml/Eriantys.fxml"));
         loader.setController(controller);
         Parent root=loader.load();

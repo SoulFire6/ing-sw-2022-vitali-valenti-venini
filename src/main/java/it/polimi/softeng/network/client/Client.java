@@ -9,7 +9,6 @@ import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import it.polimi.softeng.network.message.load.Game_Load_Msg;
-import it.polimi.softeng.network.message.load.Load_Message;
 import it.polimi.softeng.network.message.load.Player_Load_Msg;
 
 import java.io.IOException;
@@ -41,8 +40,7 @@ public class Client {
     }
     //TODO: remove, this is for testing purposes only (so it's easier to start clients)
     public static void main(String[] args) {
-        String[] testArgs={null,null,null,"CLI"};
-        Client client=new Client(testArgs);
+        Client client=new Client(new String[]{null,null,null,"CLI"});
         client.start();
     }
     public void start() {
@@ -55,7 +53,6 @@ public class Client {
             toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT, username, null, null));
             while ((inMessage = (Message) fromServer.readObject()) != null && inMessage.getSubType() != MsgType.DISCONNECT) {
                 parseMessageFromServer(inMessage);
-                //TODO make view send out messages
             }
             toServer.close();
             fromServer.close();
@@ -78,7 +75,7 @@ public class Client {
         int serverPort=0;
         Pattern pattern=Pattern.compile(IP_FORMAT);
         Matcher matcher;
-        this.username=args[0]!=null?args[0]:view.setUsername();
+        this.username=args[0]!=null && args[0].length()>0?args[0]:view.setUsername();
         while (this.socket==null) {
             try {
                 if (args[1]!=null && pattern.matcher(args[1]).matches()) {
@@ -103,8 +100,8 @@ public class Client {
                 this.socket=new Socket(serverIP,serverPort);
             }
             catch (IOException io) {
-                System.out.println("Error connecting to server");
-                serverPort=0;
+                System.out.println("Error connecting to server, try again");
+                connectToServer(new String[]{username, null, null});
             }
         }
         try {
@@ -123,7 +120,7 @@ public class Client {
     public void parseMessageFromServer(Message message) {
         switch (message.getType()) {
             case INFO:
-                view.display(((Info_Message)message).getInfo());
+                view.display("["+message.getSender()+"]: "+((Info_Message)message).getInfo());
                 break;
             case LOAD:
                 switch (message.getSubType()) {
@@ -132,6 +129,7 @@ public class Client {
                         break;
                     case PLAYER:
                         this.model.setPlayer(((Player_Load_Msg)message).getLoad());
+                        break;
                     default:
                         //TODO add other loads
                         break;

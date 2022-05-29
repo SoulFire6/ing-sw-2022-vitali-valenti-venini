@@ -20,11 +20,13 @@ public class CLI implements View, Runnable {
     private ObjectOutputStream toServer;
     private ReducedGame model;
     private Properties properties=new Properties();
+    private Properties characterInfo=new Properties();
 
     public CLI() {
         this.in=new BufferedReader(new InputStreamReader(System.in));
         try {
             this.properties.load(getClass().getResourceAsStream("/Assets/CLI/CLI.properties"));
+            this.properties.load(getClass().getResourceAsStream("/CardData/CharacterCards.properties"));
         }
         catch (IOException io) {
             System.out.println("Could not find properties file, defaulting to basic CLI");
@@ -195,7 +197,7 @@ public class CLI implements View, Runnable {
                 }
                 String message="";
                 for (int i=2; i<input.length; i++) {
-                    message=message.concat(input[i]);
+                    message=message.concat(input[i]+" ");
                 }
                 return MessageCenter.genMessage(MsgType.WHISPER,username,input[1],message);
             case "":

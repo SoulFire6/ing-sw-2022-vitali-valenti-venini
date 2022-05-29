@@ -41,12 +41,10 @@ public class MessageCenter {
                         return new Bag_Load_Msg(sender,context,(Bag_Tile) load);
                     case PLAYER:
                         return new Player_Load_Msg(sender,context,(Player) load);
-                    case SCHOOLBOARD:
-                        return new SchoolBoard_Load_Msg(sender,context,(SchoolBoard_Tile)load);
+                    case PLAYERS:
+                        return new Players_Load_Msg(sender,context,(ArrayList<Player>) load);
                     case CHARACTERCARDS:
                         return new CharCard_Load_Msg(sender,context,(ArrayList<CharacterCard>) load);
-                    case ASSISTANTCARDS:
-                        return new AssistCard_Load_Msg(sender,context,(ArrayList<AssistantCard>) load);
                     default:
                         System.out.println("Wrong format");
                         return null;
