@@ -40,11 +40,16 @@ public class CLI implements View {
             switchDisplayColour(Colour.RED.name(),false);
             switchDisplayColour(Colour.BLUE.name(),true);
             String line;
-            BufferedReader print=new BufferedReader(new FileReader(properties.getProperty("Logo")));
+            BufferedReader print=new BufferedReader(new FileReader(properties.getProperty("LOGO")));
             while ((line=print.readLine())!=null) {
                 display(line);
             }
             resetDisplayStile();
+
+            print=new BufferedReader(new FileReader(properties.getProperty("SCHOOLBOARD")));
+            while((line=print.readLine())!=null) {
+                display(line);
+            }
         }
         catch (IOException io) {
             display("Eriantys");
