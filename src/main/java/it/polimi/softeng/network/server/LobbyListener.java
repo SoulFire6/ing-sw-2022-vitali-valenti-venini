@@ -13,14 +13,9 @@ public class LobbyListener implements Runnable {
     }
     public void run() {
         Message inMessage;
-        while (client.getSocket().isConnected()) {
+        while (client.getSocket().isConnected() && (inMessage=client.getMessage())!=null) {
             System.out.println("LISTENER ON");
-            //client.sendMessage(MsgType.INPUT,"","Lobby is listening");
-            inMessage=client.getMessage();
-            if (inMessage!=null) {
-                messageQueue.add(inMessage);
-                //client.sendMessage(MsgType.INPUT,"","Added message to queue: "+ inMessage.getClass());
-            }
+            messageQueue.add(inMessage);
         }
         System.out.println("LISTENER OFF");
         //TODO: notify lobby that client disconnected

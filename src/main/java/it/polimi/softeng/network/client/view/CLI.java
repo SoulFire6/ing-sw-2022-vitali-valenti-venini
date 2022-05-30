@@ -13,46 +13,54 @@ import java.io.FileReader;
 import java.io.ObjectOutputStream;
 import java.util.Properties;
 
-public class CLI implements View, Runnable {
-
+public class CLI implements View {
     private String username=null;
     private final BufferedReader in;
-    private ObjectOutputStream toServer;
-    private ReducedGame model;
-    private Properties properties=new Properties();
-    private Properties characterInfo=new Properties();
+    private ObjectOutputStream toServer=null;
+
+    private boolean loadedGame=false;
+    private final Properties properties=new Properties();
+    private final Properties characterInfo=new Properties();
 
     public CLI() {
         this.in=new BufferedReader(new InputStreamReader(System.in));
         try {
             this.properties.load(getClass().getResourceAsStream("/Assets/CLI/CLI.properties"));
-            this.properties.load(getClass().getResourceAsStream("/CardData/CharacterCards.properties"));
+            this.characterInfo.load(getClass().getResourceAsStream("/CardData/CharacterCards.properties"));
         }
         catch (IOException io) {
-            System.out.println("Could not find properties file, defaulting to basic CLI");
-            this.properties=null;
+            switchDisplayColour(Colour.RED.name(),false);
+            display("Could not find properties file, defaulting to basic CLI");
+            resetDisplayStile();
         }
     }
-
     @Override
-    public void main() {
+    public void run() {
         try {
+            switchDisplayColour(Colour.RED.name(),false);
+            switchDisplayColour(Colour.BLUE.name(),true);
             String line;
             BufferedReader print=new BufferedReader(new FileReader(properties.getProperty("Logo")));
             while ((line=print.readLine())!=null) {
-                System.out.println(line);
+                display(line);
             }
+            resetDisplayStile();
         }
         catch (IOException io) {
-            System.out.println("Eriantys");
+            display("Eriantys");
         }
+        while (toServer==null) {
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException ignored) {
+            }
+        }
+        while (!loadedGame) {
 
-    }
-
-    @Override
-    public void run() {
+        }
         Message outMessage=null;
-        while (outMessage==null || outMessage.getSubType()!= MsgType.DISCONNECT) {
+        while (outMessage==null || outMessage.getSubType()!=MsgType.CLOSE) {
             try {
                 outMessage=parseMessage(in.readLine().split(" "));
                 if (outMessage!=null) {
@@ -62,21 +70,12 @@ public class CLI implements View, Runnable {
             catch (IOException io) {
                 System.out.println("Error reading input");
             }
-
         }
-        display("Not yet implemented");
-        //TODO: runs once model is loaded from server, update view every time model changes
-        //TODO: add loop for sending messages
     }
 
     @Override
     public void setToServer(ObjectOutputStream toServer) {
         this.toServer=toServer;
-    }
-
-    @Override
-    public void setModel(ReducedGame model) {
-        this.model=model;
     }
 
     @Override
@@ -96,7 +95,7 @@ public class CLI implements View, Runnable {
     public String setUsername() {
         String username=null;
         while (username==null) {
-            System.out.print("Username: ");
+            display("Username: ");
             try {
                 username=in.readLine();
             }
@@ -151,6 +150,38 @@ public class CLI implements View, Runnable {
         System.out.println(message);
     }
 
+    public void switchDisplayColour(String colour, boolean background) {
+        if (background) {
+            System.out.print((char)27+properties.getProperty(("ANSI_BG_"+colour.toUpperCase())));
+        } else {
+            System.out.print((char)27+properties.getProperty(("ANSI_"+colour.toUpperCase())));
+        }
+    }
+    public void resetDisplayStile() {
+        System.out.print((char)27+properties.getProperty("ANSI_RESET"));
+        System.out.print((char)27+properties.getProperty("ANSI_BG_RESET"));
+    }
+
+    public void modelSync(ReducedGame model) {
+        loadedGame=true;
+        new Thread(()->{
+            synchronized (model) {
+                while(true) {
+                    printModel(model);
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private void printModel(ReducedGame model) {
+        //TODO implement print game
+    }
+
     public Message parseMessage(String[] input) {
         Colour diskColour=Colour.parseChosenColour(input[0]);
         if (diskColour!=null) {
@@ -200,8 +231,26 @@ public class CLI implements View, Runnable {
                     message=message.concat(input[i]+" ");
                 }
                 return MessageCenter.genMessage(MsgType.WHISPER,username,input[1],message);
-            case "":
-                display("For list of commands type help");
+            case "CHARINFO":
+                if (input.length<2) {
+                    display("Not enough arguments");
+                    return null;
+                }
+                String info;
+                boolean found=false;
+                System.out.println(input[1]+"_setup");
+                System.out.println(characterInfo.getProperty("monk_setup"));
+                if ((info=characterInfo.getProperty(input[1].toLowerCase()+"_setup"))!=null) {
+                    display("Setup: "+info);
+                    found=true;
+                }
+                if ((info=characterInfo.getProperty(input[1].toLowerCase()+"_effect"))!=null) {
+                    display("Effect:"+info);
+                    found=true;
+                }
+                if (!found) {
+                    System.out.println("Character id not found");
+                }
                 return null;
             case "HELP":
                 display("Possible commands:\n" +
@@ -210,10 +259,13 @@ public class CLI implements View, Runnable {
                         "- char | character [char id] - play character card\n" +
                         "- assist | assistant [assist id] - play assistant card\n" +
                         "- refill [cloud id] - choose cloud to refill entrance from\n" +
-                        "- msg | whisper [username] - send a message to another player");
+                        "- msg | whisper [username] - send a message to another player\n" +
+                        "- charinfo [char name] - prints character card info");
                 return null;
             default:
-                return MessageCenter.genMessage(MsgType.TEXT,username,"Basic response",input[0]);
+                display("For list of commands type help");
+                return null;
+                //return MessageCenter.genMessage(MsgType.TEXT,username,"Basic response",input[0]);
         }
     }
 }

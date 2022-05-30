@@ -94,18 +94,13 @@ public class Eriantys {
                 }
             }
             if (!stop) {
-                try {
-                    if (isClient && clientArgs[3]!=null) {
-                        Client client=new Client(clientArgs);
-                        client.start();
-                    } else if (isServer) {
-                        Server.main(serverArgs);
-                    } else {
-                        throw new IllegalArgumentException("Did not specify client or server");
-                    }
-                }
-                catch (IOException io) {
-                    System.out.println(io.getMessage());
+                if (isClient && clientArgs[3]!=null) {
+                    Client client=new Client(clientArgs);
+                    client.start();
+                } else if (isServer) {
+                    Server.main(serverArgs);
+                } else {
+                    throw new IllegalArgumentException("Did not specify client or server");
                 }
             }
         } else {

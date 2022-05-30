@@ -42,7 +42,6 @@ public class Lobby implements Runnable {
             System.out.println("Invalid player num, closing lobby");
         }
     }
-
     private void setupLobby(LobbyClient client) {
         client.sendMessage(MsgType.TEXT,"Lobby welcome message","Welcome to the lobby");
         while (maxPlayers<2 || maxPlayers>4) {
@@ -88,11 +87,9 @@ public class Lobby implements Runnable {
                     }
                     clients.wait();
                 }
-                System.out.println("GOT MAX CLIENTS CONNECTED: ");
-                System.out.println();
+                System.out.println("["+lobbyName+"] GOT MAX CLIENTS CONNECTED: "+clients.keySet());
                 for (String clientName: clients.keySet()) {
-                    clients.get(clientName).sendMessage(MsgType.TEXT,"Lobby full"," Lobby now full ["+ clients.size()+"/"+maxPlayers+"]");
-                    System.out.println(clientName);
+                    clients.get(clientName).sendMessage(MsgType.TEXT,"Lobby full"," Lobby now full ["+ clients.size()+"/"+maxPlayers+"], setting up game...");
                 }
             }
         }
@@ -102,7 +99,7 @@ public class Lobby implements Runnable {
     }
     private void setupGame(ArrayList<String> playerNames, boolean expertMode) throws InvalidPlayerNumException {
         this.controller=new LobbyController(playerNames,expertMode,lobbyName);
-        Message gameLoad=new Game_Load_Msg(lobbyName,"Game created",controller.getGame());
+        Message gameLoad=new Game_Load_Msg(lobbyName,"Game has been setup",controller.getGame());
         for (String client: clients.keySet()) {
             clients.get(client).sendMessage(gameLoad);
         }
@@ -112,6 +109,12 @@ public class Lobby implements Runnable {
     }
     public int getMaxPlayers() {
         return this.maxPlayers;
+    }
+    public String getLobbyStats() {
+        if (maxPlayers==0) {
+            return this.lobbyName+": not ready";
+        }
+        return this.lobbyName+": "+(this.expertMode?"expert":"normal")+" game ["+this.clients.size()+"/"+this.maxPlayers+"]";
     }
     public void createLobbyListeners() {
         Thread listener;

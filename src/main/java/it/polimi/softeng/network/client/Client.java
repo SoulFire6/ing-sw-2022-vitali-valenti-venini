@@ -35,7 +35,12 @@ public class Client {
     public Client(String[] args) {
         this.model=null;
         this.view=(args[3].equals("GUI")?new GUI():new CLI());
-        new Thread(view::main).start();
+        new Thread(view).start();
+        try {
+            Thread.sleep(500);
+        }
+        catch (InterruptedException ignored) {
+        }
         connectToServer(args);
     }
     //TODO: remove, this is for testing purposes only (so it's easier to start clients)
@@ -108,7 +113,6 @@ public class Client {
             this.toServer=new ObjectOutputStream(socket.getOutputStream());
             this.fromServer=new ObjectInputStream(socket.getInputStream());
             view.setToServer(toServer);
-            new Thread(()->((Runnable)view).run()).start();
         }
         catch (IOException io) {
             System.out.println("Error getting i/o stream");
@@ -116,7 +120,6 @@ public class Client {
             connectToServer(args);
         }
     }
-    //TODO implement
     public void parseMessageFromServer(Message message) {
         switch (message.getType()) {
             case INFO:
@@ -126,6 +129,7 @@ public class Client {
                 switch (message.getSubType()) {
                     case GAME:
                         this.model=((Game_Load_Msg)message).getLoad();
+                        this.view.modelSync(this.model);
                         break;
                     case PLAYER:
                         this.model.setPlayer(((Player_Load_Msg)message).getLoad());

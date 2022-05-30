@@ -5,7 +5,6 @@ import it.polimi.softeng.network.message.Message;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -13,9 +12,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class GUI extends Application implements View, Runnable {
+public class GUI extends Application implements View {
 
     private String username=null;
     private ObjectOutputStream toServer;
@@ -24,21 +22,15 @@ public class GUI extends Application implements View, Runnable {
 
     private static GUI_ActionHandler controller;
 
-    private static final ConcurrentLinkedQueue<Message> userInputs=new ConcurrentLinkedQueue<>();
-
     public GUI() {
     }
     public static void main(String[] args) throws InterruptedException {
         GUI gui=new GUI();
-        new Thread(gui::main).start();
+        new Thread(gui).start();
         gui.display("Testing popup");
 
         Thread.sleep(1000);
 
-    }
-    public void main() {
-        System.out.println("STARTING");
-        Application.launch();
     }
     @Override
     public void start(Stage stage) throws Exception {
@@ -53,23 +45,8 @@ public class GUI extends Application implements View, Runnable {
     }
     @Override
     public void run() {
-        while (model==null) {
-            threadSleep(3000);
-            System.out.println("Waiting for model");
-        }
-        synchronized (model) {
-            try {
-                while (true) {
-                    wait();
-                    //update model
-                }
-            }
-            catch (InterruptedException ie) {
-                ie.printStackTrace();
-            }
-            //update gui
-
-        }
+        System.out.println("STARTING");
+        Application.launch();
         //TODO: runs once model is loaded from server, update view every time model changes
     }
 
@@ -78,11 +55,6 @@ public class GUI extends Application implements View, Runnable {
         this.toServer=toServer;
         //TODO swap out gui from input fields to game
         new Thread(this).start();
-    }
-
-    @Override
-    public void setModel(ReducedGame model) {
-        this.model=model;
     }
 
     @Override
@@ -183,6 +155,9 @@ public class GUI extends Application implements View, Runnable {
         });
     }
 
+    public void modelSync(ReducedGame model) {
+        //TODO implement
+    }
     private void threadSleep(int milliseconds) {
         try {
             Thread.sleep(milliseconds);

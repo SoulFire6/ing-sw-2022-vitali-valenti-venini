@@ -13,7 +13,7 @@ import java.util.HashMap;
 public class Server {
     private static final HashMap<String,Lobby> lobbies=new HashMap<>();
     private static final Integer SERVER_PORT=50033;
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
         ServerSocket serverSocket;
         Integer port=SERVER_PORT;
@@ -46,16 +46,21 @@ public class Server {
                 }
             }
         }
-        serverSocket=new ServerSocket(port);
-        Socket clientSocket;
-        while (true) {
-            try {
-                clientSocket=serverSocket.accept();
-                serveClient(clientSocket);
-            } catch (NullPointerException npe) {
-                System.out.println("Client disconnected abruptly");
-                break;
+        try {
+            serverSocket=new ServerSocket(port);
+            Socket clientSocket;
+            while (true) {
+                try {
+                    clientSocket=serverSocket.accept();
+                    serveClient(clientSocket);
+                } catch (NullPointerException npe) {
+                    System.out.println("Client disconnected abruptly");
+                    break;
+                }
             }
+        }
+        catch (IOException io) {
+            System.out.println("Server closed by IO error");
         }
     }
 
@@ -92,6 +97,9 @@ public class Server {
             switch (response.getInfo().toUpperCase()) {
                 case "C":
                 case "CREATE":
+                    for (String lobby : lobbies.keySet()) {
+                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Listing lobbies",lobbies.get(lobby).getLobbyStats()));
+                    }
                     out.writeObject(MessageCenter.genMessage(MsgType.INPUT, "SERVER", "Lobby id", "Enter lobby id: "));
                     response=(Info_Message)in.readObject();
                     lobbyName=response.getInfo();
@@ -106,6 +114,13 @@ public class Server {
                     break;
                 case "J":
                 case "JOIN":
+                    if (lobbies.size()==0) {
+                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","No lobbies","There are no lobbies to join, try creating one instead"));
+                        break;
+                    }
+                    for (String lobby : lobbies.keySet()) {
+                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Listing lobbies",lobbies.get(lobby).getLobbyStats()));
+                    }
                     out.writeObject(MessageCenter.genMessage(MsgType.INPUT, "SERVER", "Lobby id", "Enter lobby id: "));
                     response=(Info_Message) in.readObject();
                     lobbyName=response.getInfo();
