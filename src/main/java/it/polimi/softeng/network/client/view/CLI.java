@@ -1,7 +1,8 @@
 package it.polimi.softeng.network.client.view;
 
 import it.polimi.softeng.model.Colour;
-import it.polimi.softeng.model.ReducedModel.ReducedGame;
+import it.polimi.softeng.model.ReducedModel.*;
+import it.polimi.softeng.model.Team;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
@@ -11,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.FileReader;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.Properties;
 
 public class CLI implements View {
@@ -29,7 +32,7 @@ public class CLI implements View {
             this.characterInfo.load(getClass().getResourceAsStream("/CardData/CharacterCards.properties"));
         }
         catch (IOException io) {
-            switchDisplayColour(Colour.RED.name(),false);
+            display(getDisplayColour(Colour.RED.name(),false));
             display("Could not find properties file, defaulting to basic CLI");
             resetDisplayStile();
         }
@@ -37,19 +40,13 @@ public class CLI implements View {
     @Override
     public void run() {
         try {
-            switchDisplayColour(Colour.RED.name(),false);
-            switchDisplayColour(Colour.BLUE.name(),true);
+            display(getDisplayColour(Colour.RED.name(),false));
             String line;
             BufferedReader print=new BufferedReader(new FileReader(properties.getProperty("LOGO")));
             while ((line=print.readLine())!=null) {
                 display(line);
             }
             resetDisplayStile();
-
-            print=new BufferedReader(new FileReader(properties.getProperty("SCHOOLBOARD")));
-            while((line=print.readLine())!=null) {
-                display(line);
-            }
         }
         catch (IOException io) {
             display("Eriantys");
@@ -60,9 +57,6 @@ public class CLI implements View {
             }
             catch (InterruptedException ignored) {
             }
-        }
-        while (!loadedGame) {
-
         }
         Message outMessage=null;
         while (outMessage==null || outMessage.getSubType()!=MsgType.CLOSE) {
@@ -155,11 +149,11 @@ public class CLI implements View {
         System.out.println(message);
     }
 
-    public void switchDisplayColour(String colour, boolean background) {
+    public String getDisplayColour(String colour, boolean background) {
         if (background) {
-            System.out.print((char)27+properties.getProperty(("ANSI_BG_"+colour.toUpperCase())));
+            return (char)27+properties.getProperty(("ANSI_BG_"+colour.toUpperCase()));
         } else {
-            System.out.print((char)27+properties.getProperty(("ANSI_"+colour.toUpperCase())));
+            return (char)27+properties.getProperty(("ANSI_"+colour.toUpperCase()));
         }
     }
     public void resetDisplayStile() {
@@ -174,7 +168,7 @@ public class CLI implements View {
                 while(true) {
                     printModel(model);
                     try {
-                        wait();
+                        model.wait();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -184,10 +178,130 @@ public class CLI implements View {
     }
 
     private void printModel(ReducedGame model) {
-        //TODO implement print game
+        String dash="▬",wall="▌";
+        ReducedPlayer firstPlayer,secondPlayer;
+        int schoolBoardLength=36;
+        clearScreen();
+        StringBuilder modelUI=new StringBuilder();
+        for (int i=0; i<2; i++) {
+            firstPlayer=model.getPlayers().size()>i*2?model.getPlayers().get(i*2):null;
+            secondPlayer=model.getPlayers().size()>i*2+1?model.getPlayers().get(i*2+1):null;
+            modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer!=null? model.getPlayers().get(i*2).getName()+"'s SchoolBoard":"")).append("  ");
+            modelUI.append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?model.getPlayers().get(i*2+1).getName()+"'s SchoolBoard":""));
+            modelUI.append("\n");
+            modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer!=null?dash.repeat(schoolBoardLength):"")).append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?dash.repeat(schoolBoardLength-1)+" ":" ")).append(firstPlayer!=null?"\n":"");
+            for (Colour c : Colour.values()) {
+                if (firstPlayer!=null) {
+                    modelUI.append(getSchoolBoardRow(c,firstPlayer.getTeam(),firstPlayer.getSchoolBoard()));
+                }
+                if (secondPlayer!=null) {
+                    modelUI.append(getSchoolBoardRow(c,secondPlayer.getTeam(),secondPlayer.getSchoolBoard()));
+                } else {
+                    modelUI.append(" ".repeat(schoolBoardLength));
+                }
+                if (firstPlayer!=null) {
+                    modelUI.append("\n");
+                }
+            }
+            modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer!=null?dash.repeat(schoolBoardLength):"")).append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?dash.repeat(schoolBoardLength-1)+" ":" ")).append(firstPlayer!=null?"\n":"");
+        }
+        int count=0;
+        for (ReducedIsland island : model.getIslands()) {
+            modelUI.append(getIslandStats(island));
+            count=(count+1)%4;
+            if (count==0) {
+                modelUI.append("\n");
+            } else {
+                modelUI.append(" | ");
+            }
+        }
+        for (ReducedCloud cloud : model.getClouds()) {
+            modelUI.append(getTileStats(cloud.getId(),cloud.getContents())).append(" | ");
+        }
+        modelUI.append(getTileStats(model.getBag().getId(),model.getBag().getContents())).append("\n");
+        ArrayList<ReducedAssistantCard> hand=null;
+        for (ReducedPlayer player : model.getPlayers()) {
+            if (player.getName().equals(username)) {
+                hand=player.getSchoolBoard().getHand();
+                break;
+            }
+        }
+        if (hand!=null) {
+            for (int i=0; i<6; i++) {
+                switch (i) {
+                    case 0:
+                    case 5:
+                        modelUI.append((" "+dash.repeat(8)+" ").repeat(hand.size()));
+                        break;
+                    case 1:
+                        for (ReducedAssistantCard card : hand) {
+                            modelUI.append(wall).append(String.format("%-8s",card.getId())).append(wall);
+                        }
+                        break;
+                    case 4:
+                        for (ReducedAssistantCard card : hand) {
+                            modelUI.append(wall).append(" ").append(String.format("%-3d", card.getTurnValue())).append(String.format("%3d", card.getMotherNatureValue())).append(" ").append(wall);
+                        }
+                        break;
+                    default:
+                        modelUI.append((wall+" ".repeat(8)+wall).repeat(hand.size()));
+                        break;
+                }
+                modelUI.append("\n");
+            }
+        } else {
+            modelUI.append("ERROR LOADING HAND");
+        }
+        System.out.println(modelUI);
+    }
+
+    private String getSchoolBoardRow(Colour c, Team t, ReducedSchoolBoard board) {
+        String wall="▌";
+        String fontColour=getDisplayColour(c.name(),false);
+        String resetColour=getDisplayColour ("RESET",false);
+        return wall+(fontColour+"♦ "+board.getEntrance().get(c)+" "+resetColour+wall+fontColour+" ♦".repeat(board.getDiningRoom().get(c))+resetColour+" ♦".repeat(10-board.getDiningRoom().get(c))+" "+wall+(board.getProfessorTable().get(c)?fontColour+"◘"+resetColour+" ":"◘ ")+wall+(board.getTowers()>(c.ordinal()+1)?"▲ ":"  ")+((board.getTowers()>(c.ordinal()+1)*2)?"▲ ":"  "))+wall+"  ";
+    }
+
+    private String getIslandStats(ReducedIsland island) {
+        StringBuilder islandStats=new StringBuilder();
+        islandStats.append(island.getID()).append(": ");
+        for (Colour c : Colour.values()) {
+            islandStats.append(getDisplayColour(c.name(),false)).append(island.getContents().get(c)).append(" ");
+        }
+        islandStats.append(getDisplayColour("RESET",false));
+        if (island.getTeam()!=null) {
+            islandStats.append(getDisplayColour(island.getTeam().name(),false)).append(getDisplayColour(Colour.BLUE.name(),true)).append(" ▲ ").append(getDisplayColour("RESET",false)).append(getDisplayColour("RESET",true));
+        }
+        return islandStats.toString();
+    }
+
+    private String getTileStats(String id, EnumMap<Colour,Integer> contents) {
+        StringBuilder tileStats=new StringBuilder();
+        tileStats.append(id).append(": ");
+        for (Colour c : Colour.values()) {
+            tileStats.append(getDisplayColour(c.name(),false)).append(contents.get(c)).append(" ");
+        }
+        tileStats.append(getDisplayColour("RESET",false));
+        return tileStats.toString();
+    }
+
+    private void clearScreen() {
+        try {
+            if (System.getProperty("os.name").contains("Windows")) {
+                Runtime.getRuntime().exec("cls");
+            } else {
+                Runtime.getRuntime().exec("clear");
+            }
+        }
+        catch (IOException io) {
+            System.out.println("Could not clear screen");
+        }
     }
 
     public Message parseMessage(String[] input) {
+        if (!loadedGame) {
+            return MessageCenter.genMessage(MsgType.TEXT,username,"Basic response",input[0]);
+        }
         Colour diskColour=Colour.parseChosenColour(input[0]);
         if (diskColour!=null) {
             if (input.length<2) {
@@ -218,7 +332,7 @@ public class CLI implements View {
                     display("Not enough arguments");
                     return null;
                 }
-                return MessageCenter.genMessage(MsgType.PLAYASSISTCARD,username,input[1],null);
+                return MessageCenter.genMessage(MsgType.PLAYASSISTCARD,username,input[1],input[1]);
             case "REFILL":
                 if (input.length<2) {
                     display("Not enough arguments");
@@ -270,7 +384,6 @@ public class CLI implements View {
             default:
                 display("For list of commands type help");
                 return null;
-                //return MessageCenter.genMessage(MsgType.TEXT,username,"Basic response",input[0]);
         }
     }
 }

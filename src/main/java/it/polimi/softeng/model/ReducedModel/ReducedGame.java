@@ -67,7 +67,8 @@ public class ReducedGame implements Serializable {
         for (ReducedPlayer reducedPlayer : this.players) {
             if (reducedPlayer.getName().equals(player.getName())) {
                 this.players.set(this.players.indexOf(reducedPlayer),player);
-                //notify();
+                //TODO fix thread is not owner
+                //notifyAll();
                 return true;
             }
         }
@@ -78,24 +79,24 @@ public class ReducedGame implements Serializable {
     }
     public void setBag(ReducedBag bag) {
         this.bag=bag;
+        notifyAll();
     }
     public ArrayList<ReducedCloud> getClouds() {
         return clouds;
     }
     public void setClouds(ArrayList<ReducedCloud> clouds) {
         this.clouds=clouds;
+        notifyAll();
     }
     public ArrayList<ReducedIsland> getIslands() {
         return islands;
     }
     public void setIslands(ArrayList<ReducedIsland> islands) {
         this.islands=islands;
+        notifyAll();
     }
     public boolean isExpertMode() {
         return expertMode;
-    }
-    public void setCoins(int coins) {
-        this.coins=coins;
     }
     public Integer getCoins() {
         return coins;

@@ -9,7 +9,9 @@ import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import it.polimi.softeng.network.message.load.Game_Load_Msg;
+import it.polimi.softeng.network.message.load.Island_Load_Msg;
 import it.polimi.softeng.network.message.load.Player_Load_Msg;
+import it.polimi.softeng.network.message.load.Players_Load_Msg;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -128,14 +130,24 @@ public class Client {
             case LOAD:
                 switch (message.getSubType()) {
                     case GAME:
+                        boolean notLoadedModel=(this.model==null);
                         this.model=((Game_Load_Msg)message).getLoad();
-                        this.view.modelSync(this.model);
+                        if (notLoadedModel) {
+                            this.view.modelSync(this.model);
+                        }
+                        break;
+                    case ISLANDS:
+                        this.model.setIslands(((Island_Load_Msg)message).getLoad());
+                        break;
+                    case CLOUDS:
+                        break;
+                    case BAG:
                         break;
                     case PLAYER:
                         this.model.setPlayer(((Player_Load_Msg)message).getLoad());
                         break;
-                    default:
-                        //TODO add other loads
+                    case PLAYERS:
+                        this.model.setPlayers(((Players_Load_Msg)message).getLoad());
                         break;
                 }
                 break;
