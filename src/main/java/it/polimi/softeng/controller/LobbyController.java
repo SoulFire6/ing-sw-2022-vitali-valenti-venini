@@ -39,6 +39,7 @@ public class LobbyController {
         players = playerController.genPlayers(playerNames);
         for (Player p: players) {
             p.setSchoolBoard(new SchoolBoard_Tile(p.getName(),7+2*(playerNames.size()%2),8-2*(playerNames.size()-2),8,assistantCardController.genHand(),expertMode?1:0));
+            p.getSchoolBoard().fillEntrance(bag);
         }
         ArrayList<Team> teams = playerController.getTeams(players);
         ArrayList<Island_Tile> islands = tileController.genIslands(12,new Bag_Tile(2));

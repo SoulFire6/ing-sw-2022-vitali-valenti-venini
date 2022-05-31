@@ -181,6 +181,7 @@ public class CLI implements View {
         String dash="▬",wall="▌";
         ReducedPlayer firstPlayer,secondPlayer;
         int schoolBoardLength=36;
+        String schoolBoardDelimiter=String.format("%-"+schoolBoardLength+"s",dash.repeat(schoolBoardLength));
         clearScreen();
         StringBuilder modelUI=new StringBuilder();
         for (int i=0; i<2; i++) {
@@ -188,7 +189,9 @@ public class CLI implements View {
             secondPlayer=model.getPlayers().size()>i*2+1?model.getPlayers().get(i*2+1):null;
             modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer!=null? model.getPlayers().get(i*2).getName()+"'s SchoolBoard":"")).append("  ");
             modelUI.append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?model.getPlayers().get(i*2+1).getName()+"'s SchoolBoard":""));
-            modelUI.append("\n");
+            modelUI.append(firstPlayer!=null?"\n":"");
+            modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer!=null?("Team: "+firstPlayer.getTeam()+(model.isExpertMode()?"  Coins: "+firstPlayer.getSchoolBoard().getCoins():"")):""));
+            modelUI.append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?("Team: "+secondPlayer.getTeam()+(model.isExpertMode()?"  Coins: "+secondPlayer.getSchoolBoard().getCoins():"")):"")).append("\n");
             modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer!=null?dash.repeat(schoolBoardLength):"")).append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?dash.repeat(schoolBoardLength-1)+" ":" ")).append(firstPlayer!=null?"\n":"");
             for (Colour c : Colour.values()) {
                 if (firstPlayer!=null) {
@@ -203,17 +206,14 @@ public class CLI implements View {
                     modelUI.append("\n");
                 }
             }
-            modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer!=null?dash.repeat(schoolBoardLength):"")).append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?dash.repeat(schoolBoardLength-1)+" ":" ")).append(firstPlayer!=null?"\n":"");
-        }
-        int count=0;
-        for (ReducedIsland island : model.getIslands()) {
-            modelUI.append(getIslandStats(island));
-            count=(count+1)%4;
-            if (count==0) {
-                modelUI.append("\n");
-            } else {
-                modelUI.append(" | ");
+            if (firstPlayer!=null) {
+                modelUI.append(schoolBoardDelimiter).append("  ").append(secondPlayer!=null?schoolBoardDelimiter:" ").append("\n");
             }
+        }
+        modelUI.append("\n");
+        for (int i=0; i<model.getIslands().size(); i++) {
+            modelUI.append(getIslandStats(model.getIslands().get(i)));
+            modelUI.append((i+1)%4==0?"\n":" | ");
         }
         for (ReducedCloud cloud : model.getClouds()) {
             modelUI.append(getTileStats(cloud.getId(),cloud.getContents())).append(" | ");
@@ -224,6 +224,12 @@ public class CLI implements View {
             if (player.getName().equals(username)) {
                 hand=player.getSchoolBoard().getHand();
                 break;
+            }
+        }
+        if (model.isExpertMode()) {
+            for (int i=0; i<model.getCharacterCards().size(); i++) {
+                modelUI.append(getCharacterData(model.getCharacterCards().get(i)));
+                modelUI.append(i== model.getCharacterCards().size()-1?"\n":" | ");
             }
         }
         if (hand!=null) {
@@ -259,7 +265,7 @@ public class CLI implements View {
         String wall="▌";
         String fontColour=getDisplayColour(c.name(),false);
         String resetColour=getDisplayColour ("RESET",false);
-        return wall+(fontColour+"♦ "+board.getEntrance().get(c)+" "+resetColour+wall+fontColour+" ♦".repeat(board.getDiningRoom().get(c))+resetColour+" ♦".repeat(10-board.getDiningRoom().get(c))+" "+wall+(board.getProfessorTable().get(c)?fontColour+"◘"+resetColour+" ":"◘ ")+wall+(board.getTowers()>(c.ordinal()+1)?"▲ ":"  ")+((board.getTowers()>(c.ordinal()+1)*2)?"▲ ":"  "))+wall+"  ";
+        return wall+(fontColour+"♦ "+board.getEntrance().get(c)+" "+resetColour+wall+fontColour+" ♦".repeat(board.getDiningRoom().get(c))+resetColour+" ♦".repeat(10-board.getDiningRoom().get(c))+" "+wall+(board.getProfessorTable().get(c)?fontColour+"◘"+resetColour+" ":"◘ ")+wall+(board.getTowers()>=((2*c.ordinal()+1))?"▲ ":"  ")+((board.getTowers()>=(c.ordinal()+1)*2)?"▲ ":"  "))+wall+"  ";
     }
 
     private String getIslandStats(ReducedIsland island) {
@@ -283,6 +289,11 @@ public class CLI implements View {
         }
         tileStats.append(getDisplayColour("RESET",false));
         return tileStats.toString();
+    }
+
+    private String getCharacterData(ReducedCharacterCard card) {
+        return card.getId();
+        //TODO add memory data
     }
 
     private void clearScreen() {
