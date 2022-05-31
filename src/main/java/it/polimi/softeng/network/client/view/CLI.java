@@ -181,7 +181,8 @@ public class CLI implements View {
         String dash="▬",wall="▌";
         ReducedPlayer firstPlayer,secondPlayer;
         int schoolBoardLength=36;
-        String schoolBoardDelimiter=String.format("%-"+schoolBoardLength+"s",dash.repeat(schoolBoardLength));
+        String schoolBoardDelimiter=String.format("%-"+schoolBoardLength+"s",dash.repeat(System.getProperty("os.name").contains("Windows")?23:schoolBoardLength));
+        int cardDelimiter=System.getProperty("os.name").contains("Windows")?5:8;
         clearScreen();
         StringBuilder modelUI=new StringBuilder();
         for (int i=0; i<2; i++) {
@@ -237,7 +238,7 @@ public class CLI implements View {
                 switch (i) {
                     case 0:
                     case 5:
-                        modelUI.append((" "+dash.repeat(8)+" ").repeat(hand.size()));
+                        modelUI.append((" "+dash.repeat(cardDelimiter)+" ").repeat(hand.size()));
                         break;
                     case 1:
                         for (ReducedAssistantCard card : hand) {
