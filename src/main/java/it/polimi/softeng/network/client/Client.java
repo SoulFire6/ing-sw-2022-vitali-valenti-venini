@@ -8,10 +8,7 @@ import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
-import it.polimi.softeng.network.message.load.Game_Load_Msg;
-import it.polimi.softeng.network.message.load.Island_Load_Msg;
-import it.polimi.softeng.network.message.load.Player_Load_Msg;
-import it.polimi.softeng.network.message.load.Players_Load_Msg;
+import it.polimi.softeng.network.message.load.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -66,8 +63,10 @@ public class Client {
             socket.close();
         } catch (ClassNotFoundException cnfe) {
             System.out.println("Error reading message from server");
+            cnfe.printStackTrace();
         } catch (IOException io) {
             System.out.println("IO exception");
+            io.printStackTrace();
         }
         if (inMessage != null && inMessage.getSubType() == MsgType.DISCONNECT) {
             System.out.println("DISCONNECTED");
@@ -130,18 +129,18 @@ public class Client {
             case LOAD:
                 switch (message.getSubType()) {
                     case GAME:
-                        boolean notLoadedModel=(this.model==null);
                         this.model=((Game_Load_Msg)message).getLoad();
-                        if (notLoadedModel) {
-                            this.view.modelSync(this.model);
-                        }
+                        this.model.addPropertyChangeListener(this.view);
+                        this.model.notifyGameLoaded();
                         break;
                     case ISLANDS:
                         this.model.setIslands(((Island_Load_Msg)message).getLoad());
                         break;
                     case CLOUDS:
+                        this.model.setClouds(((Cloud_Load_Msg)message).getLoad());
                         break;
                     case BAG:
+                        this.model.setBag(((Bag_Load_Msg)message).getLoad());
                         break;
                     case PLAYER:
                         this.model.setPlayer(((Player_Load_Msg)message).getLoad());

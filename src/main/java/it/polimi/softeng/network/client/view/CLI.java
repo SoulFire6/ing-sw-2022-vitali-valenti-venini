@@ -7,6 +7,7 @@ import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 
+import java.beans.PropertyChangeEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,13 +16,13 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class CLI implements View {
     private String username=null;
     private final BufferedReader in;
     private ObjectOutputStream toServer=null;
-
-    private boolean loadedGame=false;
+    private final boolean windowsTerminal;
     private final Properties properties=new Properties();
     private final Properties characterInfo=new Properties();
 
@@ -36,6 +37,7 @@ public class CLI implements View {
             display("Could not find properties file, defaulting to basic CLI");
             resetDisplayStile();
         }
+        this.windowsTerminal=System.getProperty("os.name").contains("Windows");
     }
     @Override
     public void run() {
@@ -88,8 +90,6 @@ public class CLI implements View {
             display("Could not send message");
         }
     }
-
-
     @Override
     public String setUsername() {
         String username=null;
@@ -105,7 +105,6 @@ public class CLI implements View {
         this.username=username;
         return username;
     }
-
     @Override
     public String setIP(String defaultIP) {
         String ip;
@@ -122,7 +121,6 @@ public class CLI implements View {
             return null;
         }
     }
-
     @Override
     public int setPort(int defaultPort) {
         String port=null;
@@ -143,12 +141,10 @@ public class CLI implements View {
             return -1;
         }
     }
-
     @Override
     public void display(String message) {
         System.out.println(message);
     }
-
     public String getDisplayColour(String colour, boolean background) {
         if (background) {
             return (char)27+properties.getProperty(("ANSI_BG_"+colour.toUpperCase()));
@@ -159,22 +155,6 @@ public class CLI implements View {
     public void resetDisplayStile() {
         System.out.print((char)27+properties.getProperty("ANSI_RESET"));
         System.out.print((char)27+properties.getProperty("ANSI_BG_RESET"));
-    }
-
-    public void modelSync(ReducedGame model) {
-        loadedGame=true;
-        new Thread(()->{
-            synchronized (model) {
-                while(true) {
-                    printModel(model);
-                    try {
-                        model.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
     }
 
     private void printModel(ReducedGame model) {
@@ -299,11 +279,8 @@ public class CLI implements View {
 
     private void clearScreen() {
         try {
-            if (System.getProperty("os.name").contains("Windows")) {
-                Runtime.getRuntime().exec("cls");
-            } else {
-                Runtime.getRuntime().exec("clear");
-            }
+            String command=windowsTerminal?"cls":"clear";
+            Runtime.getRuntime().exec(command);
         }
         catch (IOException io) {
             System.out.println("Could not clear screen");
@@ -311,8 +288,9 @@ public class CLI implements View {
     }
 
     public Message parseMessage(String[] input) {
-        if (!loadedGame) {
-            return MessageCenter.genMessage(MsgType.TEXT,username,"Basic response",input[0]);
+        if (input.length==0) {
+            display("For list of commands type help");
+            return null;
         }
         Colour diskColour=Colour.parseChosenColour(input[0]);
         if (diskColour!=null) {
@@ -350,7 +328,14 @@ public class CLI implements View {
                     display("Not enough arguments");
                     return null;
                 }
-                return MessageCenter.genMessage(MsgType.CHOOSECLOUD,username,input[1],null);
+                return MessageCenter.genMessage(MsgType.CHOOSECLOUD,username,input[1],input[1]);
+            case "MN":
+            case "MOTHERNATURE":
+                if (input.length<2) {
+                    display("Not enough arguments");
+                    return null;
+                }
+                return MessageCenter.genMessage(MsgType.MOVEMN,username,input[1],Integer.parseInt(input[1]));
             case "MSG":
             case "WHISPER":
                 if (input.length<3) {
@@ -394,8 +379,12 @@ public class CLI implements View {
                         "- charinfo [char name] - prints character card info");
                 return null;
             default:
-                display("For list of commands type help");
-                return null;
+                return MessageCenter.genMessage(MsgType.TEXT,username,"Basic response",input[0]);
         }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        printModel((ReducedGame) evt.getNewValue());
     }
 }

@@ -10,6 +10,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
@@ -17,8 +18,6 @@ public class GUI extends Application implements View {
 
     private String username=null;
     private ObjectOutputStream toServer;
-
-    private ReducedGame model=null;
 
     private static GUI_ActionHandler controller;
 
@@ -54,7 +53,6 @@ public class GUI extends Application implements View {
     public void setToServer(ObjectOutputStream toServer) {
         this.toServer=toServer;
         //TODO swap out gui from input fields to game
-        new Thread(this).start();
     }
 
     @Override
@@ -72,12 +70,10 @@ public class GUI extends Application implements View {
     @Override
     public String setUsername() {
         while (controller==null) {
-            System.out.println("Waiting for controller");
-            threadSleep(3000);
+            threadSleep(3000,"Waiting for controller");
         }
         while (!controller.getUsernameField().isDisabled()) {
-            System.out.println("Waiting for username...");
-            threadSleep(3000);
+            threadSleep(3000,"Waiting for username...");
         }
         String username=controller.getUsernameField().getText();
         if (username.equals("")) {
@@ -94,8 +90,7 @@ public class GUI extends Application implements View {
     @Override
     public String setIP(String defaultIP) {
         while (!controller.getIpField().isDisabled()) {
-            System.out.println("Waiting for ip...");
-            threadSleep(3000);
+            threadSleep(3000,"Waiting for ip...");
         }
         String ip=controller.getIpField().getText();
         if (ip.equals("") || ip.equals("local")) {
@@ -107,8 +102,7 @@ public class GUI extends Application implements View {
     @Override
     public int setPort(int defaultPort) {
         while (!controller.getPortField().isDisabled()) {
-            System.out.println("Waiting for port...");
-            threadSleep(3000);
+            threadSleep(3000,"Waiting for port...");
         }
         String port=controller.getPortField().getText();
         if (port.equals("") || port.equals("local")) {
@@ -130,8 +124,7 @@ public class GUI extends Application implements View {
     @Override
     public void display(String message) {
         while (controller==null) {
-            System.out.println("Waiting for controller");
-            threadSleep(2000);
+            threadSleep(2000,"Waiting for controller");
         }
         Platform.runLater(()-> {
             try {
@@ -141,8 +134,7 @@ public class GUI extends Application implements View {
                 Stage popupStage=new Stage();
                 popupStage.setScene(new Scene(popupRoot));
                 while (controller.getPopupLabel()==null) {
-                    System.out.println("Waiting for popup label");
-                    threadSleep(2000);
+                    threadSleep(2000,"Waiting for popup label");
                 }
                 controller.getClosePopupButton().setOnAction(controller::closeWindow);
                 controller.getPopupLabel().setText(message);
@@ -154,16 +146,18 @@ public class GUI extends Application implements View {
             }
         });
     }
-
-    public void modelSync(ReducedGame model) {
-        //TODO implement
-    }
-    private void threadSleep(int milliseconds) {
+    private void threadSleep(int milliseconds, String logMessage) {
         try {
+            System.out.println(logMessage);
             Thread.sleep(milliseconds);
         }
         catch (Exception e) {
             System.out.println("Error: woke up too soon");
         }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        //TODO implement
     }
 }

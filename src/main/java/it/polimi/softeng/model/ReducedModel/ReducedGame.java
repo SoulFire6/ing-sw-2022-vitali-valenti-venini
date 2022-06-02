@@ -1,7 +1,10 @@
 package it.polimi.softeng.model.ReducedModel;
 
 import it.polimi.softeng.model.*;
+import javafx.beans.property.Property;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -14,6 +17,8 @@ public class ReducedGame implements Serializable {
     private final boolean expertMode;
     private int coins;
     private ArrayList<ReducedCharacterCard> characterCards;
+
+    private final PropertyChangeSupport propertyChangeSupport=new PropertyChangeSupport(this);
 
     public ReducedGame(Game game) {
         this.id=game.getGameID();
@@ -53,7 +58,6 @@ public class ReducedGame implements Serializable {
         }
         return reducedCharCards;
     }
-
     public String getId() {
         return this.id;
     }
@@ -62,38 +66,37 @@ public class ReducedGame implements Serializable {
     }
     public void setPlayers(ArrayList<ReducedPlayer> players) {
         this.players=players;
+        propertyChangeSupport.firePropertyChange("players",null,this);
     }
-    public boolean setPlayer(ReducedPlayer player) {
+    public void setPlayer(ReducedPlayer player) {
         for (ReducedPlayer reducedPlayer : this.players) {
             if (reducedPlayer.getName().equals(player.getName())) {
                 this.players.set(this.players.indexOf(reducedPlayer),player);
-                //TODO fix thread is not owner
-                //notifyAll();
-                return true;
+                propertyChangeSupport.firePropertyChange("player",null,this);
+                break;
             }
         }
-        return false;
     }
     public ReducedBag getBag() {
         return this.bag;
     }
     public void setBag(ReducedBag bag) {
         this.bag=bag;
-        notifyAll();
+        propertyChangeSupport.firePropertyChange("bag",null,this);
     }
     public ArrayList<ReducedCloud> getClouds() {
         return clouds;
     }
     public void setClouds(ArrayList<ReducedCloud> clouds) {
         this.clouds=clouds;
-        notifyAll();
+        propertyChangeSupport.firePropertyChange("clouds",null,this);
     }
     public ArrayList<ReducedIsland> getIslands() {
         return islands;
     }
     public void setIslands(ArrayList<ReducedIsland> islands) {
         this.islands=islands;
-        notifyAll();
+        propertyChangeSupport.firePropertyChange("islands",null,this);
     }
     public boolean isExpertMode() {
         return expertMode;
@@ -101,10 +104,24 @@ public class ReducedGame implements Serializable {
     public Integer getCoins() {
         return coins;
     }
+    public void setCoins(int coins) {
+        this.coins=coins;
+        this.propertyChangeSupport.firePropertyChange("coins",null,this);
+    }
     public ArrayList<ReducedCharacterCard> getCharacterCards() {
-        return characterCards;
+        return this.characterCards;
     }
     public void setCharacterCards(ArrayList<ReducedCharacterCard> characterCards) {
         this.characterCards = characterCards;
+        this.propertyChangeSupport.firePropertyChange("character cards",null,this);
+    }
+
+    //Adds a listener to model
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        this.propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+
+    public void notifyGameLoaded() {
+        this.propertyChangeSupport.firePropertyChange("Loaded game",null,this);
     }
 }

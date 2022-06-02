@@ -4,6 +4,7 @@ import it.polimi.softeng.controller.LobbyController;
 import it.polimi.softeng.exceptions.InvalidPlayerNumException;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
+import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import it.polimi.softeng.network.message.load.Game_Load_Msg;
 
@@ -32,7 +33,6 @@ public class Lobby implements Runnable {
         setupLobby(clients.get(lobbyMaster));
         clients.get(lobbyMaster).sendMessage(MsgType.TEXT,"Game setup params","Game parameters\nPlayer num: "+maxPlayers+"\nExpert mode: "+expertMode);
         waitForOtherPlayers();
-        //TODO add expertmode selection to lobby master
         try {
             setupGame(new ArrayList<>(this.clients.keySet()),expertMode);
             createLobbyListeners();
@@ -99,9 +99,12 @@ public class Lobby implements Runnable {
     }
     private void setupGame(ArrayList<String> playerNames, boolean expertMode) throws InvalidPlayerNumException {
         this.controller=new LobbyController(playerNames,expertMode,lobbyName);
-        Message gameLoad=new Game_Load_Msg(lobbyName,"Game has been setup",controller.getGame());
+        System.out.println("GAME SETUP");
+        Message gameLoad=MessageCenter.genMessage(MsgType.GAME,lobbyName,"Game has been setup",controller.getGame());
+        Message firstTurn=MessageCenter.genMessage(MsgType.TEXT,lobbyName,"First turn","Current phase: "+controller.getTurnManager().getTurnState()+"\nCurrent player: "+ controller.getTurnManager().getCurrentPlayer().getName());
         for (String client: clients.keySet()) {
             clients.get(client).sendMessage(gameLoad);
+            clients.get(client).sendMessage(firstTurn);
         }
     }
     public HashMap<String,LobbyClient> getClients() {
@@ -152,7 +155,7 @@ public class Lobby implements Runnable {
                             }
                         }
                         //Check print
-                        System.out.println("["+lobbyName+"]: processed message ("+msg.getSender()+": "+msg.getClass()+"), queue size: "+lobbyMessageQueue.size());
+                        System.out.println("["+lobbyName+"]: processed message ("+msg.getSender()+": "+msg.getClass().getSimpleName()+"), queue size: "+lobbyMessageQueue.size());
                         //controller.processMessage(msg,clients.get(msg.getSender()));
                     }
                 }
@@ -163,6 +166,14 @@ public class Lobby implements Runnable {
         for (String client: clients.keySet()) {
             if (!clients.get(client).getSocket().isConnected()) {
                 clients.remove(client);
+                disconnect(client+" has disconnected, game over: "+controller.calculateWinningTeam()+" has won");
+            }
+        }
+    }
+    public void disconnect(String message) {
+        synchronized (clients) {
+            for (String client: clients.keySet()) {
+                clients.get(client).sendMessage(MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,null,message));
             }
         }
     }

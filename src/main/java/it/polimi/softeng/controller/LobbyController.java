@@ -118,16 +118,17 @@ public class LobbyController {
                                 throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
                             }
                             tileController.moveStudentsToIsland(currentPlayer,((DiskToIsland_Cmd_Msg)inMessage).getColour(),inMessage.getContext(),game.getIslands(),turnManager);
-                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" has moved a "+((DiskToIsland_Cmd_Msg)inMessage).getColour()+" to "+inMessage.getContext(),null));
                             response.add(MessageCenter.genMessage(MsgType.ISLANDS,lobbyName,inMessage.getContext(),game.getIslands()));
                             response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,inMessage.getSender(),currentPlayer));
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" has moved a "+((DiskToIsland_Cmd_Msg)inMessage).getColour()+" to "+inMessage.getContext(),null));
                             break;
                         case DISKTODININGROOM:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
                                 throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
                             }
-                            playerController.moveStudentToDiningRoom(currentPlayer,game.getPlayers(),((DiskToDiningRoom_Cmd_Msg)inMessage).getColour(),game.isExpertMode());
+                            playerController.moveStudentToDiningRoom(currentPlayer,game.getPlayers(),((DiskToDiningRoom_Cmd_Msg)inMessage).getColour(),game.isExpertMode(),turnManager);
                             response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,currentPlayer.getName()+" has moved a "+((DiskToDiningRoom_Cmd_Msg)inMessage).getColour()+" to their dining room",currentPlayer));
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Moved disk to dining room",currentPlayer.getName()+" has moved a "+((DiskToDiningRoom_Cmd_Msg)inMessage).getColour()+" to their dining room"));
                             break;
                         case MOVEMN:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE) {
@@ -138,6 +139,7 @@ public class LobbyController {
                             if (updatePlayers) {
                                 response.add(MessageCenter.genMessage(MsgType.PLAYERS,lobbyName,"Swapped team",game.getPlayers()));
                             }
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Move mother nature",currentPlayer.getName()+" has moved mother nature by "+((MoveMotherNature_Cmd_Msg)inMessage).getMoveAmount()+" spaces"));
                             break;
                         case CHOOSECLOUD:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.CHOOSE_CLOUD_TILE_PHASE) {
@@ -153,9 +155,9 @@ public class LobbyController {
                                 }
                                 tileController.refillClouds(game.getClouds(),game.getBag());
                             }
-                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" has chosen "+inMessage.getContext(),null));
                             response.add(MessageCenter.genMessage(MsgType.CLOUDS,lobbyName,inMessage.getContext(),game.getClouds()));
                             response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,currentPlayer.getName(),currentPlayer));
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" has chosen "+inMessage.getContext(),null));
                             break;
                         case PLAYCHARCARD:
                             if (turnManager.getTurnState()==TurnManager.TurnState.ASSISTANT_CARDS_PHASE) {
@@ -163,8 +165,8 @@ public class LobbyController {
                             }
                             charCardController.activateCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),game);
                             //TODO add immediate effects for specific cards, if the effect is passive
-                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),null));
                             response.add(MessageCenter.genMessage(MsgType.CHARACTERCARDS,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),game.getCharacterCards()));
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),null));
                         default:
                             throw new MoveNotAllowedException("This should not be reachable");
                     }
@@ -172,20 +174,22 @@ public class LobbyController {
                 default:
                     throw new ClassNotFoundException("Invalid message type");
             }
+            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Switching turn state","Current phase: "+turnManager.getTurnState()+((turnManager.getTurnState().equals(TurnManager.TurnState.MOVE_STUDENTS_PHASE)?" (Moves left "+turnManager.getRemainingMoves()+")":"")+"\nCurrent player: "+turnManager.getCurrentPlayer().getName())));
         }
         catch (GameIsOverException gameOver) {
             Team winningTeam=calculateWinningTeam();
             System.out.println("["+lobbyName+"] GAME OVER - Team "+winningTeam+" has won");
             response.add(MessageCenter.genMessage(MsgType.GAMEOVER,lobbyName,"GAME OVER","Game is over: Team "+winningTeam+" has won"));
+            response.add(MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"GAME OVER",null));
         }
         catch (Exception e) {
-            System.out.println("["+lobbyName+"] "+currentPlayer.getName()+"'s action has thrown "+e.getClass());
+            System.out.println("["+lobbyName+"] "+currentPlayer.getName()+"'s action has thrown "+e.getClass().getSimpleName());
             System.out.println(e.getMessage());
             response.add(MessageCenter.genMessage(MsgType.ERROR,lobbyName,e.getClass().toString(),e.getMessage()));
         }
         return response;
     }
-    private Team calculateWinningTeam() {
+    public Team calculateWinningTeam() {
         EnumMap<Team,Integer> teamTowers=new EnumMap<>(Team.class);
         EnumMap<Team,Integer> teamProfessors=new EnumMap<>(Team.class);
         for (Team t : game.getTeams()) {
