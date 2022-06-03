@@ -70,7 +70,7 @@ public class TileController {
         }
         return clouds;
     }
-    public boolean moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException {
+    public boolean moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException,GameIsOverException {
         int maxAmount=p.getSchoolBoard().getLastUsedCard().getMotherNatureValue();
         if (charCardController!=null && charCardController.getActiveStatus("MagicPostman")) {
             maxAmount+=2;
@@ -140,7 +140,7 @@ public class TileController {
         p.getSchoolBoard().fillEntrance(refillCloud);
     }
     //NORMAL: charController and cards are null, otherwise calculates with EXPERT mode rules
-    public void calculateInfluence(Player conqueringPlayer, Island_Tile island, ArrayList<Player> players, CharCardController charController,  ArrayList<CharacterCard> cards, PlayerController playerController) {
+    public void calculateInfluence(Player conqueringPlayer, Island_Tile island, ArrayList<Player> players, CharCardController charController,  ArrayList<CharacterCard> cards, PlayerController playerController) throws GameIsOverException {
         Team conqueringTeam=conqueringPlayer.getTeam();
         Team currentTeam=island.getTeam();
         EnumMap<Team,Integer> teamInfluence=new EnumMap<>(Team.class);
@@ -183,10 +183,17 @@ public class TileController {
         }
         island.setTeam(maxTeam);
         if (island.getTeam()==null) {
-            conqueringPlayer.getSchoolBoard().modifyTowers(-1);
-            //TODO if in a team, removes tower from teammate if the conquering player has none left, otherwise triggers gameIsOverException
+            if (conqueringPlayer.getSchoolBoard().getTowers()>0) {
+                conqueringPlayer.getSchoolBoard().modifyTowers(-1);
+            } else if (conqueringPlayer.getTeamMate()!=null && conqueringPlayer.getTeamMate().getSchoolBoard().getTowers()>0) {
+                conqueringPlayer.getTeamMate().getSchoolBoard().modifyTowers(-1);
+            } else {
+                throw new GameIsOverException("Team "+conqueringTeam+" has run out of towers");
+            }
+            island.setTowers(1);
+        } else {
+            playerController.swapTeamTower(players,maxTeam,island.getTeam(),island.getTowers());
         }
-        playerController.swapTeamTower(players,maxTeam,island.getTeam(),island.getTowers());
     }
     public void checkAndMerge(ArrayList<Island_Tile> islands, Island_Tile island) {
         if (islands.contains(island) && islands.size()>3) {

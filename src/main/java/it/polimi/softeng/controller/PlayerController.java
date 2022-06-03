@@ -103,7 +103,6 @@ public class PlayerController {
             p.getSchoolBoard().setProfessor(c,true);
         } else {
             if (p.getSchoolBoard().getDiningRoomAmount(c)>professorPlayer.getSchoolBoard().getDiningRoomAmount(c)) {
-                //TODO figure out why professor player's value stays true on cli view
                 professorPlayer.getSchoolBoard().setProfessor(c,false);
                 p.getSchoolBoard().setProfessor(c,true);
             }

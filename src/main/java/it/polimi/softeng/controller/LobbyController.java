@@ -131,7 +131,7 @@ public class LobbyController {
                             }
                             playerController.moveStudentToDiningRoom(currentPlayer,game.getPlayers(),((DiskToDiningRoom_Cmd_Msg)inMessage).getColour(),game.isExpertMode());
                             turnManager.nextAction();
-                            response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,currentPlayer.getName()+" has moved a "+((DiskToDiningRoom_Cmd_Msg)inMessage).getColour()+" to their dining room",currentPlayer));
+                            response.add(MessageCenter.genMessage(MsgType.PLAYERS,lobbyName,currentPlayer.getName()+" has moved a "+((DiskToDiningRoom_Cmd_Msg)inMessage).getColour()+" to their dining room",game.getPlayers()));
                             response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Moved disk to dining room",currentPlayer.getName()+" has moved a "+((DiskToDiningRoom_Cmd_Msg)inMessage).getColour()+" to their dining room"));
                             break;
                         case MOVEMN:

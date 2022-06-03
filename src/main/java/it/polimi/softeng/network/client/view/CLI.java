@@ -36,8 +36,7 @@ public class CLI implements View {
             display("Could not find properties file, defaulting to basic CLI");
             resetDisplayStile();
         }
-        //TODO invert
-        this.windowsTerminal=!System.getProperty("os.name").contains("Windows");
+        this.windowsTerminal=System.getProperty("os.name").contains("Windows");
     }
     @Override
     public void run() {

@@ -104,7 +104,8 @@ public class TileControllerTest {
             players.get(0).getSchoolBoard().setProfessor(c,true);
             islands.get(0).addColour(c,10);
         }
-        tileController.calculateInfluence(players.get(0),islands.get(0),players,null,null,playerController);
+        ArrayList<Player> finalPlayers = players;
+        assertDoesNotThrow(()->tileController.calculateInfluence(finalPlayers.get(0),islands.get(0), finalPlayers,null,null,playerController));
         assertNotEquals(Team.GREY,islands.get(0).getTeam());
         assertEquals(players.get(0).getTeam(),islands.get(0).getTeam());
     }
