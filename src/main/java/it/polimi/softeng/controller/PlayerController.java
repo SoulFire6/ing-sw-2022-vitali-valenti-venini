@@ -82,7 +82,7 @@ public class PlayerController {
         }
         return colours;
     }
-    public void moveStudentToDiningRoom(Player p, ArrayList<Player> players, Colour c, boolean expertMode, TurnManager turnManager) throws InsufficientResourceException,DiningRoomFullException {
+    public void moveStudentToDiningRoom(Player p, ArrayList<Player> players, Colour c, boolean expertMode) throws InsufficientResourceException,DiningRoomFullException {
         if (p.getSchoolBoard().getContents().get(c)==0) {
             throw new InsufficientResourceException("Not enough "+c+" students in entrance");
         }
@@ -102,12 +102,12 @@ public class PlayerController {
         if (professorPlayer==null) {
             p.getSchoolBoard().setProfessor(c,true);
         } else {
-            if (p!=professorPlayer && p.getSchoolBoard().getDiningRoomAmount(c)>professorPlayer.getSchoolBoard().getDiningRoomAmount(c)) {
+            if (p.getSchoolBoard().getDiningRoomAmount(c)>professorPlayer.getSchoolBoard().getDiningRoomAmount(c)) {
+                //TODO figure out why professor player's value stays true on cli view
                 professorPlayer.getSchoolBoard().setProfessor(c,false);
                 p.getSchoolBoard().setProfessor(c,true);
             }
         }
-        turnManager.nextAction();
     }
 
     public void swapTeamTower(ArrayList<Player> players, Team winningTeam, Team losingTeam, int towerNum) {

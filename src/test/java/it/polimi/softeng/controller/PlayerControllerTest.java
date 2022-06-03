@@ -140,14 +140,16 @@ public class PlayerControllerTest {
     @Test
     public void testMoveStudentToDiningRoom() {
         Colour c=Colour.getRandomColour();
-        Player testPlayer=new Player("test",null);
         ArrayList<Player> players=new ArrayList<>();
+        Player testPlayer=new Player("test",null);
+        testPlayer.setSchoolBoard(new SchoolBoard_Tile("test",10,0,0,null,0));
         players.add(testPlayer);
         Player professorPlayer=new Player("professor_test",null);
         professorPlayer.setSchoolBoard(new SchoolBoard_Tile(null,0,0,0,null,0));
-        professorPlayer.getSchoolBoard().setProfessor(c,true);
+        professorPlayer.getSchoolBoard().getContents().put(c,1);
         players.add(professorPlayer);
-        testPlayer.setSchoolBoard(new SchoolBoard_Tile("test",10,0,0,null,0));
+        assertDoesNotThrow(()->playerController.moveStudentToDiningRoom(professorPlayer,players,c,true));
+        assertTrue(professorPlayer.getSchoolBoard().getProfessor(c));
         assertEquals(0,testPlayer.getSchoolBoard().getCoins());
         assertThrows(InsufficientResourceException.class,()->playerController.moveStudentToDiningRoom(testPlayer,players,c,true));
         testPlayer.getSchoolBoard().getContents().put(c,10);

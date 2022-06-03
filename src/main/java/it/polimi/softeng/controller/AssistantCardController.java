@@ -4,6 +4,7 @@ import it.polimi.softeng.exceptions.AssistantCardAlreadyPlayedException;
 import it.polimi.softeng.exceptions.AssistantCardNotFoundException;
 import it.polimi.softeng.model.AssistantCard;
 import it.polimi.softeng.model.Player;
+import it.polimi.softeng.model.ReducedModel.ReducedPlayer;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -33,7 +34,7 @@ public class AssistantCardController {
         return res;
     }
 
-    public void playAssistantCard(Player p, String assistID, TurnManager turnManager) throws AssistantCardNotFoundException, AssistantCardAlreadyPlayedException {
+    public void playAssistantCard(Player p, String assistID, ArrayList<Player> players) throws AssistantCardNotFoundException, AssistantCardAlreadyPlayedException {
         AssistantCard playedCard=null;
         for (AssistantCard card: p.getSchoolBoard().getHand()) {
             if (card.getCardID().equals(assistID)) {
@@ -44,16 +45,19 @@ public class AssistantCardController {
             throw new AssistantCardNotFoundException("Could not find assistant card with id "+ assistID);
         }
         ArrayList<String> previousPlayedCards= new ArrayList<>();
-        if (p!=turnManager.getPlayerOrder().get(0)) {
-            for (Player player: turnManager.getPlayerOrder().subList(0,turnManager.getPlayerOrder().indexOf(p))) {
-                previousPlayedCards.add(player.getSchoolBoard().getLastUsedCard().getCardID());
+        if (p!=players.get(0)) {
+            for (Player player : players) {
+                if (player.getSchoolBoard().getLastUsedCard()!=null) {
+                    previousPlayedCards.add(player.getSchoolBoard().getLastUsedCard().getCardID());
+                } else {
+                    break;
+                }
             }
         }
         if (p.getSchoolBoard().getHand().size()>1 && previousPlayedCards.contains(assistID)) {
             throw new AssistantCardAlreadyPlayedException(assistID+" was already played this turn");
         }
         p.getSchoolBoard().playAssistantCard(playedCard.getCardID());
-        turnManager.nextAction();
     }
 
 }

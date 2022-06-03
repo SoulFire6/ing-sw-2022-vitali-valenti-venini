@@ -72,10 +72,8 @@ public class TileController {
     }
     public boolean moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException {
         int maxAmount=p.getSchoolBoard().getLastUsedCard().getMotherNatureValue();
-        boolean teamChanged=false;
         if (charCardController!=null && charCardController.getActiveStatus("MagicPostman")) {
             maxAmount+=2;
-            //TODO: switch magic postman off and disable it from being played again
         }
         if (n>maxAmount) {
             throw new ExceededMaxMovesException("Cannot move mother nature by "+n+" (Current max: "+maxAmount+")");
@@ -103,7 +101,7 @@ public class TileController {
         }
         return false;
     }
-    public void moveStudentsToIsland(Player p, Colour c, String islandID, ArrayList<Island_Tile> islands, TurnManager turnManager) throws TileNotFoundException, InsufficientResourceException {
+    public void moveStudentsToIsland(Player p, Colour c, String islandID, ArrayList<Island_Tile> islands) throws TileNotFoundException, InsufficientResourceException {
         Island_Tile chosenIsland=null;
         for (Island_Tile island: islands) {
             if (island.getTileID().equals(islandID)) {
@@ -117,7 +115,6 @@ public class TileController {
             throw new InsufficientResourceException("Entrance contains no "+c+" student disks");
         }
         chosenIsland.addColour(c,1);
-        turnManager.nextAction();
     }
     public void refillClouds(ArrayList<Cloud_Tile> clouds, Bag_Tile bag) throws TileNotEmptyException {
         for (Cloud_Tile cloud : clouds) {
@@ -127,7 +124,7 @@ public class TileController {
             cloud.fillCloud(bag);
         }
     }
-    public void refillEntranceFromCloud(Player p, String cloudID, ArrayList<Cloud_Tile> clouds) throws TileNotFoundException,TileEmptyException {
+    public void refillEntranceFromCloud(Player p, String cloudID, ArrayList<Cloud_Tile> clouds) throws TileNotFoundException,TileEmptyException,MoveNotAllowedException {
         Cloud_Tile refillCloud=null;
         for (Cloud_Tile cloud: clouds) {
             if (cloud.getTileID().equals(cloudID)) {
@@ -135,7 +132,7 @@ public class TileController {
             }
         }
         if (refillCloud==null) {
-            throw new TileNotFoundException("Cloud could not be found");
+            throw new TileNotFoundException("Cloud with id "+cloudID+" could not be found");
         }
         if (refillCloud.isEmpty()) {
             throw new TileEmptyException("Cannot refill from empty cloud");
@@ -143,7 +140,7 @@ public class TileController {
         p.getSchoolBoard().fillEntrance(refillCloud);
     }
     //NORMAL: charController and cards are null, otherwise calculates with EXPERT mode rules
-    public Team calculateInfluence(Player conqueringPlayer, Island_Tile island, ArrayList<Player> players, CharCardController charController,  ArrayList<CharacterCard> cards, PlayerController playerController) {
+    public void calculateInfluence(Player conqueringPlayer, Island_Tile island, ArrayList<Player> players, CharCardController charController,  ArrayList<CharacterCard> cards, PlayerController playerController) {
         Team conqueringTeam=conqueringPlayer.getTeam();
         Team currentTeam=island.getTeam();
         EnumMap<Team,Integer> teamInfluence=new EnumMap<>(Team.class);
@@ -155,10 +152,15 @@ public class TileController {
         }
         //Tower influence
         if (charController==null) {
-            teamInfluence.put(currentTeam,teamInfluence.get(currentTeam)+island.getTowers());
+            if (currentTeam!=null) {
+                teamInfluence.put(currentTeam,teamInfluence.get(currentTeam)+island.getTowers());
+            }
         } else {
             //centaur negates tower influence of current island, knight adds 2 to initial influence to conquering player's team
-            teamInfluence.put(currentTeam,teamInfluence.get(currentTeam)+(island.getTowers()*(charController.getActiveStatus("CENTAUR")?0:1)));
+            if (currentTeam!=null) {
+                teamInfluence.put(currentTeam,teamInfluence.get(currentTeam)+(island.getTowers()*(charController.getActiveStatus("CENTAUR")?0:1)));
+
+            }
             teamInfluence.put(conqueringTeam,teamInfluence.get(conqueringTeam)+2*(charController.getActiveStatus("KNIGHT")?1:0));
         }
         //Student Disk Influence
@@ -171,19 +173,22 @@ public class TileController {
                 }
             }
         }
-        Team maxTeam= Collections.max(teamInfluence.entrySet(), Map.Entry.comparingByValue()).getKey();
+        Team maxTeam=Collections.max(teamInfluence.entrySet(), Map.Entry.comparingByValue()).getKey();
         int maxInfluence=teamInfluence.get(maxTeam);
         //If two or more teams have the same max influence previous island state is returned
         for (Team t: Team.values()) {
             if (t!=maxTeam && teamInfluence.get(t)==maxInfluence) {
-                return island.getTeam();
+                return;
             }
         }
         island.setTeam(maxTeam);
+        if (island.getTeam()==null) {
+            conqueringPlayer.getSchoolBoard().modifyTowers(-1);
+            //TODO if in a team, removes tower from teammate if the conquering player has none left, otherwise triggers gameIsOverException
+        }
         playerController.swapTeamTower(players,maxTeam,island.getTeam(),island.getTowers());
-        return maxTeam;
     }
-    public ArrayList<Island_Tile> checkAndMerge(ArrayList<Island_Tile> islands, Island_Tile island) {
+    public void checkAndMerge(ArrayList<Island_Tile> islands, Island_Tile island) {
         if (islands.contains(island) && islands.size()>3) {
             if (island.getTeam()==island.getNext().getTeam()) {
                 island.setTowers(island.getTowers()+island.getNext().getTowers());
@@ -198,6 +203,5 @@ public class TileController {
                 island.setPrev(island.getPrev().getPrev());
             }
         }
-        return islands;
     }
 }

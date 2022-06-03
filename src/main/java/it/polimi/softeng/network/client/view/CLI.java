@@ -16,7 +16,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class CLI implements View {
     private String username=null;
@@ -37,7 +36,8 @@ public class CLI implements View {
             display("Could not find properties file, defaulting to basic CLI");
             resetDisplayStile();
         }
-        this.windowsTerminal=System.getProperty("os.name").contains("Windows");
+        //TODO invert
+        this.windowsTerminal=!System.getProperty("os.name").contains("Windows");
     }
     @Override
     public void run() {
@@ -161,8 +161,8 @@ public class CLI implements View {
         String dash="▬",wall="▌";
         ReducedPlayer firstPlayer,secondPlayer;
         int schoolBoardLength=36;
-        String schoolBoardDelimiter=String.format("%-"+schoolBoardLength+"s",dash.repeat(System.getProperty("os.name").contains("Windows")?23:schoolBoardLength));
-        int cardDelimiter=System.getProperty("os.name").contains("Windows")?5:8;
+        String schoolBoardDelimiter=String.format("%-"+schoolBoardLength+"s",dash.repeat(windowsTerminal?23:schoolBoardLength));
+        int cardDelimiter=windowsTerminal?5:8;
         clearScreen();
         StringBuilder modelUI=new StringBuilder();
         for (int i=0; i<2; i++) {
@@ -173,7 +173,9 @@ public class CLI implements View {
             modelUI.append(firstPlayer!=null?"\n":"");
             modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer!=null?("Team: "+firstPlayer.getTeam()+(model.isExpertMode()?"  Coins: "+firstPlayer.getSchoolBoard().getCoins():"")):""));
             modelUI.append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?("Team: "+secondPlayer.getTeam()+(model.isExpertMode()?"  Coins: "+secondPlayer.getSchoolBoard().getCoins():"")):"")).append("\n");
-            modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer!=null?dash.repeat(schoolBoardLength):"")).append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?dash.repeat(schoolBoardLength-1)+" ":" ")).append(firstPlayer!=null?"\n":"");
+            if (firstPlayer!=null) {
+                modelUI.append(schoolBoardDelimiter).append("  ").append(secondPlayer!=null?schoolBoardDelimiter:" ").append("\n");
+            }
             for (Colour c : Colour.values()) {
                 if (firstPlayer!=null) {
                     modelUI.append(getSchoolBoardRow(c,firstPlayer.getTeam(),firstPlayer.getSchoolBoard()));
@@ -193,13 +195,15 @@ public class CLI implements View {
         }
         modelUI.append("\n");
         for (int i=0; i<model.getIslands().size(); i++) {
-            modelUI.append(getIslandStats(model.getIslands().get(i)));
+            ReducedIsland island=model.getIslands().get(i);
+            modelUI.append(getTileStats(island.getID(),island.getContents(),island.hasMotherNature(),island.getTeam(),island.getTowers()));
             modelUI.append((i+1)%4==0?"\n":" | ");
         }
+        modelUI.append("\n");
         for (ReducedCloud cloud : model.getClouds()) {
-            modelUI.append(getTileStats(cloud.getId(),cloud.getContents())).append(" | ");
+            modelUI.append(getTileStats(cloud.getId(),cloud.getContents(),false,null,0)).append(" | ");
         }
-        modelUI.append(getTileStats(model.getBag().getId(),model.getBag().getContents())).append("\n");
+        modelUI.append(getTileStats(model.getBag().getId(),model.getBag().getContents(),false,null,0)).append("\n");
         ArrayList<ReducedAssistantCard> hand=null;
         for (ReducedPlayer player : model.getPlayers()) {
             if (player.getName().equals(username)) {
@@ -246,29 +250,30 @@ public class CLI implements View {
         String wall="▌";
         String fontColour=getDisplayColour(c.name(),false);
         String resetColour=getDisplayColour ("RESET",false);
-        return wall+(fontColour+"♦ "+board.getEntrance().get(c)+" "+resetColour+wall+fontColour+" ♦".repeat(board.getDiningRoom().get(c))+resetColour+" ♦".repeat(10-board.getDiningRoom().get(c))+" "+wall+(board.getProfessorTable().get(c)?fontColour+"◘"+resetColour+" ":"◘ ")+wall+(board.getTowers()>=((2*c.ordinal()+1))?"▲ ":"  ")+((board.getTowers()>=(c.ordinal()+1)*2)?"▲ ":"  "))+wall+"  ";
+        StringBuilder schoolBoardRow=new StringBuilder();
+        schoolBoardRow.append(wall).append(windowsTerminal?c.name().charAt(0)+"_":fontColour+" ♦").append(board.getEntrance().get(c)).append(windowsTerminal?"":resetColour).append(wall);
+        schoolBoardRow.append(windowsTerminal?(" "+c.name().charAt(0)).repeat(board.getDiningRoom().get(c)):fontColour+" ♦".repeat(board.getDiningRoom().get(c))+resetColour);
+        schoolBoardRow.append(" ♦".repeat(10-board.getDiningRoom().get(c))).append(" ").append(wall);
+        schoolBoardRow.append(board.getProfessorTable().get(c)?(windowsTerminal?c.name().charAt(0):fontColour+"◘"+resetColour):"◘").append(" ").append(wall);
+        schoolBoardRow.append(board.getTowers()>=((2*c.ordinal()+1))?"▲ ":"  ").append((board.getTowers()>=(c.ordinal()+1)*2)?"▲ ":"  ").append(wall).append("  ");
+        return schoolBoardRow.toString();
     }
 
-    private String getIslandStats(ReducedIsland island) {
-        StringBuilder islandStats=new StringBuilder();
-        islandStats.append(island.getID()).append(": ");
-        for (Colour c : Colour.values()) {
-            islandStats.append(getDisplayColour(c.name(),false)).append(island.getContents().get(c)).append(" ");
-        }
-        islandStats.append(getDisplayColour("RESET",false));
-        if (island.getTeam()!=null) {
-            islandStats.append(getDisplayColour(island.getTeam().name(),false)).append(getDisplayColour(Colour.BLUE.name(),true)).append(" ▲ ").append(getDisplayColour("RESET",false)).append(getDisplayColour("RESET",true));
-        }
-        return islandStats.toString();
-    }
-
-    private String getTileStats(String id, EnumMap<Colour,Integer> contents) {
+    private String getTileStats(String id, EnumMap<Colour,Integer> contents, boolean motherNature, Team team, int towerNum) {
         StringBuilder tileStats=new StringBuilder();
-        tileStats.append(id).append(": ");
+        tileStats.append(!windowsTerminal && motherNature?getDisplayColour(Colour.PURPLE.name(),true):"");
+        tileStats.append(id).append(windowsTerminal && motherNature?"(X):":": ");
+        tileStats.append(!windowsTerminal && motherNature?getDisplayColour("RESET",true):"");
         for (Colour c : Colour.values()) {
-            tileStats.append(getDisplayColour(c.name(),false)).append(contents.get(c)).append(" ");
+            tileStats.append(windowsTerminal?" "+c.name().charAt(0)+"_":getDisplayColour(c.name(),false)).append(contents.get(c)).append(" ");
         }
-        tileStats.append(getDisplayColour("RESET",false));
+        if (team!=null) {
+            tileStats.append(" ").append(windowsTerminal?team.name() + "_" : getDisplayColour(team.name(), false)).append("▲".repeat(towerNum));
+            if (!windowsTerminal) {
+                tileStats.append(getDisplayColour("RESET", false)).append(getDisplayColour("RESET", true));
+            }
+        }
+        tileStats.append(windowsTerminal?"":getDisplayColour("RESET",false));
         return tileStats.toString();
     }
 

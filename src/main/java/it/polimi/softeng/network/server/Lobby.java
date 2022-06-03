@@ -166,6 +166,7 @@ public class Lobby implements Runnable {
         for (String client: clients.keySet()) {
             if (!clients.get(client).getSocket().isConnected()) {
                 clients.remove(client);
+                System.out.println("\n\n\nHEY, DISCONNECTING NOW\n\n\n");
                 disconnect(client+" has disconnected, game over: "+controller.calculateWinningTeam()+" has won");
             }
         }

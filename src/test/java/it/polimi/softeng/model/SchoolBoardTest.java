@@ -5,9 +5,8 @@ import it.polimi.softeng.controller.AssistantCardController;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SchoolBoardTest {
     @Test
@@ -49,7 +48,7 @@ public class SchoolBoardTest {
             schoolBoard.removeColour(Colour.getRandomColour(),schoolBoard.getFillAmount()-(testMaxEntranceSlots-testFillNum));
         }
         assertEquals(testMaxEntranceSlots-testFillNum,schoolBoard.getFillAmount());
-        schoolBoard.fillEntrance(cloud);
+        assertDoesNotThrow(()->schoolBoard.fillEntrance(cloud));
         assertEquals(testMaxEntranceSlots,schoolBoard.getFillAmount());
     }
     @Test

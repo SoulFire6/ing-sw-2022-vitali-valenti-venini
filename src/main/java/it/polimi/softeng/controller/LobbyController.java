@@ -110,23 +110,27 @@ public class LobbyController {
                             if (turnManager.getTurnState()!=TurnManager.TurnState.ASSISTANT_CARDS_PHASE) {
                                 throw new WrongPhaseException("Cannot use asssistant card during "+turnManager.getTurnState());
                             }
-                            assistantCardController.playAssistantCard(currentPlayer,((AssistCard_Cmd_Msg)inMessage).getAssistID(),turnManager);
-                            response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,currentPlayer.getName()+" has played "+((AssistCard_Cmd_Msg)inMessage).getAssistID(),currentPlayer));
+                            assistantCardController.playAssistantCard(currentPlayer,((AssistCard_Cmd_Msg)inMessage).getAssistID(),turnManager.getPlayerOrder());
+                            turnManager.nextAction();
+                            response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,"Play assist card",currentPlayer));
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Play assist card",currentPlayer.getName()+" has played "+((AssistCard_Cmd_Msg)inMessage).getAssistID()));
                             break;
                         case DISKTOISLAND:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
                                 throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
                             }
-                            tileController.moveStudentsToIsland(currentPlayer,((DiskToIsland_Cmd_Msg)inMessage).getColour(),inMessage.getContext(),game.getIslands(),turnManager);
+                            tileController.moveStudentsToIsland(currentPlayer,((DiskToIsland_Cmd_Msg)inMessage).getColour(),inMessage.getContext(),game.getIslands());
+                            turnManager.nextAction();
                             response.add(MessageCenter.genMessage(MsgType.ISLANDS,lobbyName,inMessage.getContext(),game.getIslands()));
                             response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,inMessage.getSender(),currentPlayer));
-                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" has moved a "+((DiskToIsland_Cmd_Msg)inMessage).getColour()+" to "+inMessage.getContext(),null));
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Disk to Island",currentPlayer.getName()+" has moved a "+((DiskToIsland_Cmd_Msg)inMessage).getColour()+" to "+inMessage.getContext()));
                             break;
                         case DISKTODININGROOM:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
                                 throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
                             }
-                            playerController.moveStudentToDiningRoom(currentPlayer,game.getPlayers(),((DiskToDiningRoom_Cmd_Msg)inMessage).getColour(),game.isExpertMode(),turnManager);
+                            playerController.moveStudentToDiningRoom(currentPlayer,game.getPlayers(),((DiskToDiningRoom_Cmd_Msg)inMessage).getColour(),game.isExpertMode());
+                            turnManager.nextAction();
                             response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,currentPlayer.getName()+" has moved a "+((DiskToDiningRoom_Cmd_Msg)inMessage).getColour()+" to their dining room",currentPlayer));
                             response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Moved disk to dining room",currentPlayer.getName()+" has moved a "+((DiskToDiningRoom_Cmd_Msg)inMessage).getColour()+" to their dining room"));
                             break;
@@ -135,6 +139,7 @@ public class LobbyController {
                                 throw new WrongPhaseException("Cannot move mother nature during "+turnManager.getTurnState());
                             }
                             boolean updatePlayers=tileController.moveMotherNature(currentPlayer,((MoveMotherNature_Cmd_Msg)inMessage).getMoveAmount(),charCardController,game.getPlayers(),game.getCharacterCards(),game.getIslands(),playerController);
+                            turnManager.nextAction();
                             response.add(MessageCenter.genMessage(MsgType.ISLANDS,lobbyName,"Moved mother nature",game.getIslands()));
                             if (updatePlayers) {
                                 response.add(MessageCenter.genMessage(MsgType.PLAYERS,lobbyName,"Swapped team",game.getPlayers()));
@@ -155,18 +160,19 @@ public class LobbyController {
                                 }
                                 tileController.refillClouds(game.getClouds(),game.getBag());
                             }
+                            turnManager.nextAction();
                             response.add(MessageCenter.genMessage(MsgType.CLOUDS,lobbyName,inMessage.getContext(),game.getClouds()));
                             response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,currentPlayer.getName(),currentPlayer));
-                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" has chosen "+inMessage.getContext(),null));
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Chose cloud",currentPlayer.getName()+" has chosen "+inMessage.getContext()));
                             break;
                         case PLAYCHARCARD:
                             if (turnManager.getTurnState()==TurnManager.TurnState.ASSISTANT_CARDS_PHASE) {
                                 throw new WrongPhaseException("Cannot play character cards  "+turnManager.getTurnState());
                             }
                             charCardController.activateCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),game);
-                            //TODO add immediate effects for specific cards, if the effect is passive
+                            //TODO add immediate effects for specific cards
                             response.add(MessageCenter.genMessage(MsgType.CHARACTERCARDS,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),game.getCharacterCards()));
-                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),null));
+                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Played character card",currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID()));
                         default:
                             throw new MoveNotAllowedException("This should not be reachable");
                     }
@@ -185,6 +191,7 @@ public class LobbyController {
         catch (Exception e) {
             System.out.println("["+lobbyName+"] "+currentPlayer.getName()+"'s action has thrown "+e.getClass().getSimpleName());
             System.out.println(e.getMessage());
+            e.printStackTrace();
             response.add(MessageCenter.genMessage(MsgType.ERROR,lobbyName,e.getClass().toString(),e.getMessage()));
         }
         return response;

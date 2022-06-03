@@ -1,5 +1,7 @@
 package it.polimi.softeng.model;
 
+import it.polimi.softeng.exceptions.MoveNotAllowedException;
+
 import java.util.EnumMap;
 import java.util.ArrayList;
 
@@ -33,18 +35,17 @@ public class SchoolBoard_Tile extends Tile{
     public void fillEntrance(Bag_Tile bag) {
         this.setContents(bag.drawStudents(this.maxEntranceSlots));
     }
-    public void fillEntrance(Cloud_Tile cloud) {
-        EnumMap<Colour,Integer> entrance=this.getContents();
-        EnumMap<Colour,Integer> newStudents=cloud.getContents();
+    public void fillEntrance(Cloud_Tile cloud) throws MoveNotAllowedException {
         if ((this.getFillAmount()+cloud.getFillAmount())==this.maxEntranceSlots) {
+            EnumMap<Colour,Integer> newStudents=cloud.emptyTile(), entrance=this.getContents();
             for(Colour c: Colour.values()) {
+                System.out.println(c+": "+entrance.get(c));
                 entrance.put(c,entrance.get(c)+newStudents.get(c));
-                newStudents.put(c,0);
+                System.out.println(c+": "+entrance.get(c));
             }
             this.setContents(entrance);
-            cloud.setContents(newStudents);
         } else {
-            System.out.println("Error filling schoolboard entrance");
+            throw new MoveNotAllowedException("Error filling schoolboard entrance");
         }
     }
     public EnumMap<Colour,Integer> getDiningRoom() {

@@ -30,7 +30,7 @@ public class ReducedIsland implements Serializable {
     public EnumMap<Colour, Integer> getContents() {
         return contents.clone();
     }
-    public boolean isMotherNature() {
+    public boolean hasMotherNature() {
         return motherNature;
     }
     public int getTowers() {

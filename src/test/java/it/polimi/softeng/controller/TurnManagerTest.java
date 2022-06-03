@@ -40,10 +40,10 @@ class TurnManagerTest {
         //Planning phase Tests
         assertEquals(TurnManager.TurnState.ASSISTANT_CARDS_PHASE,turnManager.getTurnState());
         assertEquals(firstPlayer,turnManager.getCurrentPlayer());
-        controller.getAssistantCardController().playAssistantCard(turnManager.getCurrentPlayer(),turnManager.getCurrentPlayer().getSchoolBoard().getHand().get(1).getCardID(),turnManager);
+        controller.getAssistantCardController().playAssistantCard(turnManager.getCurrentPlayer(),turnManager.getCurrentPlayer().getSchoolBoard().getHand().get(1).getCardID(),turnManager.getPlayerOrder());
         assertEquals(TurnManager.TurnState.ASSISTANT_CARDS_PHASE,turnManager.getTurnState());
         assertEquals(secondPlayer,turnManager.getCurrentPlayer());
-        controller.getAssistantCardController().playAssistantCard(turnManager.getCurrentPlayer(),turnManager.getCurrentPlayer().getSchoolBoard().getHand().get(0).getCardID(),turnManager);
+        controller.getAssistantCardController().playAssistantCard(turnManager.getCurrentPlayer(),turnManager.getCurrentPlayer().getSchoolBoard().getHand().get(0).getCardID(),turnManager.getPlayerOrder());
         assertEquals(secondPlayer,turnManager.getCurrentPlayer());
         //Action phase Tests
         //Check if the turn is actually swapped (secondPlayer played a lower assistant turnvalue card
@@ -78,8 +78,8 @@ class TurnManagerTest {
     void refreshTurnOrder() throws AssistantCardNotFoundException, AssistantCardAlreadyPlayedException {
         Player firstPlayer = turnManager.getCurrentPlayer();
         Player secondPlayer = turnManager.getPlayerOrder().get(1);
-        controller.getAssistantCardController().playAssistantCard(firstPlayer,firstPlayer.getSchoolBoard().getHand().get(2).getCardID(),turnManager);
-        controller.getAssistantCardController().playAssistantCard(secondPlayer,secondPlayer.getSchoolBoard().getHand().get(0).getCardID(),turnManager);
+        controller.getAssistantCardController().playAssistantCard(firstPlayer,firstPlayer.getSchoolBoard().getHand().get(2).getCardID(),turnManager.getPlayerOrder());
+        controller.getAssistantCardController().playAssistantCard(secondPlayer,secondPlayer.getSchoolBoard().getHand().get(0).getCardID(),turnManager.getPlayerOrder());
         assertEquals(secondPlayer,turnManager.getCurrentPlayer());
         assertEquals(firstPlayer,turnManager.getNextPlayer());
     }

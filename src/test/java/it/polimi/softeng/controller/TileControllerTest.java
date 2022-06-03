@@ -58,17 +58,14 @@ public class TileControllerTest {
         entrance.put(c,10);
         Player testPlayer=new Player("test", Team.WHITE);
         testPlayer.setSchoolBoard(new SchoolBoard_Tile(null,0,0,0,null,0));
-        ArrayList<Player> players=new ArrayList<>();
-        players.add(testPlayer);
-        TurnManager turnManager=new TurnManager(players,3);
         String islandID="island";
         ArrayList<Island_Tile> islands=new ArrayList<>();
         islands.add(new Island_Tile("test"));
         islands.add(new Island_Tile(islandID));
-        assertThrows(TileNotFoundException.class,()->tileController.moveStudentsToIsland(testPlayer,c,"illegal id",islands,turnManager));
-        assertThrows(InsufficientResourceException.class,()->tileController.moveStudentsToIsland(testPlayer,c,islandID,islands,turnManager));
+        assertThrows(TileNotFoundException.class,()->tileController.moveStudentsToIsland(testPlayer,c,"illegal id",islands));
+        assertThrows(InsufficientResourceException.class,()->tileController.moveStudentsToIsland(testPlayer,c,islandID,islands));
         testPlayer.getSchoolBoard().setContents(entrance);
-        assertDoesNotThrow(()->tileController.moveStudentsToIsland(testPlayer,c,islandID,islands,turnManager));
+        assertDoesNotThrow(()->tileController.moveStudentsToIsland(testPlayer,c,islandID,islands));
     }
 
     @Test

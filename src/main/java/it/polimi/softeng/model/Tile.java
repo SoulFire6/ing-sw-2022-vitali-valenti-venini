@@ -60,7 +60,7 @@ public abstract class Tile {
     }
     //Empties tile of contents and returns their value
     public EnumMap<Colour,Integer> emptyTile() {
-        EnumMap<Colour,Integer> res=this.contents;
+        EnumMap<Colour,Integer> res=this.contents.clone();
         for(Colour c: Colour.values()) {
             this.contents.put(c,0);
         }
