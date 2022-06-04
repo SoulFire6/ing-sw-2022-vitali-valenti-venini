@@ -2,6 +2,7 @@ package it.polimi.softeng.controller;
 
 import it.polimi.softeng.exceptions.*;
 import it.polimi.softeng.model.*;
+import it.polimi.softeng.model.ReducedModel.ReducedTurnState;
 import it.polimi.softeng.network.message.command.*;
 import it.polimi.softeng.network.message.*;
 import it.polimi.softeng.network.message.MessageCenter;
@@ -108,7 +109,7 @@ public class LobbyController {
                     switch (inMessage.getSubType()) {
                         case PLAYASSISTCARD:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.ASSISTANT_CARDS_PHASE) {
-                                throw new WrongPhaseException("Cannot use asssistant card during "+turnManager.getTurnState());
+                                throw new WrongPhaseException("Cannot use asssistant card during "+turnManager.getTurnState().getDescription());
                             }
                             assistantCardController.playAssistantCard(currentPlayer,((AssistCard_Cmd_Msg)inMessage).getAssistID(),turnManager.getPlayerOrder());
                             turnManager.nextAction();
@@ -117,7 +118,7 @@ public class LobbyController {
                             break;
                         case DISKTOISLAND:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
-                                throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
+                                throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState().getDescription());
                             }
                             tileController.moveStudentsToIsland(currentPlayer,((DiskToIsland_Cmd_Msg)inMessage).getColour(),inMessage.getContext(),game.getIslands());
                             turnManager.nextAction();
@@ -127,7 +128,7 @@ public class LobbyController {
                             break;
                         case DISKTODININGROOM:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
-                                throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState());
+                                throw new WrongPhaseException("Cannot move student disk during "+turnManager.getTurnState().getDescription());
                             }
                             playerController.moveStudentToDiningRoom(currentPlayer,game.getPlayers(),((DiskToDiningRoom_Cmd_Msg)inMessage).getColour(),game.isExpertMode());
                             turnManager.nextAction();
@@ -136,7 +137,7 @@ public class LobbyController {
                             break;
                         case MOVEMN:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE) {
-                                throw new WrongPhaseException("Cannot move mother nature during "+turnManager.getTurnState());
+                                throw new WrongPhaseException("Cannot move mother nature during "+turnManager.getTurnState().getDescription());
                             }
                             boolean updatePlayers=tileController.moveMotherNature(currentPlayer,((MoveMotherNature_Cmd_Msg)inMessage).getMoveAmount(),charCardController,game.getPlayers(),game.getCharacterCards(),game.getIslands(),playerController);
                             turnManager.nextAction();
@@ -148,7 +149,7 @@ public class LobbyController {
                             break;
                         case CHOOSECLOUD:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.CHOOSE_CLOUD_TILE_PHASE) {
-                                throw new WrongPhaseException("Cannot choose cloud during  "+turnManager.getTurnState());
+                                throw new WrongPhaseException("Cannot choose cloud during  "+turnManager.getTurnState().getDescription());
                             }
                             tileController.refillEntranceFromCloud(currentPlayer,((ChooseCloud_Cmd_Msg)inMessage).getCloudID(),game.getClouds());
                             if (currentPlayer==turnManager.getLastPlayer()) {
@@ -167,7 +168,7 @@ public class LobbyController {
                             break;
                         case PLAYCHARCARD:
                             if (turnManager.getTurnState()==TurnManager.TurnState.ASSISTANT_CARDS_PHASE) {
-                                throw new WrongPhaseException("Cannot play character cards  "+turnManager.getTurnState());
+                                throw new WrongPhaseException("Cannot play character cards  "+turnManager.getTurnState().getDescription());
                             }
                             charCardController.activateCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),game);
                             //TODO add immediate effects for specific cards
@@ -180,7 +181,7 @@ public class LobbyController {
                 default:
                     throw new ClassNotFoundException("Invalid message type");
             }
-            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Switching turn state","Current phase: "+turnManager.getTurnState()+((turnManager.getTurnState().equals(TurnManager.TurnState.MOVE_STUDENTS_PHASE)?" (Moves left "+turnManager.getRemainingMoves()+")":"")+"\nCurrent player: "+turnManager.getCurrentPlayer().getName())));
+            response.add(MessageCenter.genMessage(MsgType.TURNSTATE,lobbyName,"Switching turn state",new ReducedTurnState(turnManager)));
         }
         catch (GameIsOverException gameOver) {
             Team winningTeam=calculateWinningTeam();

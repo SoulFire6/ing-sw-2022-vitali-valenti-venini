@@ -13,10 +13,18 @@ public class TurnManager {
 
 
     public enum TurnState {
-        ASSISTANT_CARDS_PHASE,
-        MOVE_STUDENTS_PHASE,
-        MOVE_MOTHER_NATURE_PHASE,
-        CHOOSE_CLOUD_TILE_PHASE
+        ASSISTANT_CARDS_PHASE("playing assistant cards"),
+        MOVE_STUDENTS_PHASE("moving student diskss"),
+        MOVE_MOTHER_NATURE_PHASE("moving mother nature"),
+        CHOOSE_CLOUD_TILE_PHASE("choosing cloud");
+
+        private final String description;
+        TurnState(String description) {
+            this.description=description;
+        }
+        public String getDescription() {
+            return this.description;
+        }
     }
 
     TurnState turnState;

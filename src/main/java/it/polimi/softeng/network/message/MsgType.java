@@ -18,6 +18,8 @@ public enum MsgType {
     PLAYER(MainType.LOAD),
     PLAYERS(MainType.LOAD),
     CHARACTERCARDS(MainType.LOAD),
+    COINS(MainType.LOAD),
+    TURNSTATE(MainType.LOAD),
     //Command messages
     PLAYASSISTCARD(MainType.COMMAND),
     DISKTOISLAND(MainType.COMMAND),

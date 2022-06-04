@@ -148,6 +148,14 @@ public class Client {
                     case PLAYERS:
                         this.model.setPlayers(((Players_Load_Msg)message).getLoad());
                         break;
+                    case CHARACTERCARDS:
+                        this.model.setCharacterCards(((CharCard_Load_Msg)message).getLoad());
+                        break;
+                    case COINS:
+                        this.model.setCoins(((Coin_Load_Msg)message).getLoad());
+                    case TURNSTATE:
+                        this.model.setTurnState(((TurnState_Load_Msg)message).getLoad());
+                        break;
                 }
                 break;
             default:

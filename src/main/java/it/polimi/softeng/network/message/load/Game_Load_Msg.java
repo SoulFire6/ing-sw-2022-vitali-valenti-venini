@@ -6,9 +6,9 @@ import it.polimi.softeng.network.message.MsgType;
 
 public class Game_Load_Msg extends Load_Message{
     private final ReducedGame load;
-    public Game_Load_Msg(String sender, String context, Game load) {
+    public Game_Load_Msg(String sender, String context, ReducedGame load) {
         super(MsgType.GAME,sender,context);
-        this.load=new ReducedGame(load);
+        this.load=load;
     }
     public ReducedGame getLoad() {
         return this.load;

@@ -1,7 +1,7 @@
 package it.polimi.softeng.model.ReducedModel;
 
+import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.model.*;
-import javafx.beans.property.Property;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -17,10 +17,12 @@ public class ReducedGame implements Serializable {
     private final boolean expertMode;
     private int coins;
     private ArrayList<ReducedCharacterCard> characterCards;
-
+    private String currentPlayer;
+    private TurnManager.TurnState currentPhase;
+    private int remainingMoves;
     private final PropertyChangeSupport propertyChangeSupport=new PropertyChangeSupport(this);
 
-    public ReducedGame(Game game) {
+    public ReducedGame(Game game, TurnManager turnManager) {
         this.id=game.getGameID();
         this.players=setupPlayers(game.getPlayers());
         this.bag=new ReducedBag(game.getBag());
@@ -29,6 +31,9 @@ public class ReducedGame implements Serializable {
         this.expertMode=game.isExpertMode();
         this.coins=game.getCoins();
         this.characterCards=this.expertMode?setupCharacterCards(game.getCharacterCards()):null;
+        this.currentPlayer=turnManager.getCurrentPlayer().getName();
+        this.currentPhase=turnManager.getTurnState();
+        this.remainingMoves=turnManager.getRemainingMoves();
     }
     private ArrayList<ReducedPlayer> setupPlayers(ArrayList<Player> gamePlayers) {
         ArrayList<ReducedPlayer> reducedPlayers=new ArrayList<>();
@@ -114,6 +119,25 @@ public class ReducedGame implements Serializable {
     public void setCharacterCards(ArrayList<ReducedCharacterCard> characterCards) {
         this.characterCards = characterCards;
         this.propertyChangeSupport.firePropertyChange("character cards",null,this);
+    }
+
+    public void setTurnState(ReducedTurnState turnState) {
+        this.currentPlayer=turnState.getCurrentPlayer();
+        this.currentPhase=turnState.getCurrentPhase();
+        this.remainingMoves= turnState.getRemainingMoves();
+        this.propertyChangeSupport.firePropertyChange("turn state",null,this);
+    }
+
+    public String getCurrentPlayer() {
+        return this.currentPlayer;
+    }
+
+    public TurnManager.TurnState getCurrentPhase() {
+        return this.currentPhase;
+    }
+
+    public int getRemainingMoves() {
+        return this.remainingMoves;
     }
 
     //Adds a listener to model

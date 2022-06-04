@@ -5,6 +5,7 @@ import it.polimi.softeng.exceptions.GameIsOverException;
 import it.polimi.softeng.exceptions.InvalidPlayerNumException;
 import it.polimi.softeng.exceptions.LobbyClientDisconnectedException;
 import it.polimi.softeng.exceptions.LobbyEmptyException;
+import it.polimi.softeng.model.ReducedModel.ReducedGame;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
@@ -153,15 +154,6 @@ public class Lobby implements Runnable {
             }
         }
     }
-    public void disconnectionNotify(String name) {
-        clients.remove(name);
-        try {
-            sendToAll(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Client disconnect",name+" has disconnected, current players: ["+ clients.size()+"/"+maxPlayers+"]"));
-        }
-        catch (LobbyClientDisconnectedException lcde) {
-            disconnectionNotify(lcde.getMessage());
-        }
-    }
     private void sendToAll(Message msg) throws LobbyClientDisconnectedException {
         boolean clientDisconnected=false;
         synchronized (clients) {
@@ -184,20 +176,14 @@ public class Lobby implements Runnable {
         if (clients.size()==maxPlayers) {
             this.controller=new LobbyController(playerNames,expertMode,lobbyName);
             System.out.println("GAME SETUP");
-            Message gameLoad=MessageCenter.genMessage(MsgType.GAME,lobbyName,"Game has been setup",controller.getGame());
-            Message firstTurn=MessageCenter.genMessage(MsgType.TEXT,lobbyName,"First turn","Current phase: "+controller.getTurnManager().getTurnState()+"\nCurrent player: "+ controller.getTurnManager().getCurrentPlayer().getName());
+            Message gameLoad=MessageCenter.genMessage(MsgType.GAME,lobbyName,"Game has been setup",new ReducedGame(controller.getGame(),controller.getTurnManager()));
             for (String client: clients.keySet()) {
                 clients.get(client).sendMessage(gameLoad);
-                clients.get(client).sendMessage(firstTurn);
             }
         }
     }
     public HashMap<String,LobbyClient> getClients() {
         return this.clients;
-    }
-
-    public HashMap<String,LobbyListener> getListeners() {
-        return this.listeners;
     }
     public int getMaxPlayers() {
         return this.maxPlayers;

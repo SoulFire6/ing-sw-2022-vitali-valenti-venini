@@ -1,6 +1,8 @@
 package it.polimi.softeng.network.message;
 
 import it.polimi.softeng.model.*;
+import it.polimi.softeng.model.ReducedModel.ReducedGame;
+import it.polimi.softeng.model.ReducedModel.ReducedTurnState;
 import it.polimi.softeng.network.message.command.*;
 import it.polimi.softeng.network.message.load.*;
 
@@ -32,7 +34,7 @@ public class MessageCenter {
             case LOAD:
                 switch (type) {
                     case GAME:
-                        return new Game_Load_Msg(sender,context,(Game)load);
+                        return new Game_Load_Msg(sender,context,(ReducedGame) load);
                     case ISLANDS:
                         return new Island_Load_Msg(sender,context,(ArrayList<Island_Tile>)load);
                     case CLOUDS:
@@ -45,6 +47,10 @@ public class MessageCenter {
                         return new Players_Load_Msg(sender,context,(ArrayList<Player>) load);
                     case CHARACTERCARDS:
                         return new CharCard_Load_Msg(sender,context,(ArrayList<CharacterCard>) load);
+                    case COINS:
+                        return new Coin_Load_Msg(sender,context,(Integer)load);
+                    case TURNSTATE:
+                        return new TurnState_Load_Msg(sender,context,(ReducedTurnState) load);
                     default:
                         System.out.println("Wrong format");
                         return null;

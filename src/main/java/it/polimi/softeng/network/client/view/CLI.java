@@ -1,5 +1,6 @@
 package it.polimi.softeng.network.client.view;
 
+import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.model.Team;
@@ -245,6 +246,7 @@ public class CLI implements View {
         } else {
             modelUI.append("ERROR LOADING HAND");
         }
+        modelUI.append("CURRENT PLAYER: ").append(model.getCurrentPlayer()).append("\nCURRENT PHASE: ").append(model.getCurrentPhase().getDescription()).append(model.getCurrentPhase() == TurnManager.TurnState.MOVE_STUDENTS_PHASE ? " (Remaining moves: " + model.getRemainingMoves() + ")" : "");
         System.out.println(modelUI);
     }
 
