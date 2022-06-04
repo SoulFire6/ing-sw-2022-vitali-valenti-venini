@@ -61,15 +61,15 @@ public class Client {
             toServer.close();
             fromServer.close();
             socket.close();
-        } catch (ClassNotFoundException cnfe) {
+        } catch (ClassNotFoundException | ClassCastException ce) {
             System.out.println("Error reading message from server");
-            cnfe.printStackTrace();
+            ce.printStackTrace();
         } catch (IOException io) {
             System.out.println("IO exception");
             io.printStackTrace();
         }
         if (inMessage != null && inMessage.getSubType() == MsgType.DISCONNECT) {
-            System.out.println("DISCONNECTED");
+            System.out.println(((Info_Message)inMessage).getInfo());
         } else {
             System.out.println("Error: abrupt disconnect");
         }

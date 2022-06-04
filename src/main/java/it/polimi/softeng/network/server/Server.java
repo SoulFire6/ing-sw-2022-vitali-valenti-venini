@@ -76,6 +76,7 @@ public class Server {
             System.out.println("New client: "+username);
             out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Welcome message","Connected to server with username: "+username));
             while (!clientSatisfied) {
+                checkLobbies();
                 out.writeObject(MessageCenter.genMessage(MsgType.INPUT,"SERVER","Serving client",username+", [create] or [join] lobby?\nOtherwise [disconnect]"));
                 clientSatisfied=processRequest(username,clientSocket,in,out);
             }
@@ -105,7 +106,9 @@ public class Server {
                     lobbyName=response.getInfo();
                     if (lobbies.get(lobbyName) == null) {
                         out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Creating lobby","Lobby ["+lobbyName+"] created, entering now"));
-                        lobbies.put(lobbyName, new Lobby(lobbyName, username, new LobbyClient(username, lobbyName, clientSocket, in, out)));
+                        LobbyClient lobbyMaster=new LobbyClient(username, lobbyName, clientSocket, in, out);
+                        Lobby newLobby=new Lobby(lobbyName,username,lobbyMaster);
+                        lobbies.put(lobbyName,newLobby);
                         new Thread(lobbies.get(lobbyName)).start();
                         status=true;
                     } else {
@@ -177,5 +180,17 @@ public class Server {
             System.out.println("Error sending message to client during lobby join");
         }
         return status;
+    }
+
+    private static void checkLobbies() {
+        for (String lobbyName : lobbies.keySet()) {
+            Lobby lobby=lobbies.get(lobbyName);
+            if (lobby.getClients().size()==0) {
+                System.out.println("Closed lobby "+lobbyName);
+                lobbies.remove(lobbyName);
+            } else {
+                System.out.println("Checked lobby "+lobbyName+" "+lobby.getClients().size()+"/"+lobby.getMaxPlayers());
+            }
+        }
     }
 }

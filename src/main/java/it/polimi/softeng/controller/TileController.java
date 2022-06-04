@@ -104,7 +104,7 @@ public class TileController {
     public void moveStudentsToIsland(Player p, Colour c, String islandID, ArrayList<Island_Tile> islands) throws TileNotFoundException, InsufficientResourceException {
         Island_Tile chosenIsland=null;
         for (Island_Tile island: islands) {
-            if (island.getTileID().equals(islandID)) {
+            if (island.getTileID().equalsIgnoreCase(islandID) || island.getTileID().equalsIgnoreCase("Island_"+islandID)) {
                 chosenIsland=island;
             }
         }
@@ -127,7 +127,7 @@ public class TileController {
     public void refillEntranceFromCloud(Player p, String cloudID, ArrayList<Cloud_Tile> clouds) throws TileNotFoundException,TileEmptyException,MoveNotAllowedException {
         Cloud_Tile refillCloud=null;
         for (Cloud_Tile cloud: clouds) {
-            if (cloud.getTileID().equals(cloudID)) {
+            if (cloud.getTileID().equalsIgnoreCase(cloudID) || cloud.getTileID().equalsIgnoreCase("Cloud_"+cloudID)) {
                 refillCloud=cloud;
             }
         }

@@ -39,13 +39,10 @@ public class SchoolBoard_Tile extends Tile{
         if ((this.getFillAmount()+cloud.getFillAmount())==this.maxEntranceSlots) {
             EnumMap<Colour,Integer> newStudents=cloud.emptyTile(), entrance=this.getContents();
             for(Colour c: Colour.values()) {
-                System.out.println(c+": "+entrance.get(c));
                 entrance.put(c,entrance.get(c)+newStudents.get(c));
-                System.out.println(c+": "+entrance.get(c));
             }
-            this.setContents(entrance);
         } else {
-            throw new MoveNotAllowedException("Error filling schoolboard entrance");
+            throw new MoveNotAllowedException("Error filling schoolboard entrance: "+(this.getFillAmount()+cloud.getFillAmount())+">"+this.maxEntranceSlots);
         }
     }
     public EnumMap<Colour,Integer> getDiningRoom() {

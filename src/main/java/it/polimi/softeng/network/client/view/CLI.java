@@ -11,7 +11,6 @@ import java.beans.PropertyChangeEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.FileReader;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -21,37 +20,36 @@ public class CLI implements View {
     private String username=null;
     private final BufferedReader in;
     private ObjectOutputStream toServer=null;
-    private final boolean windowsTerminal;
+    private final boolean windowsTerminal, loadedProperties;
     private final Properties properties=new Properties();
     private final Properties characterInfo=new Properties();
 
     public CLI() {
+        boolean loadStatus=true;
         this.in=new BufferedReader(new InputStreamReader(System.in));
         try {
             this.properties.load(getClass().getResourceAsStream("/Assets/CLI/CLI.properties"));
             this.characterInfo.load(getClass().getResourceAsStream("/CardData/CharacterCards.properties"));
         }
         catch (IOException io) {
-            display(getDisplayColour(Colour.RED.name(),false));
             display("Could not find properties file, defaulting to basic CLI");
-            resetDisplayStile();
+            loadStatus=false;
         }
         this.windowsTerminal=System.getProperty("os.name").contains("Windows");
+        this.loadedProperties=loadStatus;
     }
     @Override
     public void run() {
-        try {
-            display(getDisplayColour(Colour.RED.name(),false));
-            String line;
-            BufferedReader print=new BufferedReader(new FileReader(properties.getProperty("LOGO")));
-            while ((line=print.readLine())!=null) {
-                display(line);
-            }
+        display(getDisplayColour(Colour.RED.name(),false));
+        display("      ▄████████    ▄████████  ▄█     ▄████████ ███▄▄▄▄       ███     ▄██   ▄      ▄████████\n" +
+                "      ███    ███   ███    ███ ███    ███    ███ ███▀▀▀██▄ ▀█████████▄ ███   ██▄   ███    ███\n" +
+                "      ███    █▀    ███    ███ ███▌   ███    ███ ███   ███    ▀███▀▀██ ███▄▄▄███   ███    █▀\n" +
+                "     ▄███▄▄▄      ▄███▄▄▄▄██▀ ███▌   ███    ███ ███   ███     ███   ▀ ▀▀▀▀▀▀███   ███\n" +
+                "    ▀▀███▀▀▀     ▀▀███▀▀▀▀▀   ███▌ ▀███████████ ███   ███     ███     ▄██   ███ ▀███████████\n" +
+                "      ███    █▄  ▀███████████ ███    ███    ███ ███   ███     ███     ███   ███          ███\n" +
+                "      ███    ███   ███    ███ ███    ███    ███ ███   ███     ███     ███   ███    ▄█    ███\n" +
+                "      ██████████   ███    ███ █▀     ███    █▀   ▀█   █▀     ▄████▀    ▀█████▀   ▄████████▀");
             resetDisplayStile();
-        }
-        catch (IOException io) {
-            display("Eriantys");
-        }
         while (toServer==null) {
             try {
                 Thread.sleep(1000);
@@ -145,6 +143,9 @@ public class CLI implements View {
         System.out.println(message);
     }
     public String getDisplayColour(String colour, boolean background) {
+        if (!loadedProperties) {
+            return "";
+        }
         if (background) {
             return (char)27+properties.getProperty(("ANSI_BG_"+colour.toUpperCase()));
         } else {
@@ -152,8 +153,10 @@ public class CLI implements View {
         }
     }
     public void resetDisplayStile() {
-        System.out.print((char)27+properties.getProperty("ANSI_RESET"));
-        System.out.print((char)27+properties.getProperty("ANSI_BG_RESET"));
+        if (loadedProperties) {
+            System.out.print((char)27+properties.getProperty("ANSI_RESET"));
+            System.out.print((char)27+properties.getProperty("ANSI_BG_RESET"));
+        }
     }
 
     private void printModel(ReducedGame model) {
@@ -261,8 +264,7 @@ public class CLI implements View {
     private String getTileStats(String id, EnumMap<Colour,Integer> contents, boolean motherNature, Team team, int towerNum) {
         StringBuilder tileStats=new StringBuilder();
         tileStats.append(!windowsTerminal && motherNature?getDisplayColour(Colour.PURPLE.name(),true):"");
-        tileStats.append(id).append(windowsTerminal && motherNature?"(X):":": ");
-        tileStats.append(!windowsTerminal && motherNature?getDisplayColour("RESET",true):"");
+        tileStats.append(id).append(windowsTerminal && motherNature?"(X):":getDisplayColour("RESET",true)+": ");
         for (Colour c : Colour.values()) {
             tileStats.append(windowsTerminal?" "+c.name().charAt(0)+"_":getDisplayColour(c.name(),false)).append(contents.get(c)).append(" ");
         }

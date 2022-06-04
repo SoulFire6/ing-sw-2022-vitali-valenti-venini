@@ -37,7 +37,7 @@ public class AssistantCardController {
     public void playAssistantCard(Player p, String assistID, ArrayList<Player> players) throws AssistantCardNotFoundException, AssistantCardAlreadyPlayedException {
         AssistantCard playedCard=null;
         for (AssistantCard card: p.getSchoolBoard().getHand()) {
-            if (card.getCardID().equals(assistID)) {
+            if (card.getCardID().equalsIgnoreCase(assistID)) {
                 playedCard=card;
             }
         }
@@ -48,13 +48,13 @@ public class AssistantCardController {
         if (p!=players.get(0)) {
             for (Player player : players) {
                 if (player.getSchoolBoard().getLastUsedCard()!=null) {
-                    previousPlayedCards.add(player.getSchoolBoard().getLastUsedCard().getCardID());
+                    previousPlayedCards.add(player.getSchoolBoard().getLastUsedCard().getCardID().toLowerCase());
                 } else {
                     break;
                 }
             }
         }
-        if (p.getSchoolBoard().getHand().size()>1 && previousPlayedCards.contains(assistID)) {
+        if (p.getSchoolBoard().getHand().size()>1 && previousPlayedCards.contains(assistID.toLowerCase())) {
             throw new AssistantCardAlreadyPlayedException(assistID+" was already played this turn");
         }
         p.getSchoolBoard().playAssistantCard(playedCard.getCardID());

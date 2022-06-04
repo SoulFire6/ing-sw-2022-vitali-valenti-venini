@@ -1,5 +1,6 @@
 package it.polimi.softeng.network.server;
 
+import it.polimi.softeng.exceptions.LobbyClientDisconnectedException;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
@@ -35,24 +36,24 @@ public class LobbyClient {
             return null;
         }
     }
-    public void sendMessage(MsgType type, String context, Object msg) {
+    public void sendMessage(MsgType type, String context, Object msg) throws LobbyClientDisconnectedException {
         try {
             this.out.writeObject(MessageCenter.genMessage(type,lobbyName,context,msg));
             this.out.flush();
             this.out.reset();
         }
         catch (IOException io) {
-            System.out.println("Error sending message to "+username);
+            throw new LobbyClientDisconnectedException(username);
         }
     }
-    public void sendMessage(Message message) {
+    public void sendMessage(Message message) throws LobbyClientDisconnectedException {
         try {
             this.out.writeObject(message);
             this.out.flush();
             this.out.reset();
         }
         catch (IOException io) {
-            System.out.println("Error sending message to "+username);
+            throw new LobbyClientDisconnectedException(username);
         }
     }
 }

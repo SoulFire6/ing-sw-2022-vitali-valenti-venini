@@ -1,12 +1,14 @@
 package it.polimi.softeng.network.server;
 
 import it.polimi.softeng.controller.LobbyController;
+import it.polimi.softeng.exceptions.GameIsOverException;
 import it.polimi.softeng.exceptions.InvalidPlayerNumException;
+import it.polimi.softeng.exceptions.LobbyClientDisconnectedException;
+import it.polimi.softeng.exceptions.LobbyEmptyException;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
-import it.polimi.softeng.network.message.load.Game_Load_Msg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +18,8 @@ public class Lobby implements Runnable {
     private final String lobbyName;
     private final ConcurrentLinkedQueue<Message> lobbyMessageQueue=new ConcurrentLinkedQueue<>();
     private final HashMap<String,LobbyClient> clients=new HashMap<>();
+
+    private final HashMap<String,LobbyListener> listeners=new HashMap<>();
     private final String lobbyMaster;
     private int maxPlayers=0;
     private Boolean expertMode=null;
@@ -29,86 +33,171 @@ public class Lobby implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("LOBBY CREATED: "+lobbyName);
-        setupLobby(clients.get(lobbyMaster));
-        clients.get(lobbyMaster).sendMessage(MsgType.TEXT,"Game setup params","Game parameters\nPlayer num: "+maxPlayers+"\nExpert mode: "+expertMode);
-        waitForOtherPlayers();
+        System.out.println("LOBBY CREATED: " + lobbyName);
+        Message message=null;
         try {
+            setupLobby(clients.get(lobbyMaster));
+            clients.get(lobbyMaster).sendMessage(MsgType.TEXT, "Game setup params", "Game parameters\nPlayer num: " + maxPlayers + "\nExpert mode: " + expertMode);
+            System.out.println("Creating listener for lobbymaster: "+lobbyMaster);
+            listeners.put(lobbyMaster,new LobbyListener(clients.get(lobbyMaster),lobbyName,maxPlayers,lobbyMessageQueue,clients,listeners));
+            waitForOtherPlayers();
             setupGame(new ArrayList<>(this.clients.keySet()),expertMode);
-            createLobbyListeners();
             processMessageQueue();
+        }
+        catch (LobbyEmptyException lee) {
+            System.out.println("Lobby is empty");
+        }
+        catch (LobbyClientDisconnectedException lcde) {
+            message=MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Lobby closed because "+lcde.getMessage()+" disconnected","Client "+lcde.getMessage()+" has disconnected, game over");
+        }
+        catch (GameIsOverException gioe) {
+            String winningTeam="no team";
+            if (controller!=null) {
+                winningTeam=controller.calculateWinningTeam().toString();
+            }
+            message=MessageCenter.genMessage(MsgType.GAMEOVER,lobbyName,"Game over: "+winningTeam,"Game over: "+winningTeam+" has won");
         }
         catch (InvalidPlayerNumException ipne) {
             System.out.println("Invalid player num, closing lobby");
         }
-    }
-    private void setupLobby(LobbyClient client) {
-        client.sendMessage(MsgType.TEXT,"Lobby welcome message","Welcome to the lobby");
-        while (maxPlayers<2 || maxPlayers>4) {
-            client.sendMessage(MsgType.INPUT,"Player num select","Player num(2-4):");
-            try {
-                maxPlayers=Integer.parseInt(((Info_Message)client.getMessage()).getInfo());
+        if (message!=null) {
+            System.out.println(message.getContext());
+            for (String client : clients.keySet()) {
+                try {
+                    clients.get(client).sendMessage(message);
+                }
+                catch (LobbyClientDisconnectedException ignored) {
+                }
             }
-            catch (NumberFormatException nfe) {
-                if (nfe.getCause()==null) {
-                    //TODO: delete lobby if lobby master disconnects before setup
-                    System.out.println("Lobby master "+lobbyMaster+" disconnected, TODO: must delete lobby");
-                } else {
+        }
+        for (LobbyClient client : clients.values()) {
+            try {
+                client.sendMessage(MsgType.DISCONNECT,"Lobby closed","Lobby closed");
+            }
+            catch (LobbyClientDisconnectedException ignored) {
+            }
+        }
+        clients.clear();
+    }
+    private void setupLobby(LobbyClient client) throws LobbyClientDisconnectedException {
+        try {
+            client.sendMessage(MsgType.TEXT,"Lobby welcome message","Welcome to the lobby");
+            while (maxPlayers<2 || maxPlayers>4) {
+                client.sendMessage(MsgType.INPUT,"Player num select","Player num(2-4):");
+                try {
+                    maxPlayers=Integer.parseInt(((Info_Message)client.getMessage()).getInfo());
+                }
+                catch (NumberFormatException nfe) {
                     client.sendMessage(MsgType.INPUT,"Format error","Wrong format\nPlayer num(2-4):");
                 }
             }
-        }
-        client.sendMessage(MsgType.INPUT,"Expert mode selection","Expert mode (y/n):");
-        while (expertMode==null) {
-            switch(((Info_Message)client.getMessage()).getInfo().toUpperCase()) {
-                case "Y":
-                case "T":
-                case "TRUE":
-                    expertMode=true;
-                    break;
-                case "N":
-                case "F":
-                case "FALSE":
-                    expertMode=false;
-                    break;
-                default:
-                    client.sendMessage(MsgType.INPUT,"Format error","Wrong format\nExpert mode (y/n):");
-                    break;
+            client.sendMessage(MsgType.INPUT,"Expert mode selection","Expert mode (y/n):");
+            while (expertMode==null) {
+                switch(((Info_Message)client.getMessage()).getInfo().toUpperCase()) {
+                    case "Y":
+                    case "T":
+                    case "TRUE":
+                        expertMode=true;
+                        break;
+                    case "N":
+                    case "F":
+                    case "FALSE":
+                        expertMode=false;
+                        break;
+                    default:
+                        client.sendMessage(MsgType.INPUT,"Format error","Wrong format\nExpert mode (y/n):");
+                        break;
+                }
             }
         }
+        catch (NullPointerException npe) {
+            npe.printStackTrace();
+            throw new LobbyClientDisconnectedException("Lobby master "+lobbyMaster);
+        }
     }
-    private void waitForOtherPlayers() {
-        try {
-            synchronized (clients) {
-                while (clients.size()<maxPlayers) {
-
-                    for (String clientName: clients.keySet()) {
-                        clients.get(clientName).sendMessage(MsgType.TEXT,"Connect to lobby msg",maxPlayers+" player "+(expertMode?"expert":"normal")+" game, current players: ["+ clients.size()+"/"+maxPlayers+"]");
-                    }
+    private void waitForOtherPlayers() throws LobbyEmptyException,GameIsOverException {
+        String newPlayer;
+        synchronized (clients) {
+            while (clients.size() < maxPlayers && clients.size()>0) {
+                newPlayer=null;
+                try {
                     clients.wait();
+                    for (String clientName : clients.keySet()) {
+                        if (listeners.get(clientName)==null) {
+                            System.out.println("Creating listener for: "+clientName);
+                            listeners.put(clientName,new LobbyListener(clients.get(clientName),lobbyName,maxPlayers,lobbyMessageQueue,clients,listeners));
+                            clients.get(clientName).sendMessage(MsgType.TEXT, "Connect to lobby msg", maxPlayers + " player " + (expertMode ? "expert" : "normal") + " game");
+                            newPlayer=clientName;
+                        }
+                    }
+                    if (newPlayer!=null) {
+                        sendToAll(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Connect",newPlayer+" has joined, current players: [" + clients.size() + "/" + maxPlayers + "]"));
+                    }
+                } catch (LobbyClientDisconnectedException lcde) {
+                    if (clients.size()==0) {
+                        throw new LobbyEmptyException("Lobby is empty");
+                    }
                 }
-                System.out.println("["+lobbyName+"] GOT MAX CLIENTS CONNECTED: "+clients.keySet());
-                for (String clientName: clients.keySet()) {
-                    clients.get(clientName).sendMessage(MsgType.TEXT,"Lobby full"," Lobby now full ["+ clients.size()+"/"+maxPlayers+"], setting up game...");
+                catch (InterruptedException ie) {
+                    System.out.println("Lobby " + lobbyName + " interrupted whilst waiting for connections");
+                }
+                if (clients.size()==maxPlayers) {
+                    System.out.println("[" + lobbyName + "] GOT MAX CLIENTS CONNECTED: " + clients.keySet());
+                    try {
+                        sendToAll(MessageCenter.genMessage(MsgType.TEXT, lobbyName, "Lobby full", "Lobby now full [" + clients.size() + "/" + maxPlayers + "], setting up game..."));
+                    }
+                    catch (LobbyClientDisconnectedException lcde) {
+                        throw new GameIsOverException(lcde.getMessage() + " disconnected before game could be setup");
+                    }
                 }
             }
         }
-        catch (InterruptedException ie) {
-            ie.printStackTrace();
+    }
+    public void disconnectionNotify(String name) {
+        clients.remove(name);
+        try {
+            sendToAll(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Client disconnect",name+" has disconnected, current players: ["+ clients.size()+"/"+maxPlayers+"]"));
+        }
+        catch (LobbyClientDisconnectedException lcde) {
+            disconnectionNotify(lcde.getMessage());
         }
     }
-    private void setupGame(ArrayList<String> playerNames, boolean expertMode) throws InvalidPlayerNumException {
-        this.controller=new LobbyController(playerNames,expertMode,lobbyName);
-        System.out.println("GAME SETUP");
-        Message gameLoad=MessageCenter.genMessage(MsgType.GAME,lobbyName,"Game has been setup",controller.getGame());
-        Message firstTurn=MessageCenter.genMessage(MsgType.TEXT,lobbyName,"First turn","Current phase: "+controller.getTurnManager().getTurnState()+"\nCurrent player: "+ controller.getTurnManager().getCurrentPlayer().getName());
-        for (String client: clients.keySet()) {
-            clients.get(client).sendMessage(gameLoad);
-            clients.get(client).sendMessage(firstTurn);
+    private void sendToAll(Message msg) throws LobbyClientDisconnectedException {
+        boolean clientDisconnected=false;
+        synchronized (clients) {
+            for (String clientName : clients.keySet()) {
+                try {
+                    clients.get(clientName).sendMessage(msg);
+                }
+                catch (LobbyClientDisconnectedException lcde) {
+                    clients.remove(clientName);
+                    clientDisconnected=true;
+                    sendToAll(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Client disconnect",clientName+" has disconnected, current players: ["+ clients.size()+"/"+maxPlayers+"]"));
+                }
+            }
+        }
+        if (clientDisconnected) {
+            throw new LobbyClientDisconnectedException("");
+        }
+    }
+    private void setupGame(ArrayList<String> playerNames, Boolean expertMode) throws InvalidPlayerNumException,LobbyClientDisconnectedException {
+        if (clients.size()==maxPlayers) {
+            this.controller=new LobbyController(playerNames,expertMode,lobbyName);
+            System.out.println("GAME SETUP");
+            Message gameLoad=MessageCenter.genMessage(MsgType.GAME,lobbyName,"Game has been setup",controller.getGame());
+            Message firstTurn=MessageCenter.genMessage(MsgType.TEXT,lobbyName,"First turn","Current phase: "+controller.getTurnManager().getTurnState()+"\nCurrent player: "+ controller.getTurnManager().getCurrentPlayer().getName());
+            for (String client: clients.keySet()) {
+                clients.get(client).sendMessage(gameLoad);
+                clients.get(client).sendMessage(firstTurn);
+            }
         }
     }
     public HashMap<String,LobbyClient> getClients() {
         return this.clients;
+    }
+
+    public HashMap<String,LobbyListener> getListeners() {
+        return this.listeners;
     }
     public int getMaxPlayers() {
         return this.maxPlayers;
@@ -119,63 +208,39 @@ public class Lobby implements Runnable {
         }
         return this.lobbyName+": "+(this.expertMode?"expert":"normal")+" game ["+this.clients.size()+"/"+this.maxPlayers+"]";
     }
-    public void createLobbyListeners() {
-        Thread listener;
-        for (String client: clients.keySet()) {
-            listener=new Thread(new LobbyListener(clients.get(client),lobbyMessageQueue));
-            listener.setDaemon(true);
-            listener.start();
-        }
-    }
-    public void processMessageQueue() {
+    public void processMessageQueue() throws LobbyClientDisconnectedException,GameIsOverException,LobbyEmptyException {
         Message msg;
-        while (clients.size()!=0) {
-            checkClientConnection();
-            synchronized (lobbyMessageQueue) {
-                while(clients.size()>0) {
-                    while (lobbyMessageQueue.size()>0) {
-                        msg=lobbyMessageQueue.poll();
-                        if (msg.getSubType()==MsgType.CLOSE) {
-                            System.out.println(msg.getContext());
-                            return;
-                        }
-                        for (Message message : controller.parseMessage(msg)) {
-                            switch (message.getSubType()) {
-                                case WHISPER:
-                                    clients.get(message.getContext()).sendMessage(message);
-                                    break;
-                                case ERROR:
-                                    clients.get(msg.getSender()).sendMessage(message);
-                                    break;
-                                default:
-                                    for (String client : clients.keySet()) {
-                                        clients.get(client).sendMessage(message);
-                                    }
-                                    break;
-                            }
-                        }
-                        //Check print
-                        System.out.println("["+lobbyName+"]: processed message ("+msg.getSender()+": "+msg.getClass().getSimpleName()+"), queue size: "+lobbyMessageQueue.size());
-                        //controller.processMessage(msg,clients.get(msg.getSender()));
+        synchronized (lobbyMessageQueue) {
+            while(clients.size()==maxPlayers) {
+                while (lobbyMessageQueue.size()>0) {
+                    msg=lobbyMessageQueue.poll();
+                    if (msg.getSubType()==MsgType.CLOSE) {
+                        System.out.println(msg.getContext());
+                        return;
                     }
+                    for (Message message : controller.parseMessage(msg)) {
+                        switch (message.getSubType()) {
+                            case WHISPER:
+                                clients.get(message.getContext()).sendMessage(message);
+                                break;
+                            case ERROR:
+                                clients.get(msg.getSender()).sendMessage(message);
+                                break;
+                            default:
+                                for (String client : clients.keySet()) {
+                                    clients.get(client).sendMessage(message);
+                                }
+                                if (message.getSubType()==MsgType.GAMEOVER) {
+                                    throw new GameIsOverException("");
+                                }
+                                break;
+                        }
+                    }
+                    //Check print
+                    System.out.println("["+lobbyName+"]: processed message ("+msg.getSender()+": "+msg.getClass().getSimpleName()+"), queue size: "+lobbyMessageQueue.size());
                 }
             }
-        }
-    }
-    public void checkClientConnection() {
-        for (String client: clients.keySet()) {
-            if (!clients.get(client).getSocket().isConnected()) {
-                clients.remove(client);
-                System.out.println("\n\n\nHEY, DISCONNECTING NOW\n\n\n");
-                disconnect(client+" has disconnected, game over: "+controller.calculateWinningTeam()+" has won");
-            }
-        }
-    }
-    public void disconnect(String message) {
-        synchronized (clients) {
-            for (String client: clients.keySet()) {
-                clients.get(client).sendMessage(MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,null,message));
-            }
+            throw new GameIsOverException("");
         }
     }
 }
