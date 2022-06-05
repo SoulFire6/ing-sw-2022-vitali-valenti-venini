@@ -59,11 +59,6 @@ public class TurnManager {
     public void nextAction() {
         switch (turnState) {
             case ASSISTANT_CARDS_PHASE:
-                if (currentPlayer==playerOrder.get(0)) {
-                    for (Player player : playerOrder) {
-                        player.getSchoolBoard().setLastUsedCard(null);
-                    }
-                }
                 //if there are still players left that need to play switch player and refresh remaining moves
                 if (currentPlayer!=getLastPlayer()) {
                     currentPlayer=getNextPlayer();
@@ -76,6 +71,10 @@ public class TurnManager {
             case CHOOSE_CLOUD_TILE_PHASE:
                 //if last player has finished his action phase return to planning phase, otherwise start next player's action phase
                 if (currentPlayer==getLastPlayer()) {
+                    //resets last played card for new round
+                    for (Player player : playerOrder) {
+                        player.getSchoolBoard().setLastUsedCard(null);
+                    }
                     turnState=TurnState.ASSISTANT_CARDS_PHASE;
                     currentPlayer=playerOrder.get(0);
                 } else {
