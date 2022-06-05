@@ -106,6 +106,10 @@ public class SchoolBoard_Tile extends Tile{
             }
         }
     }
+
+    public void setLastUsedCard(AssistantCard lastUsedCard) {
+        this.lastUsedCard=lastUsedCard;
+    }
     public AssistantCard getLastUsedCard() {
         return this.lastUsedCard;
     }

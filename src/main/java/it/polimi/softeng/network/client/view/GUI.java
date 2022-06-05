@@ -46,7 +46,6 @@ public class GUI extends Application implements View {
     public void run() {
         System.out.println("STARTING");
         Application.launch();
-        //TODO: runs once model is loaded from server, update view every time model changes
     }
 
     @Override
@@ -156,8 +155,12 @@ public class GUI extends Application implements View {
         }
     }
 
+    //GUI makes the fxml controller the property listener instead of itself
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        //TODO implement
+        ReducedGame model=(ReducedGame) evt.getNewValue();
+        model.removePropertyChangeListener(this);
+        model.addPropertyChangeListener(controller);
+        model.notifyGameLoaded();
     }
 }

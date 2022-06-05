@@ -1,13 +1,15 @@
 package it.polimi.softeng.controller;
 
+import it.polimi.softeng.exceptions.PlayerNotFoundException;
 import it.polimi.softeng.model.Player;
+import it.polimi.softeng.model.ReducedModel.ReducedGame;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 
 public class TurnManager {
     private final ArrayList<Player> playerOrder;
-    private Player currentPlayer;
+    private Player currentPlayer=null;
     private final int maxMoves;
     private int remainingMoves;
 
@@ -40,16 +42,35 @@ public class TurnManager {
         this.turnState = TurnState.ASSISTANT_CARDS_PHASE;
     }
 
+    public TurnManager(ArrayList<Player> playerOrder, int maxMoves, ReducedGame save) {
+        this.playerOrder=playerOrder;
+        refreshTurnOrder();
+        this.maxMoves=maxMoves;
+        this.remainingMoves=save.getRemainingMoves();
+        for (Player p : playerOrder) {
+            if (p.getName().equals(save.getCurrentPlayer())) {
+                this.currentPlayer=p;
+                break;
+            }
+        }
+        this.turnState=save.getCurrentPhase();
+    }
+
     public void nextAction() {
         switch (turnState) {
             case ASSISTANT_CARDS_PHASE:
+                if (currentPlayer==playerOrder.get(0)) {
+                    for (Player player : playerOrder) {
+                        player.getSchoolBoard().setLastUsedCard(null);
+                    }
+                }
                 //if there are still players left that need to play switch player and refresh remaining moves
                 if (currentPlayer!=getLastPlayer()) {
                     currentPlayer=getNextPlayer();
                 } else {
                     refreshTurnOrder();
-                    currentPlayer=playerOrder.get(0);
                     turnState=TurnState.MOVE_STUDENTS_PHASE;
+                    currentPlayer=playerOrder.get(0);
                 }
                 break;
             case CHOOSE_CLOUD_TILE_PHASE:
@@ -80,9 +101,8 @@ public class TurnManager {
     //This method is called after the whole round is finished
     public void refreshTurnOrder() {
         //Order the list based on the last played card by each Player
-        playerOrder.sort(Comparator.comparingInt(p -> p.getSchoolBoard().getLastUsedCard().getTurnValue()));
+        playerOrder.sort(Comparator.comparingInt(p -> p.getSchoolBoard().getLastUsedCard()==null?11:p.getSchoolBoard().getLastUsedCard().getTurnValue()));
         currentPlayer=playerOrder.get(0);
-        turnState = TurnState.MOVE_STUDENTS_PHASE;
     }
 
     public Player getCurrentPlayer() {

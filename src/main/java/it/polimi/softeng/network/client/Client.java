@@ -155,6 +155,7 @@ public class Client {
                         this.model.setCoins(((Coin_Load_Msg)message).getLoad());
                     case TURNSTATE:
                         this.model.setTurnState(((TurnState_Load_Msg)message).getLoad());
+                        view.display("["+message.getSender()+"]: "+message.getContext());
                         break;
                 }
                 break;

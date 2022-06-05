@@ -1,6 +1,5 @@
 package it.polimi.softeng.network.client.view;
 
-import it.polimi.softeng.network.message.Message;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,13 +9,15 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
 //GUI Controller
-public class GUI_ActionHandler implements Initializable {
+public class GUI_ActionHandler implements Initializable, PropertyChangeListener {
     @FXML
     private VBox setupVBox,gameVBox;
     @FXML
@@ -97,4 +98,23 @@ public class GUI_ActionHandler implements Initializable {
         return this.closePopupButton;
     }
     //TODO add commands from game fxml
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        //TODO implement various GUI updates
+        switch (evt.getPropertyName().toUpperCase()) {
+            case "PLAYERS":
+                System.out.println("UPDATE PLAYERS");
+                break;
+            case "PLAYER":
+                System.out.println("FIND AND UPDATE SINGLE PLAYER");
+                break;
+            case "TURN STATE":
+                System.out.println("UPDATE TURN STATE");
+                break;
+            default:
+                System.out.println("LOAD FULL MODEL");
+                break;
+        }
+    }
 }

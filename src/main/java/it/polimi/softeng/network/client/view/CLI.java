@@ -41,6 +41,7 @@ public class CLI implements View {
     }
     @Override
     public void run() {
+        clearScreen();
         display(getDisplayColour(Colour.RED.name(),false));
         display("      ▄████████    ▄████████  ▄█     ▄████████ ███▄▄▄▄       ███     ▄██   ▄      ▄████████\n" +
                 "      ███    ███   ███    ███ ███    ███    ███ ███▀▀▀██▄ ▀█████████▄ ███   ██▄   ███    ███\n" +
@@ -163,7 +164,7 @@ public class CLI implements View {
     private void printModel(ReducedGame model) {
         String dash="▬",wall="▌";
         ReducedPlayer firstPlayer,secondPlayer;
-        int schoolBoardLength=36;
+        int schoolBoardLength=35;
         String schoolBoardDelimiter=String.format("%-"+schoolBoardLength+"s",dash.repeat(windowsTerminal?23:schoolBoardLength));
         int cardDelimiter=windowsTerminal?5:8;
         clearScreen();
@@ -171,28 +172,20 @@ public class CLI implements View {
         for (int i=0; i<2; i++) {
             firstPlayer=model.getPlayers().size()>i*2?model.getPlayers().get(i*2):null;
             secondPlayer=model.getPlayers().size()>i*2+1?model.getPlayers().get(i*2+1):null;
-            modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer!=null? model.getPlayers().get(i*2).getName()+"'s SchoolBoard":"")).append("  ");
-            modelUI.append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?model.getPlayers().get(i*2+1).getName()+"'s SchoolBoard":""));
-            modelUI.append(firstPlayer!=null?"\n":"");
-            modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer!=null?("Team: "+firstPlayer.getTeam()+(model.isExpertMode()?"  Coins: "+firstPlayer.getSchoolBoard().getCoins():"")):""));
-            modelUI.append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?("Team: "+secondPlayer.getTeam()+(model.isExpertMode()?"  Coins: "+secondPlayer.getSchoolBoard().getCoins():"")):"")).append("\n");
             if (firstPlayer!=null) {
+                modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer.getName()+"'s SchoolBoard")).append("  ");
+                modelUI.append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?secondPlayer.getName()+"'s SchoolBoard":"")).append("\n");
+                modelUI.append(String.format("%-"+schoolBoardLength+"s",("Team: "+firstPlayer.getTeam()+(model.isExpertMode()?"  Coins: "+firstPlayer.getSchoolBoard().getCoins():""))));
+                modelUI.append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?("Team: "+secondPlayer.getTeam()+(model.isExpertMode()?"  Coins: "+secondPlayer.getSchoolBoard().getCoins():"")):"")).append("\n");
+                modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer.getSchoolBoard().getLastUsedCard()==null?"":"Turn value: "+firstPlayer.getSchoolBoard().getLastUsedCard().getTurnValue()+", MN value: "+firstPlayer.getSchoolBoard().getLastUsedCard().getMotherNatureValue()));
+                modelUI.append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer==null || secondPlayer.getSchoolBoard()==null || secondPlayer.getSchoolBoard().getLastUsedCard()==null?"":"Turn value: "+secondPlayer.getSchoolBoard().getLastUsedCard().getTurnValue()+", MN value: "+secondPlayer.getSchoolBoard().getLastUsedCard().getMotherNatureValue()));
+                modelUI.append("\n");
                 modelUI.append(schoolBoardDelimiter).append("  ").append(secondPlayer!=null?schoolBoardDelimiter:" ").append("\n");
-            }
-            for (Colour c : Colour.values()) {
-                if (firstPlayer!=null) {
+                for (Colour c : Colour.values()) {
                     modelUI.append(getSchoolBoardRow(c,firstPlayer.getTeam(),firstPlayer.getSchoolBoard()));
-                }
-                if (secondPlayer!=null) {
-                    modelUI.append(getSchoolBoardRow(c,secondPlayer.getTeam(),secondPlayer.getSchoolBoard()));
-                } else {
-                    modelUI.append(" ".repeat(schoolBoardLength));
-                }
-                if (firstPlayer!=null) {
+                    modelUI.append(secondPlayer==null?String.format("%-"+schoolBoardLength+"s",""):getSchoolBoardRow(c,secondPlayer.getTeam(),secondPlayer.getSchoolBoard()));
                     modelUI.append("\n");
                 }
-            }
-            if (firstPlayer!=null) {
                 modelUI.append(schoolBoardDelimiter).append("  ").append(secondPlayer!=null?schoolBoardDelimiter:" ").append("\n");
             }
         }
@@ -216,9 +209,9 @@ public class CLI implements View {
         }
         if (model.isExpertMode()) {
             for (int i=0; i<model.getCharacterCards().size(); i++) {
-                modelUI.append(getCharacterData(model.getCharacterCards().get(i)));
-                modelUI.append(i== model.getCharacterCards().size()-1?"\n":" | ");
+                modelUI.append(getCharacterData(model.getCharacterCards().get(i))).append(" | ");
             }
+            modelUI.append("Coins: ").append(model.getCoins()).append("\n");
         }
         if (hand!=null) {
             for (int i=0; i<6; i++) {
@@ -255,7 +248,7 @@ public class CLI implements View {
         String fontColour=getDisplayColour(c.name(),false);
         String resetColour=getDisplayColour ("RESET",false);
         StringBuilder schoolBoardRow=new StringBuilder();
-        schoolBoardRow.append(wall).append(windowsTerminal?c.name().charAt(0)+"_":fontColour+" ♦").append(board.getEntrance().get(c)).append(windowsTerminal?"":resetColour).append(wall);
+        schoolBoardRow.append(wall).append(windowsTerminal?c.name().charAt(0)+"_":fontColour+"♦ ").append(board.getEntrance().get(c)).append(windowsTerminal?"":resetColour).append(wall);
         schoolBoardRow.append(windowsTerminal?(" "+c.name().charAt(0)).repeat(board.getDiningRoom().get(c)):fontColour+" ♦".repeat(board.getDiningRoom().get(c))+resetColour);
         schoolBoardRow.append(" ♦".repeat(10-board.getDiningRoom().get(c))).append(" ").append(wall);
         schoolBoardRow.append(board.getProfessorTable().get(c)?(windowsTerminal?c.name().charAt(0):fontColour+"◘"+resetColour):"◘").append(" ").append(wall);
@@ -287,8 +280,13 @@ public class CLI implements View {
 
     private void clearScreen() {
         try {
-            String command=windowsTerminal?"cls":"clear";
-            Runtime.getRuntime().exec(command);
+            if (windowsTerminal) {
+                Runtime.getRuntime().exec("cls");
+            } else {
+                System.out.println((char)27+properties.getProperty("ANSI_CLEAR"));
+                System.out.flush();
+
+            }
         }
         catch (IOException io) {
             System.out.println("Could not clear screen");
@@ -296,7 +294,7 @@ public class CLI implements View {
     }
 
     public Message parseMessage(String[] input) {
-        if (input.length==0) {
+        if (input.length==0 || input[0].isEmpty()) {
             display("For list of commands type help");
             return null;
         }
@@ -362,8 +360,6 @@ public class CLI implements View {
                 }
                 String info;
                 boolean found=false;
-                System.out.println(input[1]+"_setup");
-                System.out.println(characterInfo.getProperty("monk_setup"));
                 if ((info=characterInfo.getProperty(input[1].toLowerCase()+"_setup"))!=null) {
                     display("Setup: "+info);
                     found=true;
@@ -376,6 +372,8 @@ public class CLI implements View {
                     System.out.println("Character id not found");
                 }
                 return null;
+            case "DISCONNECT":
+                return MessageCenter.genMessage(MsgType.DISCONNECT,username,"Disconnecting",null);
             case "HELP":
                 display("Possible commands:\n" +
                         "- [Colour] dining - moves student disk to dining room\n" +
@@ -384,7 +382,8 @@ public class CLI implements View {
                         "- assist | assistant [assist id] - play assistant card\n" +
                         "- refill [cloud id] - choose cloud to refill entrance from\n" +
                         "- msg | whisper [username] - send a message to another player\n" +
-                        "- charinfo [char name] - prints character card info");
+                        "- charinfo [char name] - prints character card info\n" +
+                        "- disconnect - quit game, triggers game over for other players");
                 return null;
             default:
                 return MessageCenter.genMessage(MsgType.TEXT,username,"Basic response",input[0]);

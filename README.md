@@ -38,18 +38,18 @@ The final version will include:
 
 ## Implemented features
 
-| Feature                  |  Status   | Details                                       |
-|--------------------------|:---------:|-----------------------------------------------|
-| Simplified rules         | :warning: | Normal mode only                              |
-| Complete rules           | :warning: | Expert mode with 8 character cards            |
-| CLI                      | :warning: | Command line input                            |
-| GUI                      |    :x:    | Graphical user interface                      |
-| Socket                   | :warning: | Client-server architecture                    |
-| Character cards          | :warning: | All 12 cards instead of just 8                |
-| 4 Player mode            | :warning: | Allows 4 players to participate in teams of 2 |
-| Multiple games           | :warning: | Allows simultaneous games on the same server  |
-| Persistence              |    :x:    | Save and load game state to disk              |
-| Disconnection Resilience |    :x:    | Allows players to reconnect                   |
+| Feature                  |       Status       | Details                                       |
+|--------------------------|:------------------:|-----------------------------------------------|
+| Simplified rules         | :white_check_mark: | Normal mode only                              |
+| Complete rules           |     :warning:      | Expert mode with 8 character cards            |
+| CLI                      | :white_check_mark: | Command line input                            |
+| GUI                      |     :warning:      | Graphical user interface                      |
+| Socket                   | :white_check_mark: | Client-server architecture                    |
+| Character cards          |     :warning:      | All 12 cards instead of just 8                |
+| 4 Player mode            | :white_check_mark: | Allows 4 players to participate in teams of 2 |
+| Multiple games           | :white_check_mark: | Allows simultaneous games on the same server  |
+| Persistence              | :white_check_mark: | Save and load game state to disk              |
+| Disconnection Resilience |        :x:         | Allows players to reconnect                   |
 
 **Table Legend:**
 

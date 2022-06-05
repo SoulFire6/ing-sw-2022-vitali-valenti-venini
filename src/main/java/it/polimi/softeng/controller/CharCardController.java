@@ -22,7 +22,7 @@ import java.util.Random;
 public class CharCardController {
     private static final String CARD_DATA_PATH="src/main/resources/CardData/CharacterCards.csv";
 
-    private enum CharID {
+    public enum CharID {
         MONK,HERALD,MAGICPOSTMAN,GRANDMAHERBS,CENTAUR,JESTER,KNIGHT,SHROOMVENDOR,MINSTREL,SPOILEDPRINCESS,THIEF,FARMER;
         //describes whether character card is in current game, this is for extra security
         private boolean inPlay;
@@ -121,28 +121,6 @@ public class CharCardController {
             return null;
         }
     }
-    /*
-    TODO: determine if method is needed based on how serialised objects can be loaded from save
-    public ArrayList<CharacterCard> genCharCardsFromSave(String PATH_TO_SAVE) {
-        ArrayList<CharacterCard> res=new ArrayList<>();
-        String card;
-        CharacterCard newCard;
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(PATH_TO_SAVE));
-            while((card=reader.readLine())!=null){
-                newCard=createCharacterCard(card.split(","));
-                if (newCard!=null) {
-                    res.add(newCard);
-                }
-            }
-            return res;
-        }
-        catch (NumberFormatException | IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-    */
     public boolean checkDisabledColour(Colour c, ArrayList<CharacterCard> cards) {
         ColourBooleanMap_CharCard ShroomVendor=null;
         for (CharacterCard card: cards) {

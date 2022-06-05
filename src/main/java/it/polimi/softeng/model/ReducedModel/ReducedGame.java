@@ -144,7 +144,10 @@ public class ReducedGame implements Serializable {
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         this.propertyChangeSupport.addPropertyChangeListener(listener);
     }
-
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        this.propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+    //notifies view the first time the model is loaded on the client
     public void notifyGameLoaded() {
         this.propertyChangeSupport.firePropertyChange("Loaded game",null,this);
     }
