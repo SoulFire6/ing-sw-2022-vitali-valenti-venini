@@ -42,11 +42,6 @@ public class Client {
         }
         connectToServer(args);
     }
-    //TODO: remove, this is for testing purposes only (so it's easier to start clients)
-    public static void main(String[] args) {
-        Client client=new Client(new String[]{null,null,null,"CLI"});
-        client.start();
-    }
     public void start() {
         if (socket == null) {
             System.out.println("Error: did not initialise client first");

@@ -29,7 +29,7 @@ public class LobbyListener implements Runnable {
     public void run() {
         Message inMessage;
         while (client.getSocket().isConnected() && (inMessage=client.getMessage())!=null) {
-            System.out.println("LISTENER ON");
+            //System.out.println("LISTENER ON");
             messageQueue.add(inMessage);
         }
         synchronized (listeners) {

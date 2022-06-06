@@ -4,15 +4,14 @@ import it.polimi.softeng.exceptions.AssistantCardAlreadyPlayedException;
 import it.polimi.softeng.exceptions.AssistantCardNotFoundException;
 import it.polimi.softeng.model.AssistantCard;
 import it.polimi.softeng.model.Player;
-import it.polimi.softeng.model.ReducedModel.ReducedPlayer;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class AssistantCardController {
-    private static final String CARD_DATA_PATH="src/main/resources/CardData/AssistantCards.csv";
+    private static final String CARD_DATA_PATH="/CardData/AssistantCards.csv";
 
     public ArrayList<AssistantCard> genHand() {
         ArrayList<AssistantCard> res=new ArrayList<>();
@@ -20,7 +19,7 @@ public class AssistantCardController {
         String cardValue;
         BufferedReader reader;
         try {
-            reader = new BufferedReader(new FileReader(CARD_DATA_PATH));
+            reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream(CARD_DATA_PATH))));
             //Skipping header of csv file
             reader.readLine();
             while((cardValue= reader.readLine())!=null){
@@ -28,7 +27,7 @@ public class AssistantCardController {
                 res.add(new AssistantCard(card[0],Integer.parseInt(card[1]),Integer.parseInt(card[2])));
             }
             reader.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return res;

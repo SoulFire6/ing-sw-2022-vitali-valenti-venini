@@ -17,7 +17,7 @@ public class Server {
         BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
         ServerSocket serverSocket;
         Integer port=SERVER_PORT;
-        if (args.length!=0) {
+        if (args.length!=0 && args[0]!=null) {
             try {
                 port=Integer.parseInt(args[0]);
                 if (port<49152 || port>65535) {
@@ -60,7 +60,7 @@ public class Server {
             }
         }
         catch (IOException io) {
-            System.out.println("Server closed by IO error");
+            System.out.println("Port busy");
         }
     }
 

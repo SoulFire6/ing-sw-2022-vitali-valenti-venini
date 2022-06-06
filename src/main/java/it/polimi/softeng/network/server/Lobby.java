@@ -105,7 +105,6 @@ public class Lobby implements Runnable {
             }
         }
         catch (NullPointerException npe) {
-            npe.printStackTrace();
             throw new LobbyClientDisconnectedException("Lobby master "+lobbyMaster);
         }
     }

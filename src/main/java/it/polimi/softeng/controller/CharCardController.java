@@ -13,14 +13,15 @@ import it.polimi.softeng.model.CharacterCardSubTypes.Int_CharCard;
 import it.polimi.softeng.model.CharacterCardSubTypes.StudentDisk_CharCard;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Objects;
 import java.util.Random;
 
 public class CharCardController {
-    private static final String CARD_DATA_PATH="src/main/resources/CardData/CharacterCards.csv";
+    private static final String CARD_DATA_PATH="/CardData/CharacterCards.csv";
 
     public enum CharID {
         MONK,HERALD,MAGICPOSTMAN,GRANDMAHERBS,CENTAUR,JESTER,KNIGHT,SHROOMVENDOR,MINSTREL,SPOILEDPRINCESS,THIEF,FARMER;
@@ -95,7 +96,7 @@ public class CharCardController {
         String card;
         CharacterCard newCard,removedCard;
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(CARD_DATA_PATH));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream(CARD_DATA_PATH))));
             //Skipping header of csv file
             reader.readLine();
             while((card=reader.readLine())!=null){

@@ -237,7 +237,7 @@ public class CLI implements View {
 
     private String getSchoolBoardRow(Colour c, Team t, ReducedSchoolBoard board) {
         String wall="▌";
-        String tower=windowsTerminal?"▲ ":getDisplayStyle(t.name())+"▲ "+getDisplayStyle("RESET");
+        String tower=windowsTerminal?"▲ ":getDisplayStyle(t.name())+"▲"+getDisplayStyle("RESET")+" ";
         String fontColour=getDisplayStyle(c.name());
         String resetColour=getDisplayStyle ("RESET");
         StringBuilder schoolBoardRow=new StringBuilder();
@@ -256,10 +256,10 @@ public class CLI implements View {
         for (Colour c : Colour.values()) {
             tileStats.append(windowsTerminal?" "+c.name().charAt(0)+"_":getDisplayStyle(c.name())).append(contents.get(c)).append(" ");
         }
+        tileStats.append(windowsTerminal?"":getDisplayStyle("RESET"));
         if (team!=null) {
             tileStats.append(" (").append(windowsTerminal?team.name()+" ":getDisplayStyle(team.name())).append(towerNum).append(" ▲").append(windowsTerminal?"":getDisplayStyle("RESET")).append(")");
         }
-        tileStats.append(windowsTerminal?"":getDisplayStyle("RESET"));
         return tileStats.toString();
     }
 

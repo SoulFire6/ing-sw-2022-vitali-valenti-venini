@@ -3,8 +3,6 @@ package it.polimi.softeng;
 import it.polimi.softeng.network.client.Client;
 import it.polimi.softeng.network.server.Server;
 
-import java.io.IOException;
-
 public class Eriantys {
     private static final String DEFAULT_IP="127.0.0.1";
     private static final Integer DEFAULT_PORT=50033;
