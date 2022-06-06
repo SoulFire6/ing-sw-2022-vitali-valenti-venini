@@ -1,6 +1,5 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.exceptions.PlayerNotFoundException;
 import it.polimi.softeng.model.Player;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
 
@@ -16,7 +15,7 @@ public class TurnManager {
 
     public enum TurnState {
         ASSISTANT_CARDS_PHASE("playing assistant cards"),
-        MOVE_STUDENTS_PHASE("moving student diskss"),
+        MOVE_STUDENTS_PHASE("moving student disks"),
         MOVE_MOTHER_NATURE_PHASE("moving mother nature"),
         CHOOSE_CLOUD_TILE_PHASE("choosing cloud");
 

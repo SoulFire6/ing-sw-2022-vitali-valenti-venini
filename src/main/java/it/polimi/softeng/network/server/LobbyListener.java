@@ -45,7 +45,6 @@ public class LobbyListener implements Runnable {
                 }
                 catch (LobbyClientDisconnectedException ignored) {
                 }
-
             }
             clients.notify();
         }

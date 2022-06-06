@@ -89,9 +89,8 @@ public class TileController {
                 if (!island.getNoEntry()) {
                     Team currentTeam=island.getTeam();
                     calculateInfluence(p,island,players,charCardController,cards,playerController);
-                    checkAndMerge(islands,island);
                     if (currentTeam!=island.getTeam()) {
-                        return true;
+                        checkAndMerge(islands,island);
                     }
                 } else {
                     //TODO: return no entry tile to grandma herbs
@@ -115,6 +114,7 @@ public class TileController {
             throw new InsufficientResourceException("Entrance contains no "+c+" student disks");
         }
         chosenIsland.addColour(c,1);
+        p.getSchoolBoard().getContents().put(c,p.getSchoolBoard().getContents().get(c)-1);
     }
     public void refillClouds(ArrayList<Cloud_Tile> clouds, Bag_Tile bag) throws TileNotEmptyException {
         for (Cloud_Tile cloud : clouds) {
@@ -181,7 +181,6 @@ public class TileController {
                 return;
             }
         }
-        island.setTeam(maxTeam);
         if (island.getTeam()==null) {
             if (conqueringPlayer.getSchoolBoard().getTowers()>0) {
                 conqueringPlayer.getSchoolBoard().modifyTowers(-1);
@@ -194,6 +193,7 @@ public class TileController {
         } else {
             playerController.swapTeamTower(players,maxTeam,island.getTeam(),island.getTowers());
         }
+        island.setTeam(maxTeam);
     }
     public void checkAndMerge(ArrayList<Island_Tile> islands, Island_Tile island) {
         if (islands.contains(island) && islands.size()>3) {

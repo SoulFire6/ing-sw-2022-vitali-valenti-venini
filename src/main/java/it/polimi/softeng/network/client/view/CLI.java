@@ -42,7 +42,7 @@ public class CLI implements View {
     @Override
     public void run() {
         clearScreen();
-        display(getDisplayColour(Colour.RED.name(),false));
+        display(getDisplayStyle(Colour.RED.name()));
         display("      ▄████████    ▄████████  ▄█     ▄████████ ███▄▄▄▄       ███     ▄██   ▄      ▄████████\n" +
                 "      ███    ███   ███    ███ ███    ███    ███ ███▀▀▀██▄ ▀█████████▄ ███   ██▄   ███    ███\n" +
                 "      ███    █▀    ███    ███ ███▌   ███    ███ ███   ███    ▀███▀▀██ ███▄▄▄███   ███    █▀\n" +
@@ -51,7 +51,7 @@ public class CLI implements View {
                 "      ███    █▄  ▀███████████ ███    ███    ███ ███   ███     ███     ███   ███          ███\n" +
                 "      ███    ███   ███    ███ ███    ███    ███ ███   ███     ███     ███   ███    ▄█    ███\n" +
                 "      ██████████   ███    ███ █▀     ███    █▀   ▀█   █▀     ▄████▀    ▀█████▀   ▄████████▀");
-            resetDisplayStile();
+            System.out.println(getDisplayStyle("RESET"));
         while (toServer==null) {
             try {
                 Thread.sleep(1000);
@@ -60,7 +60,7 @@ public class CLI implements View {
             }
         }
         Message outMessage=null;
-        while (outMessage==null || outMessage.getSubType()!=MsgType.CLOSE) {
+        while (outMessage==null || outMessage.getSubType()!=MsgType.DISCONNECT) {
             try {
                 outMessage=parseMessage(in.readLine().split(" "));
                 if (outMessage!=null) {
@@ -144,21 +144,12 @@ public class CLI implements View {
     public void display(String message) {
         System.out.println(message);
     }
-    public String getDisplayColour(String colour, boolean background) {
-        if (!loadedProperties) {
+    public String getDisplayStyle(String styleName) {
+        String displayStyle=properties.getProperty("ANSI_"+styleName);
+        if (!loadedProperties || displayStyle==null) {
             return "";
         }
-        if (background) {
-            return (char)27+properties.getProperty(("ANSI_BG_"+colour.toUpperCase()));
-        } else {
-            return (char)27+properties.getProperty(("ANSI_"+colour.toUpperCase()));
-        }
-    }
-    public void resetDisplayStile() {
-        if (loadedProperties) {
-            System.out.print((char)27+properties.getProperty("ANSI_RESET"));
-            System.out.print((char)27+properties.getProperty("ANSI_BG_RESET"));
-        }
+        return (char)27+displayStyle;
     }
 
     private void printModel(ReducedGame model) {
@@ -177,9 +168,10 @@ public class CLI implements View {
                 modelUI.append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?secondPlayer.getName()+"'s SchoolBoard":"")).append("\n");
                 modelUI.append(String.format("%-"+schoolBoardLength+"s",("Team: "+firstPlayer.getTeam()+(model.isExpertMode()?"  Coins: "+firstPlayer.getSchoolBoard().getCoins():""))));
                 modelUI.append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer!=null?("Team: "+secondPlayer.getTeam()+(model.isExpertMode()?"  Coins: "+secondPlayer.getSchoolBoard().getCoins():"")):"")).append("\n");
-                modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer.getSchoolBoard().getLastUsedCard()==null?"":"Turn value: "+firstPlayer.getSchoolBoard().getLastUsedCard().getTurnValue()+", MN value: "+firstPlayer.getSchoolBoard().getLastUsedCard().getMotherNatureValue()));
-                modelUI.append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer==null || secondPlayer.getSchoolBoard()==null || secondPlayer.getSchoolBoard().getLastUsedCard()==null?"":"Turn value: "+secondPlayer.getSchoolBoard().getLastUsedCard().getTurnValue()+", MN value: "+secondPlayer.getSchoolBoard().getLastUsedCard().getMotherNatureValue()));
-                modelUI.append("\n");
+                if (firstPlayer.getSchoolBoard().getLastUsedCard()!=null || secondPlayer!=null && secondPlayer.getSchoolBoard().getLastUsedCard()!=null) {
+                    modelUI.append(String.format("%-"+schoolBoardLength+"s",firstPlayer.getSchoolBoard().getLastUsedCard()==null?"":"Turn value: "+firstPlayer.getSchoolBoard().getLastUsedCard().getTurnValue()+", MN value: "+firstPlayer.getSchoolBoard().getLastUsedCard().getMotherNatureValue()));
+                    modelUI.append("  ").append(String.format("%-"+schoolBoardLength+"s",secondPlayer==null || secondPlayer.getSchoolBoard()==null || secondPlayer.getSchoolBoard().getLastUsedCard()==null?"":"Turn value: "+secondPlayer.getSchoolBoard().getLastUsedCard().getTurnValue()+", MN value: "+secondPlayer.getSchoolBoard().getLastUsedCard().getMotherNatureValue())).append("\n");
+                }
                 modelUI.append(schoolBoardDelimiter).append("  ").append(secondPlayer!=null?schoolBoardDelimiter:" ").append("\n");
                 for (Colour c : Colour.values()) {
                     modelUI.append(getSchoolBoardRow(c,firstPlayer.getTeam(),firstPlayer.getSchoolBoard()));
@@ -245,31 +237,29 @@ public class CLI implements View {
 
     private String getSchoolBoardRow(Colour c, Team t, ReducedSchoolBoard board) {
         String wall="▌";
-        String fontColour=getDisplayColour(c.name(),false);
-        String resetColour=getDisplayColour ("RESET",false);
+        String tower=windowsTerminal?"▲ ":getDisplayStyle(t.name())+"▲ "+getDisplayStyle("RESET");
+        String fontColour=getDisplayStyle(c.name());
+        String resetColour=getDisplayStyle ("RESET");
         StringBuilder schoolBoardRow=new StringBuilder();
         schoolBoardRow.append(wall).append(windowsTerminal?c.name().charAt(0)+"_":fontColour+"♦ ").append(board.getEntrance().get(c)).append(windowsTerminal?"":resetColour).append(wall);
         schoolBoardRow.append(windowsTerminal?(" "+c.name().charAt(0)).repeat(board.getDiningRoom().get(c)):fontColour+" ♦".repeat(board.getDiningRoom().get(c))+resetColour);
         schoolBoardRow.append(" ♦".repeat(10-board.getDiningRoom().get(c))).append(" ").append(wall);
         schoolBoardRow.append(board.getProfessorTable().get(c)?(windowsTerminal?c.name().charAt(0):fontColour+"◘"+resetColour):"◘").append(" ").append(wall);
-        schoolBoardRow.append(board.getTowers()>=((2*c.ordinal()+1))?"▲ ":"  ").append((board.getTowers()>=(c.ordinal()+1)*2)?"▲ ":"  ").append(wall).append("  ");
+        schoolBoardRow.append(board.getTowers()>=((2*c.ordinal()+1))?tower:"  ").append((board.getTowers()>=(c.ordinal()+1)*2)?tower:"  ").append(wall).append("  ");
         return schoolBoardRow.toString();
     }
 
     private String getTileStats(String id, EnumMap<Colour,Integer> contents, boolean motherNature, Team team, int towerNum) {
         StringBuilder tileStats=new StringBuilder();
-        tileStats.append(!windowsTerminal && motherNature?getDisplayColour(Colour.PURPLE.name(),true):"");
-        tileStats.append(id).append(windowsTerminal && motherNature?"(X):":getDisplayColour("RESET",true)+": ");
+        tileStats.append(!windowsTerminal && motherNature?getDisplayStyle("UNDERLINE")+getDisplayStyle(Colour.RED.name()):"");
+        tileStats.append(id).append(windowsTerminal && motherNature?"(X):":getDisplayStyle("RESET")+": ");
         for (Colour c : Colour.values()) {
-            tileStats.append(windowsTerminal?" "+c.name().charAt(0)+"_":getDisplayColour(c.name(),false)).append(contents.get(c)).append(" ");
+            tileStats.append(windowsTerminal?" "+c.name().charAt(0)+"_":getDisplayStyle(c.name())).append(contents.get(c)).append(" ");
         }
         if (team!=null) {
-            tileStats.append(" ").append(windowsTerminal?team.name() + "_" : getDisplayColour(team.name(), false)).append("▲".repeat(towerNum));
-            if (!windowsTerminal) {
-                tileStats.append(getDisplayColour("RESET", false)).append(getDisplayColour("RESET", true));
-            }
+            tileStats.append(" (").append(windowsTerminal?team.name()+" ":getDisplayStyle(team.name())).append(towerNum).append(" ▲").append(windowsTerminal?"":getDisplayStyle("RESET")).append(")");
         }
-        tileStats.append(windowsTerminal?"":getDisplayColour("RESET",false));
+        tileStats.append(windowsTerminal?"":getDisplayStyle("RESET"));
         return tileStats.toString();
     }
 
@@ -392,6 +382,9 @@ public class CLI implements View {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        printModel((ReducedGame) evt.getNewValue());
+        //CLI only prints model after every update has been made, as otherwise there would be more prints than needed
+        if (evt.getPropertyName().equals("turn state") || evt.getPropertyName().equals("loaded game")) {
+            printModel((ReducedGame) evt.getNewValue());
+        }
     }
 }

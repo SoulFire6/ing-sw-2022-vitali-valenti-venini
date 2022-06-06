@@ -64,7 +64,7 @@ public class LobbyController {
         Bag_Tile bag=new Bag_Tile(0);
         ArrayList<Cloud_Tile> clouds=new ArrayList<>();
         ArrayList<Island_Tile> islands=new ArrayList<>();
-        ArrayList<CharacterCard> characterCards;
+        ArrayList<CharacterCard> characterCards=null;
         //LOAD PLAYERS
         for (ReducedPlayer reducedPlayer : reducedGame.getPlayers()) {
             Player player=new Player(reducedPlayer.getName(),reducedPlayer.getTeam());
@@ -113,7 +113,7 @@ public class LobbyController {
                 //TODO LOAD MEMORY
             }
         }
-        return new Game("Game",players,playerController.getTeams(players),bag,clouds,islands, reducedGame.isExpertMode(), reducedGame.getCoins(),null);
+        return new Game("Game",players,playerController.getTeams(players),bag,clouds,islands, reducedGame.isExpertMode(), reducedGame.getCoins(),characterCards);
     }
     public Game getGame() {
         return this.game;
@@ -127,7 +127,7 @@ public class LobbyController {
     public CharCardController getCharCardController() {
         return this.charCardController;
     }
-    public ArrayList<Message> parseMessage(Message inMessage) {
+    public ArrayList<Message> parseMessage(Message inMessage) throws LobbyClientDisconnectedException, GameIsOverException {
         Player currentPlayer=null;
         ArrayList<Message> response=new ArrayList<>();
         String actionMessage=null;
@@ -158,14 +158,11 @@ public class LobbyController {
                             if (recipient==null) {
                                 throw new IllegalArgumentException("No player with name "+inMessage.getContext());
                             }
+                            response.add(MessageCenter.genMessage(MsgType.WHISPER,lobbyName,currentPlayer.getName(),"Sent message to "+recipient));
                             response.add(MessageCenter.genMessage(MsgType.WHISPER,currentPlayer.getName(),recipient,((Info_Message)inMessage).getInfo()));
-                            break;
+                            return response;
                         case DISCONNECT:
-                            //this message is for the lobby and disconnecting client only
-                            response.add(MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,currentPlayer.getName(),null));
-                            //this message informs the other players of the disconnect
-                            response.add(MessageCenter.genMessage(MsgType.TEXT,lobbyName,null,currentPlayer.getName()+" has disconnected"));
-                            throw new GameIsOverException("");
+                            throw new LobbyClientDisconnectedException(currentPlayer.getName());
                     }
                     break;
                 case LOAD:
@@ -192,7 +189,7 @@ public class LobbyController {
                             turnManager.nextAction();
                             response.add(MessageCenter.genMessage(MsgType.ISLANDS,lobbyName,inMessage.getContext(),game.getIslands()));
                             response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,inMessage.getSender(),currentPlayer));
-                            actionMessage=currentPlayer.getName()+" has moved a "+((DiskToIsland_Cmd_Msg)inMessage).getColour()+" to "+inMessage.getContext();
+                            actionMessage=currentPlayer.getName()+" has moved a "+((DiskToIsland_Cmd_Msg)inMessage).getColour().name().toLowerCase()+" student to island "+inMessage.getContext();
                             break;
                         case DISKTODININGROOM:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_STUDENTS_PHASE) {
@@ -231,8 +228,8 @@ public class LobbyController {
                             }
                             turnManager.nextAction();
                             response.add(MessageCenter.genMessage(MsgType.CLOUDS,lobbyName,inMessage.getContext(),game.getClouds()));
-                            response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,currentPlayer.getName(),currentPlayer));
-                            actionMessage=currentPlayer.getName()+" has chosen "+inMessage.getContext();
+                            response.add(MessageCenter.genMessage(MsgType.PLAYERS,lobbyName,currentPlayer.getName(),game.getPlayers()));
+                            actionMessage=currentPlayer.getName()+" has refilled from cloud "+inMessage.getContext();
                             break;
                         case PLAYCHARCARD:
                             if (!game.isExpertMode()) {
@@ -256,11 +253,11 @@ public class LobbyController {
             response.add(MessageCenter.genMessage(MsgType.TURNSTATE,lobbyName,actionMessage,new ReducedTurnState(turnManager)));
 
         }
-        catch (GameIsOverException gameOver) {
-            Team winningTeam=calculateWinningTeam();
-            System.out.println("["+lobbyName+"] GAME OVER - Team "+winningTeam+" has won");
-            response.add(MessageCenter.genMessage(MsgType.GAMEOVER,lobbyName,"GAME OVER","Game is over: Team "+winningTeam+" has won"));
-            response.add(MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"GAME OVER",null));
+        catch (LobbyClientDisconnectedException lcde) {
+            throw new LobbyClientDisconnectedException(lcde.getMessage());
+        }
+        catch (GameIsOverException gioe) {
+            throw new GameIsOverException(gioe.getMessage());
         }
         catch (Exception e) {
             System.out.println("["+lobbyName+"] "+currentPlayer.getName()+"'s action has thrown "+e.getClass().getSimpleName());

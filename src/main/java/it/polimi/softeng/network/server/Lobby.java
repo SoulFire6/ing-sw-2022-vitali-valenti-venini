@@ -46,17 +46,17 @@ public class Lobby implements Runnable {
             processMessageQueue();
         }
         catch (LobbyEmptyException lee) {
-            System.out.println("Lobby is empty");
+            System.out.println("Lobby "+lobbyName+" is empty");
         }
         catch (LobbyClientDisconnectedException lcde) {
-            message=MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Lobby closed because "+lcde.getMessage()+" disconnected","Client "+lcde.getMessage()+" has disconnected, game over");
+            message=MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Lobby closed due to disconnection","Game over due to "+(lcde.getMessage().equals("")?"sudden disconnection":lcde.getMessage()+" has disconnected")+": "+controller.calculateWinningTeam()+" has won");
         }
         catch (GameIsOverException gioe) {
             String winningTeam="no team";
             if (controller!=null) {
                 winningTeam=controller.calculateWinningTeam().toString();
             }
-            message=MessageCenter.genMessage(MsgType.GAMEOVER,lobbyName,"Game over: "+winningTeam,"Game over: "+winningTeam+" has won");
+            message=MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Game over: "+winningTeam,"Game over: "+winningTeam+" has won");
         }
         catch (InvalidPlayerNumException ipne) {
             System.out.println("Invalid player num, closing lobby");
@@ -71,28 +71,21 @@ public class Lobby implements Runnable {
                 }
             }
         }
-        for (LobbyClient client : clients.values()) {
-            try {
-                client.sendMessage(MsgType.DISCONNECT,"Lobby closed","Lobby closed");
-            }
-            catch (LobbyClientDisconnectedException ignored) {
-            }
-        }
         clients.clear();
     }
     private void setupLobby(LobbyClient client) throws LobbyClientDisconnectedException {
         try {
             client.sendMessage(MsgType.TEXT,"Lobby welcome message","Welcome to the lobby");
             while (maxPlayers<2 || maxPlayers>4) {
-                client.sendMessage(MsgType.INPUT,"Player num select","Player num(2-4):");
+                client.sendMessage(MsgType.TEXT,"Player num select","Player num(2-4):");
                 try {
                     maxPlayers=Integer.parseInt(((Info_Message)client.getMessage()).getInfo());
                 }
                 catch (NumberFormatException nfe) {
-                    client.sendMessage(MsgType.INPUT,"Format error","Wrong format\nPlayer num(2-4):");
+                    client.sendMessage(MsgType.TEXT,"Format error","Wrong format\nPlayer num(2-4):");
                 }
             }
-            client.sendMessage(MsgType.INPUT,"Expert mode selection","Expert mode (y/n):");
+            client.sendMessage(MsgType.TEXT,"Expert mode selection","Expert mode (y/n):");
             while (expertMode==null) {
                 switch(((Info_Message)client.getMessage()).getInfo().toUpperCase()) {
                     case "Y":
@@ -106,7 +99,7 @@ public class Lobby implements Runnable {
                         expertMode=false;
                         break;
                     default:
-                        client.sendMessage(MsgType.INPUT,"Format error","Wrong format\nExpert mode (y/n):");
+                        client.sendMessage(MsgType.TEXT,"Format error","Wrong format\nExpert mode (y/n):");
                         break;
                 }
             }
@@ -200,10 +193,6 @@ public class Lobby implements Runnable {
             while(clients.size()==maxPlayers) {
                 while (lobbyMessageQueue.size()>0) {
                     msg=lobbyMessageQueue.poll();
-                    if (msg.getSubType()==MsgType.CLOSE) {
-                        System.out.println(msg.getContext());
-                        return;
-                    }
                     for (Message message : controller.parseMessage(msg)) {
                         switch (message.getSubType()) {
                             case WHISPER:
@@ -216,9 +205,6 @@ public class Lobby implements Runnable {
                                 for (String client : clients.keySet()) {
                                     clients.get(client).sendMessage(message);
                                 }
-                                if (message.getSubType()==MsgType.GAMEOVER) {
-                                    throw new GameIsOverException("");
-                                }
                                 break;
                         }
                     }
@@ -226,7 +212,7 @@ public class Lobby implements Runnable {
                     System.out.println("["+lobbyName+"]: processed message ("+msg.getSender()+": "+msg.getClass().getSimpleName()+"), queue size: "+lobbyMessageQueue.size());
                 }
             }
-            throw new GameIsOverException("");
+            throw new LobbyClientDisconnectedException("");
         }
     }
 }

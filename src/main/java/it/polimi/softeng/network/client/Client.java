@@ -65,13 +65,10 @@ public class Client {
             System.out.println("Error reading message from server");
             ce.printStackTrace();
         } catch (IOException io) {
-            System.out.println("IO exception");
-            io.printStackTrace();
+            System.out.println("Abrupt disconnection");
         }
         if (inMessage != null && inMessage.getSubType() == MsgType.DISCONNECT) {
             System.out.println(((Info_Message)inMessage).getInfo());
-        } else {
-            System.out.println("Error: abrupt disconnect");
         }
         System.exit(0);
     }

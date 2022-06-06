@@ -3,13 +3,10 @@ package it.polimi.softeng.network.message;
 public enum MsgType {
     //Info messages
     TEXT(MainType.INFO),
-    INPUT(MainType.INFO),
     WHISPER(MainType.INFO),
     CONNECT(MainType.INFO),
     DISCONNECT(MainType.INFO),
     ERROR(MainType.INFO),
-    GAMEOVER(MainType.INFO),
-    CLOSE(MainType.INFO),
     //Load messages
     GAME(MainType.LOAD),
     ISLANDS(MainType.LOAD),
