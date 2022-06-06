@@ -96,7 +96,8 @@ public class Eriantys {
                     Client client=new Client(clientArgs);
                     client.start();
                 } else if (isServer) {
-                    Server.main(serverArgs);
+                    Server server = new Server();
+                    server.main(serverArgs);
                 } else {
                     throw new IllegalArgumentException("Did not specify client or server");
                 }

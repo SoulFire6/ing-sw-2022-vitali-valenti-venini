@@ -8,12 +8,28 @@ import it.polimi.softeng.network.message.MsgType;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystemException;
 import java.util.HashMap;
 
 public class Server {
     private static final HashMap<String,Lobby> lobbies=new HashMap<>();
     private static final Integer SERVER_PORT=50033;
-    public static void main(String[] args) {
+    public void main(String[] args) {
+        try {
+            File saveDirectory=new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath()+"save");
+            if (!saveDirectory.exists()) {
+                if (!saveDirectory.mkdir()) {
+                    System.out.println("Error creating save file directory");
+                    System.exit(-1);
+                }
+            }
+        }
+        catch (URISyntaxException syntaxException) {
+            syntaxException.printStackTrace();
+            System.exit(-1);
+        }
+
         BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
         ServerSocket serverSocket;
         Integer port=SERVER_PORT;
@@ -153,18 +169,21 @@ public class Server {
 
     private static boolean joinLobby(Lobby lobby, String lobbyName, String username,Socket socket, ObjectInputStream in, ObjectOutputStream out) {
         int maxPlayers=lobby.getMaxPlayers();
-        boolean status=false;
         try {
             if (maxPlayers==0) {
-                out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Lobby not ready","Lobby not yet ready, try joining later"));
+                out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","Lobby not ready","Lobby not yet ready, try joining later"));
                 System.out.println(username+" tried to join lobby "+lobbyName+" but it was not ready");
             } else {
                 synchronized (lobby.getClients()) {
                     if (lobby.getClients().size()<maxPlayers) {
                         if (lobby.getClients().get(username)==null) {
+                            if (!(lobby.getWhiteList().size()==0 || lobby.getWhiteList().contains(username))) {
+                                out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","Not on whitelist","You are not on the whitelist: "+lobby.getWhiteList()));
+                                return false;
+                            }
                             lobby.getClients().put(username,new LobbyClient(username,lobbyName,socket,in,out));
                             lobby.getClients().notify();
-                            status=true;
+                            return true;
                         } else {
                             out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Username already in use","Player with that username already exists"));
                             System.out.println(username+" is a duplicate username for lobby "+lobbyName);
@@ -179,7 +198,7 @@ public class Server {
         catch (IOException io) {
             System.out.println("Error sending message to client during lobby join");
         }
-        return status;
+        return false;
     }
 
     private static void checkLobbies() {

@@ -8,6 +8,7 @@ import it.polimi.softeng.network.message.*;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 
+import java.io.*;
 import java.lang.Exception;
 import java.util.*;
 
@@ -19,28 +20,40 @@ public class LobbyController {
     private final AssistantCardController assistantCardController=new AssistantCardController();
     private final TileController tileController=new TileController();
     private final PlayerController playerController=new PlayerController();
+    private final ObjectOutputStream saveFileStream;
 
     //Constructor for new game
-    public LobbyController(ArrayList<String> playerNames, boolean expertMode, String lobbyName) throws InvalidPlayerNumException {
+    public LobbyController(ArrayList<String> playerNames, boolean expertMode, String lobbyName, File saveFile) throws InvalidPlayerNumException {
         this.lobbyName=lobbyName;
-        if (expertMode) {
-            this.charCardController = new CharCardController();
-        } else {
-            this.charCardController = null;
-        }
+        this.saveFileStream=setupFileStream(saveFile);
+        this.charCardController=expertMode?new CharCardController():null;
         this.game=createGame(playerNames,expertMode);
         this.turnManager = new TurnManager(game.getPlayers(),game.getClouds().get(0).getMaxSlots());
     }
     //Constructor for loading a game
-    public LobbyController(String lobbyName, ReducedGame save) {
+    public LobbyController(String lobbyName, File saveFile) throws GameLoadException {
         this.lobbyName=lobbyName;
-        if(save.isExpertMode()) {
-            this.charCardController = new CharCardController();
-        } else {
-            this.charCardController = null;
+        ReducedGame reducedGame=loadGame(saveFile);
+        this.game=convertSaveFile(reducedGame);
+        this.saveFileStream=setupFileStream(saveFile);
+        this.charCardController=game!=null && game.isExpertMode()?new CharCardController():null;
+        this.turnManager=game!=null?new TurnManager(game.getPlayers(),game.getClouds().get(0).getMaxSlots(),reducedGame):null;
+    }
+
+    private ObjectOutputStream setupFileStream(File saveFile) {
+        System.out.println("SAVING TO:"+saveFile.getPath());
+        ObjectOutputStream objectOutputStream;
+        try {
+            if (saveFile.isDirectory()) {
+                objectOutputStream=new ObjectOutputStream(new ObjectOutputStream(new FileOutputStream(saveFile.getPath()+lobbyName+"_"+game.getPlayers().size()+"_"+(game.isExpertMode()?"expert":"normal"))));
+            } else {
+                objectOutputStream=new ObjectOutputStream(new FileOutputStream(saveFile));
+            }
         }
-        this.game=loadGame(save);
-        this.turnManager=new TurnManager(game.getPlayers(),game.getClouds().get(0).getMaxSlots(),save);
+        catch (IOException io) {
+            objectOutputStream=null;
+        }
+        return objectOutputStream;
     }
     private Game createGame(ArrayList<String> playerNames,boolean expertMode) throws InvalidPlayerNumException {
         Bag_Tile bag=new Bag_Tile(24);
@@ -54,12 +67,34 @@ public class LobbyController {
         ArrayList<Cloud_Tile> clouds = tileController.genClouds(playerNames.size(),3+playerNames.size()%2,bag);
         return new Game("Game",players,teams,bag,clouds,islands,expertMode,expertMode?20:0,expertMode?charCardController.genNewCharacterCards(3):null);
     }
-
     private void saveGame() {
-        ReducedGame save=new ReducedGame(this.game,this.turnManager);
-        //TODO write to file
+        if (saveFileStream!=null) {
+            System.out.println("SAVING GAME...");
+            try {
+                saveFileStream.writeObject(new ReducedGame(this.game,this.turnManager));
+            }
+            catch (IOException io) {
+                System.out.println("COULD NOT SAVE GAME");
+            }
+        }
     }
-    private Game loadGame(ReducedGame reducedGame) {
+    private ReducedGame loadGame(File saveFile) throws GameLoadException {
+        try {
+            ObjectInputStream objectInputStream=new ObjectInputStream(new FileInputStream(saveFile));
+            return (ReducedGame)objectInputStream.readObject();
+        }
+        catch (IOException io) {
+            io.printStackTrace();
+        }
+        catch (ClassNotFoundException cnfe) {
+            throw new GameLoadException("Class not found");
+        }
+        return null;
+    }
+    private Game convertSaveFile(ReducedGame reducedGame) {
+        if (reducedGame==null) {
+            return null;
+        }
         ArrayList<Player> players=new ArrayList<>();
         Bag_Tile bag=new Bag_Tile(0);
         ArrayList<Cloud_Tile> clouds=new ArrayList<>();
@@ -77,7 +112,8 @@ public class LobbyController {
             for (Colour c: Colour.values()) {
                 reducedPlayer.getSchoolBoard().getDiningRoom().put(c,reducedPlayer.getSchoolBoard().getDiningRoom().get(c));
             }
-            player.getSchoolBoard().setLastUsedCard(new AssistantCard(reducedPlayer.getSchoolBoard().getLastUsedCard().getId(),reducedPlayer.getSchoolBoard().getLastUsedCard().getTurnValue(),reducedPlayer.getSchoolBoard().getLastUsedCard().getMotherNatureValue()));
+            ReducedAssistantCard lastUsedCard=reducedPlayer.getSchoolBoard().getLastUsedCard();
+            player.getSchoolBoard().setLastUsedCard(lastUsedCard==null?null:new AssistantCard(lastUsedCard.getId(),lastUsedCard.getTurnValue(), lastUsedCard.getMotherNatureValue()));
             players.add(player);
         }
         //LOAD BAG

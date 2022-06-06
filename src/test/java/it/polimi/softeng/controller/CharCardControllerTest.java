@@ -47,7 +47,7 @@ public class CharCardControllerTest {
         playerNames.add("test 2");
         Game game;
         try {
-            game=new LobbyController(playerNames,true,null).getGame();
+            game=new LobbyController(playerNames,true,null,null).getGame();
             CharacterCard card=game.getCharacterCards().get(0);
             int initialCost=card.getCost();
             player.setSchoolBoard(new SchoolBoard_Tile("test",0,0,0,null,0));
@@ -79,7 +79,7 @@ public class CharCardControllerTest {
         CharacterCard shroomVendor=null;
         while (shroomVendor==null) {
             try {
-                controller=new LobbyController(names,true,"testController");
+                controller=new LobbyController(names,true,"testController",null);
                 for (CharacterCard card: controller.getGame().getCharacterCards()) {
                     if (card.getCardID().equals("ShroomVendor")) {
                         shroomVendor=card;
@@ -120,7 +120,7 @@ public class CharCardControllerTest {
         LobbyController controller=null;
         while (!cardsWithSetup) {
             try {
-                controller = new LobbyController(names,true,"test");
+                controller = new LobbyController(names,true,"test",null);
                 for (CharacterCard card: controller.getGame().getCharacterCards()) {
                     if (card.getCardID().equals("Monk") || card.getCardID().equals("SpoiledPrincess") || card.getCardID().equals("Jester")) {
                         cardsWithSetup=true;

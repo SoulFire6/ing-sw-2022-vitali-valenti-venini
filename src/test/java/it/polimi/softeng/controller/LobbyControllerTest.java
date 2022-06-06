@@ -13,6 +13,6 @@ public class LobbyControllerTest {
     public void testCreateGame() {
         ArrayList<String> playerNames=new ArrayList<>();
         playerNames.add("test");
-        assertThrows(InvalidPlayerNumException.class, ()->controller=new LobbyController(playerNames,false,"testInvalidPlayerNum"));
+        assertThrows(InvalidPlayerNumException.class, ()->controller=new LobbyController(playerNames,false,"testInvalidPlayerNum",null));
     }
 }

@@ -43,7 +43,6 @@ public class TurnManager {
 
     public TurnManager(ArrayList<Player> playerOrder, int maxMoves, ReducedGame save) {
         this.playerOrder=playerOrder;
-        refreshTurnOrder();
         this.maxMoves=maxMoves;
         this.remainingMoves=save.getRemainingMoves();
         for (Player p : playerOrder) {

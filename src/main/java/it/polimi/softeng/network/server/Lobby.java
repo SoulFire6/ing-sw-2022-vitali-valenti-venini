@@ -5,12 +5,14 @@ import it.polimi.softeng.exceptions.GameIsOverException;
 import it.polimi.softeng.exceptions.InvalidPlayerNumException;
 import it.polimi.softeng.exceptions.LobbyClientDisconnectedException;
 import it.polimi.softeng.exceptions.LobbyEmptyException;
+import it.polimi.softeng.model.Player;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -26,6 +28,10 @@ public class Lobby implements Runnable {
     private Boolean expertMode=null;
     private LobbyController controller=null;
 
+    private ArrayList<String> whiteList=null;
+
+    private File saveFile=null;
+
     public Lobby(String lobbyName,String username, LobbyClient lobbyMaster) {
         this.lobbyName=lobbyName;
         this.clients.put(username,lobbyMaster);
@@ -38,11 +44,10 @@ public class Lobby implements Runnable {
         Message message=null;
         try {
             setupLobby(clients.get(lobbyMaster));
-            clients.get(lobbyMaster).sendMessage(MsgType.TEXT, "Game setup params", "Game parameters\nPlayer num: " + maxPlayers + "\nExpert mode: " + expertMode);
             System.out.println("Creating listener for lobbymaster: "+lobbyMaster);
             listeners.put(lobbyMaster,new LobbyListener(clients.get(lobbyMaster),lobbyName,maxPlayers,lobbyMessageQueue,clients,listeners));
             waitForOtherPlayers();
-            setupGame(new ArrayList<>(this.clients.keySet()),expertMode);
+            setupGame();
             processMessageQueue();
         }
         catch (LobbyEmptyException lee) {
@@ -75,37 +80,104 @@ public class Lobby implements Runnable {
     }
     private void setupLobby(LobbyClient client) throws LobbyClientDisconnectedException {
         try {
+            File saveDirectory=new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath()+"save");
+            File[] saveList=saveDirectory.listFiles();
             client.sendMessage(MsgType.TEXT,"Lobby welcome message","Welcome to the lobby");
-            while (maxPlayers<2 || maxPlayers>4) {
-                client.sendMessage(MsgType.TEXT,"Player num select","Player num(2-4):");
-                try {
-                    maxPlayers=Integer.parseInt(((Info_Message)client.getMessage()).getInfo());
-                }
-                catch (NumberFormatException nfe) {
-                    client.sendMessage(MsgType.TEXT,"Format error","Wrong format\nPlayer num(2-4):");
-                }
-            }
-            client.sendMessage(MsgType.TEXT,"Expert mode selection","Expert mode (y/n):");
-            while (expertMode==null) {
+            while (whiteList==null) {
+                client.sendMessage(MsgType.TEXT,"Create or load","[Create] or [Load] game:");
                 switch(((Info_Message)client.getMessage()).getInfo().toUpperCase()) {
-                    case "Y":
-                    case "T":
-                    case "TRUE":
-                        expertMode=true;
+                    case "C":
+                    case "CREATE":
+                        whiteList=new ArrayList<>();
+                        client.sendMessage(MsgType.TEXT,"New game","Creating new game");
+                        while (maxPlayers<2 || maxPlayers>4) {
+                            client.sendMessage(MsgType.TEXT,"Player num select","Player num(2-4):");
+                            try {
+                                maxPlayers=Integer.parseInt(((Info_Message)client.getMessage()).getInfo());
+                            }
+                            catch (NumberFormatException nfe) {
+                                client.sendMessage(MsgType.TEXT,"Format error","Wrong format\nPlayer num(2-4):");
+                            }
+                        }
+                        client.sendMessage(MsgType.TEXT,"Expert mode selection","Expert mode (y/n):");
+                        while (expertMode==null) {
+                            switch(((Info_Message)client.getMessage()).getInfo().toUpperCase()) {
+                                case "Y":
+                                    expertMode=true;
+                                    break;
+                                case "N":
+                                    expertMode=false;
+                                    break;
+                                default:
+                                    client.sendMessage(MsgType.TEXT,"Format error","Wrong format\nExpert mode (y/n):");
+                                    break;
+                            }
+                        }
+                        saveFile=new File(saveDirectory.getPath()+lobbyName+"_"+maxPlayers+"_"+(expertMode?"expert":"normal"));
+                        if (saveFile.exists()) {
+                            client.sendMessage(MsgType.TEXT,"File exists","Existing file will be overwritten");
+                        } else {
+                            try {
+                                if (!saveFile.createNewFile()) {
+                                    throw new IOException();
+                                }
+                            }
+                            catch (IOException io) {
+                                client.sendMessage(MsgType.ERROR,"File system error: could not create save file","Error creating save file");
+                            }
+                        }
                         break;
-                    case "N":
-                    case "F":
-                    case "FALSE":
-                        expertMode=false;
+                    case "L":
+                    case "LOAD":
+                        if (saveList==null || saveList.length==0) {
+                            client.sendMessage(MsgType.TEXT,"No saves","No save files to load");
+                            break;
+                        }
+                        for (int i=0; i<saveList.length; i++) {
+                            client.sendMessage(MsgType.TEXT,"List files",i+": "+saveList[i].getName().replace(".bin",""));
+                        }
+                        int fileChoice=-1;
+                        while (fileChoice<0 || fileChoice>saveList.length) {
+                            client.sendMessage(MsgType.TEXT,"Select file","Choose file to load");
+                            try {
+                                fileChoice=Integer.parseInt(((Info_Message) client.getMessage()).getInfo());
+                            }
+                            catch (NumberFormatException nfe) {
+                                client.sendMessage(MsgType.ERROR,"Incorrect format","Not a number");
+                            }
+                        }
+                        controller=new LobbyController(lobbyName,saveList[fileChoice]);
+                        if (controller.getGame()==null) {
+                            client.sendMessage(MsgType.ERROR,"Game load error","Error loading game save");
+                            saveFile.renameTo(new File(saveFile.getPath()+"_corrupted"));
+                            this.whiteList=null;
+                            break;
+                        }
+                        this.whiteList=new ArrayList<>();
+                        for (Player p : controller.getGame().getPlayers()) {
+                            this.whiteList.add(p.getName());
+                        }
+                        if (!whiteList.contains(lobbyMaster)) {
+                            client.sendMessage(MsgType.DISCONNECT,"Not on whitelist","You are not a player on this save file "+this.whiteList);
+                            this.whiteList=null;
+                            break;
+                        }
+                        this.maxPlayers=controller.getGame().getPlayers().size();
+                        this.expertMode=controller.getGame().isExpertMode();
                         break;
                     default:
-                        client.sendMessage(MsgType.TEXT,"Format error","Wrong format\nExpert mode (y/n):");
+                        client.sendMessage(MsgType.ERROR,"Out of bounds","Out of range (0-"+(saveList!=null?saveList.length-1:0)+")");
                         break;
                 }
             }
+            client.sendMessage(MsgType.TEXT, "Game setup params", "Game parameters\nPlayer num: " + maxPlayers + "\nExpert mode: " + expertMode);
         }
         catch (NullPointerException npe) {
+            npe.printStackTrace();
             throw new LobbyClientDisconnectedException("Lobby master "+lobbyMaster);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
     private void waitForOtherPlayers() throws LobbyEmptyException,GameIsOverException {
@@ -144,6 +216,10 @@ public class Lobby implements Runnable {
                     }
                 }
             }
+            if (whiteList==null) {
+                whiteList=new ArrayList<>();
+                whiteList.addAll(clients.keySet());
+            }
         }
     }
     private void sendToAll(Message msg) throws LobbyClientDisconnectedException {
@@ -164,14 +240,18 @@ public class Lobby implements Runnable {
             throw new LobbyClientDisconnectedException("");
         }
     }
-    private void setupGame(ArrayList<String> playerNames, Boolean expertMode) throws InvalidPlayerNumException,LobbyClientDisconnectedException {
+    private void setupGame() throws InvalidPlayerNumException,LobbyClientDisconnectedException {
         if (clients.size()==maxPlayers) {
-            this.controller=new LobbyController(playerNames,expertMode,lobbyName);
+            if (controller==null) {
+                this.controller=new LobbyController(new ArrayList<>(clients.keySet()),expertMode,lobbyName,saveFile);
+            }
             System.out.println("GAME SETUP");
             Message gameLoad=MessageCenter.genMessage(MsgType.GAME,lobbyName,"Game has been setup",new ReducedGame(controller.getGame(),controller.getTurnManager()));
             for (String client: clients.keySet()) {
                 clients.get(client).sendMessage(gameLoad);
             }
+        } else {
+            throw new InvalidPlayerNumException(clients.size()+" does not equal "+maxPlayers);
         }
     }
     public HashMap<String,LobbyClient> getClients() {
@@ -179,6 +259,9 @@ public class Lobby implements Runnable {
     }
     public int getMaxPlayers() {
         return this.maxPlayers;
+    }
+    public ArrayList<String> getWhiteList() {
+        return this.whiteList;
     }
     public String getLobbyStats() {
         if (maxPlayers==0) {

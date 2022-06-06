@@ -21,7 +21,7 @@ class AssistantCardControllerTest {
             playerNames.add("Player_"+(i+1));
         }
         try {
-            controller = new LobbyController(playerNames,false,"normal lobby");
+            controller = new LobbyController(playerNames,false,"normal lobby",null);
         }
         catch (InvalidPlayerNumException ipne) {
             fail();
