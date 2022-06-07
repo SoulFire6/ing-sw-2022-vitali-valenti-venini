@@ -1,8 +1,6 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.exceptions.CharacterCardNotFoundException;
-import it.polimi.softeng.exceptions.InsufficientResourceException;
-import it.polimi.softeng.exceptions.InvalidPlayerNumException;
+import it.polimi.softeng.exceptions.*;
 import it.polimi.softeng.model.*;
 
 import org.junit.jupiter.api.Test;
@@ -61,15 +59,18 @@ public class CharCardControllerTest {
             CharacterCard card=controller.getGame().getCharacterCards().get(0);
             int initialCost=card.getCost();
             player.setSchoolBoard(new SchoolBoard_Tile("test",0,0,0,null,0));
-            assertThrows(InsufficientResourceException.class,()->charController.activateCard(player,card.getCardID(),"",controller));
+            assertThrows(InsufficientResourceException.class,()->charController.findAndCheckCard(player,card.getCardID(),controller.getGame().getCharacterCards()));
             player.getSchoolBoard().setCoins(initialCost);
-            assertDoesNotThrow(()->charController.activateCard(player,card.getCardID(),"",controller));
+            assertDoesNotThrow(()->charController.findAndCheckCard(player,card.getCardID(),controller.getGame().getCharacterCards()));
+            final CharacterCard playedCard=charController.findAndCheckCard(player,card.getCardID(),controller.getGame().getCharacterCards());
+            assertDoesNotThrow(()->charController.playCharacterCard(playedCard,player,"".split(""),controller));
             assertEquals(0,player.getSchoolBoard().getCoins());
             assertEquals(initialCost+1,card.getCost());
-            assertThrows(CharacterCardNotFoundException.class,()->charController.activateCard(player,"illegal id","",controller));
+            assertThrows(CharacterCardNotFoundException.class,()->charController.findAndCheckCard(player,"illegal card id",controller.getGame().getCharacterCards()).getCharacter().activateCard(player,"".split(""),controller));
             assertTrue(card.isActive());
         }
-        catch (InvalidPlayerNumException ipne) {
+        catch (InvalidPlayerNumException | CharacterCardNotFoundException | InsufficientResourceException |
+               MoveNotAllowedException | GameIsOverException ipne) {
             fail();
         }
     }
@@ -113,10 +114,10 @@ public class CharCardControllerTest {
         final CharacterCard shroomCard=shroomVendor;
         EnumMap<Colour,Boolean> disabledColourMap=Colour.genBooleanMap();
         disabledColourMap.put(c,true);
-        assertDoesNotThrow(()->charController.activateCard(lobbyController.getGame().getPlayers().get(0), shroomCard.getCardID(), "red",lobbyController));
+        assertDoesNotThrow(()->charController.playCharacterCard(shroomCard,lobbyController.getGame().getPlayers().get(0), "red".split(" "),lobbyController));
         shroomCard.getCharacter().setMemory(disabledColourMap);
         assertTrue(shroomCard.isActive());
-        //assertTrue(charController.checkDisabledColour(c,controller.getGame().getCharacterCards()));
+        assertTrue(shroomCard.getCharacter().getMemory(Boolean.class).get(c));
     }
 
     @Test

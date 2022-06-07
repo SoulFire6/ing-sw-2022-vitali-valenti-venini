@@ -88,7 +88,7 @@ public class TileController {
                 } else {
                     for (CharacterCard card : cards) {
                         if (card.getCharacter().equals(CharID.GRANDMA_HERBS)) {
-                            card.getCharacter().setMemory(((Integer)card.getCharacter().getMemory())+1);
+                            card.getCharacter().setMemory(card.getCharacter().getMemory()+1);
                         }
                     }
                 }
@@ -166,7 +166,7 @@ public class TileController {
             if (cards!=null) {
                 for (CharacterCard card : cards) {
                     if (card.getCharacter().equals(CharID.SHROOM_VENDOR)) {
-                        disabledColours=(EnumMap<Colour, Boolean>) card.getCharacter().getMemory();
+                        disabledColours=card.getCharacter().getMemory(Boolean.class);
                     }
                 }
             }

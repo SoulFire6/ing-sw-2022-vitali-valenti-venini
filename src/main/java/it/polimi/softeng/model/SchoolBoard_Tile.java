@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class SchoolBoard_Tile extends Tile{
     private final int maxEntranceSlots;
-    private final EnumMap<Colour,Integer> diningRoom;
+    private EnumMap<Colour,Integer> diningRoom;
     private final EnumMap<Colour,Boolean> professorTable;
     private int towers;
     private final int maxTowers;
@@ -47,6 +47,9 @@ public class SchoolBoard_Tile extends Tile{
     }
     public EnumMap<Colour,Integer> getDiningRoom() {
         return this.diningRoom;
+    }
+    public void setDiningRoom(EnumMap<Colour,Integer> diningRoom) {
+        this.diningRoom=diningRoom;
     }
     public EnumMap<Colour,Boolean> getProfessorTable() {
         return this.professorTable;

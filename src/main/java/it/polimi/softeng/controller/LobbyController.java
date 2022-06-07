@@ -315,7 +315,8 @@ public class LobbyController {
                             if (turnManager.getTurnState()==TurnManager.TurnState.ASSISTANT_CARDS_PHASE) {
                                 throw new WrongPhaseException("Cannot play character cards  "+turnManager.getTurnState().getDescription());
                             }
-                            charCardController.activateCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),inMessage.getContext(),this);
+                            CharacterCard playedCard=charCardController.findAndCheckCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),game.getCharacterCards());
+                            charCardController.playCharacterCard(playedCard,currentPlayer,inMessage.getContext().split(" "),this);
                             response.add(MessageCenter.genMessage(MsgType.CHARACTERCARDS,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),game.getCharacterCards()));
                             actionMessage=currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID();
                             break;
