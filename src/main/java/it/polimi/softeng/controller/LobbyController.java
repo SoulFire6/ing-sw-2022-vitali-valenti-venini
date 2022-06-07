@@ -29,12 +29,14 @@ public class LobbyController {
         this.charCardController=expertMode?new CharCardController():null;
         this.game=createGame(playerNames,expertMode);
         this.turnManager = new TurnManager(game.getPlayers(),game.getClouds().get(0).getMaxSlots());
+        saveGame();
     }
     //Constructor for loading a game
     public LobbyController(String lobbyName, File saveFile) throws GameLoadException {
         this.lobbyName=lobbyName;
         ReducedGame reducedGame=loadGame(saveFile);
         this.game=convertSaveFile(reducedGame);
+        saveGame();
         this.saveFileStream=setupFileStream(saveFile);
         this.charCardController=game!=null && game.isExpertMode()?new CharCardController():null;
         this.turnManager=game!=null?new TurnManager(game.getPlayers(),game.getClouds().get(0).getMaxSlots(),reducedGame):null;
@@ -80,7 +82,7 @@ public class LobbyController {
         ArrayList<Cloud_Tile> clouds = tileController.genClouds(playerNames.size(),3+playerNames.size()%2,bag);
         return new Game("Game",players,teams,bag,clouds,islands,expertMode,expertMode?20:0,expertMode?charCardController.genNewCharacterCards(3):null);
     }
-    private void saveGame() {
+    public void saveGame() {
         if (saveFileStream!=null) {
             System.out.println("SAVING GAME...");
             try {
@@ -88,7 +90,10 @@ public class LobbyController {
             }
             catch (IOException io) {
                 System.out.println("COULD NOT SAVE GAME");
+                io.printStackTrace();
             }
+        } else {
+            System.out.println("No save file is set");
         }
     }
     private ReducedGame loadGame(File saveFile) throws GameLoadException {
@@ -100,11 +105,11 @@ public class LobbyController {
         }
         catch (IOException io) {
             io.printStackTrace();
+            throw new GameLoadException(io.getMessage());
         }
         catch (ClassNotFoundException cnfe) {
             throw new GameLoadException("Class not found");
         }
-        return null;
     }
     private Game convertSaveFile(ReducedGame reducedGame) {
         if (reducedGame==null) {
@@ -225,11 +230,16 @@ public class LobbyController {
                     switch (inMessage.getSubType()) {
                         case PLAYASSISTCARD:
                             if (turnManager.getTurnState()!=TurnManager.TurnState.ASSISTANT_CARDS_PHASE) {
-                                throw new WrongPhaseException("Cannot use asssistant card during "+turnManager.getTurnState().getDescription());
+                                throw new WrongPhaseException("Cannot use assistant card during "+turnManager.getTurnState().getDescription());
                             }
                             assistantCardController.playAssistantCard(currentPlayer,((AssistCard_Cmd_Msg)inMessage).getAssistID(),turnManager.getPlayerOrder());
+                            if (currentPlayer==turnManager.getLastPlayer()) {
+                                response.add(MessageCenter.genMessage(MsgType.PLAYERS,lobbyName,"Play assist card, phase over",game.getPlayers()));
+                            } else {
+                                response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,"Play assist card",currentPlayer));
+                            }
                             turnManager.nextAction();
-                            response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,"Play assist card",currentPlayer));
+
                             actionMessage=currentPlayer.getName()+" has played "+currentPlayer.getSchoolBoard().getLastUsedCard().getCardID();
                             break;
                         case DISKTOISLAND:
@@ -297,6 +307,7 @@ public class LobbyController {
                         default:
                             throw new MoveNotAllowedException("This should not be reachable");
                     }
+                    saveGame();
                     break;
                 default:
                     throw new ClassNotFoundException("Invalid message type");
@@ -316,7 +327,6 @@ public class LobbyController {
             e.printStackTrace();
             response.add(MessageCenter.genMessage(MsgType.ERROR,lobbyName,e.getClass().toString(),e.getMessage()));
         }
-        saveGame();
         return response;
     }
     public Team calculateWinningTeam() {

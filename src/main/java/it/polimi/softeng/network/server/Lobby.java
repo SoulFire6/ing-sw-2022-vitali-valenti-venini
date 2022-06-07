@@ -1,10 +1,7 @@
 package it.polimi.softeng.network.server;
 
 import it.polimi.softeng.controller.LobbyController;
-import it.polimi.softeng.exceptions.GameIsOverException;
-import it.polimi.softeng.exceptions.InvalidPlayerNumException;
-import it.polimi.softeng.exceptions.LobbyClientDisconnectedException;
-import it.polimi.softeng.exceptions.LobbyEmptyException;
+import it.polimi.softeng.exceptions.*;
 import it.polimi.softeng.model.Player;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
 import it.polimi.softeng.network.message.Info_Message;
@@ -14,7 +11,6 @@ import it.polimi.softeng.network.message.MsgType;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -55,7 +51,7 @@ public class Lobby implements Runnable {
             System.out.println("Lobby "+lobbyName+" is empty");
         }
         catch (LobbyClientDisconnectedException lcde) {
-            message=MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Lobby closed due to disconnection","Game over due to "+(lcde.getMessage().equals("")?"sudden disconnection":lcde.getMessage()+" has disconnected")+": save file to continue game "+saveFile.getName());
+            message=MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Lobby closed due to disconnection",(lcde.getMessage().equals("")?"sudden disconnection":lcde.getMessage()+" has disconnected")+": save file to continue game "+saveFile.getName());
         }
         catch (GameIsOverException gioe) {
             String winningTeam="no team";
@@ -143,13 +139,11 @@ public class Lobby implements Runnable {
                             client.sendMessage(MsgType.ERROR,"File system error: could not create save file","Error creating save file");
                         }
                     }
+                    this.whiteList=new ArrayList<>();
                 } else {
                     saveFile=saveList[fileChoice-1];
-                    controller=new LobbyController(lobbyName,saveFile);
-                    if (controller.getGame()==null) {
-                        client.sendMessage(MsgType.ERROR,"Game load error","Error loading game save");
-                        saveFile.renameTo(new File(saveFile.getPath()+"_corrupted"));
-                    } else {
+                    try {
+                        controller=new LobbyController(lobbyName,saveFile);
                         whiteList=new ArrayList<>();
                         for (Player p : controller.getGame().getPlayers()) {
                             whiteList.add(p.getName());
@@ -161,6 +155,11 @@ public class Lobby implements Runnable {
                         }
                         maxPlayers=controller.getGame().getPlayers().size();
                         expertMode=controller.getGame().isExpertMode();
+                    }
+                    catch (GameLoadException gle) {
+                        client.sendMessage(MsgType.ERROR,"Game load error","Error loading game save");
+                        saveFile.renameTo(new File(saveFile.getPath()+"_corrupted"));
+                        fileChoice=-1;
                     }
                 }
             }
@@ -210,8 +209,7 @@ public class Lobby implements Runnable {
                     }
                 }
             }
-            if (whiteList==null) {
-                whiteList=new ArrayList<>();
+            if (whiteList.size()==0) {
                 whiteList.addAll(clients.keySet());
             }
         }
@@ -261,7 +259,9 @@ public class Lobby implements Runnable {
         if (maxPlayers==0) {
             return this.lobbyName+": not ready";
         }
-        return this.lobbyName+": "+(this.expertMode?"expert":"normal")+" game ["+this.clients.size()+"/"+this.maxPlayers+"]";
+        ArrayList<String> waitingFor = new ArrayList<>(whiteList);
+        waitingFor.removeAll(clients.keySet());
+        return this.lobbyName+": "+(this.expertMode?"expert":"normal")+" game ["+this.clients.size()+"/"+this.maxPlayers+"], Currently connected: "+this.clients.keySet()+(waitingFor.size()>0?", Waiting for: "+waitingFor:"");
     }
     public void processMessageQueue() throws LobbyClientDisconnectedException,GameIsOverException,LobbyEmptyException {
         Message msg;

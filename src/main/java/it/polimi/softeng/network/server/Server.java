@@ -76,6 +76,7 @@ public class Server {
                     serveClient(clientSocket);
                 } catch (NullPointerException npe) {
                     System.out.println("Client disconnected abruptly");
+                    npe.printStackTrace();
                     break;
                 }
             }
@@ -112,7 +113,6 @@ public class Server {
     }
 
     private static boolean processRequest(String username, Socket clientSocket, ObjectInputStream in, ObjectOutputStream out) throws IOException {
-        boolean status=false;
         String lobbyName;
         try {
             Info_Message response=(Info_Message)in.readObject();
@@ -131,16 +131,16 @@ public class Server {
                         Lobby newLobby=new Lobby(lobbyName,username,lobbyMaster);
                         lobbies.put(lobbyName,newLobby);
                         new Thread(lobbies.get(lobbyName)).start();
-                        status=true;
+                        return true;
                     } else {
                         out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Error: lobby already exists","Lobby already exists, try joining instead"));
+                        return false;
                     }
-                    break;
                 case "J":
                 case "JOIN":
                     if (lobbies.size()==0) {
                         out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","No lobbies","There are no lobbies to join, try creating one instead"));
-                        break;
+                        return false;
                     }
                     for (String lobby : lobbies.keySet()) {
                         out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Listing lobbies",lobbies.get(lobby).getLobbyStats()));
@@ -150,24 +150,26 @@ public class Server {
                     lobbyName=response.getInfo();
                     if (lobbies.get(lobbyName) == null) {
                         out.writeObject(MessageCenter.genMessage(MsgType.TEXT, "SERVER", "Error: lobby does not exist", "Lobby not found"));
+                        return false;
                     } else {
-                        status=joinLobby(lobbies.get(lobbyName), lobbyName, username, clientSocket, in, out);
+                        return joinLobby(lobbies.get(lobbyName), lobbyName, username, clientSocket, in, out);
                     }
-                    break;
                 case "D":
                 case "DISCONNECT":
                     out.writeObject(MessageCenter.genMessage(MsgType.DISCONNECT, "SERVER", "Disconnecting", "Goodbye"));
                     clientSocket.close();
-                    status = true;
-                    break;
+                    return true;
                 default:
                     out.writeObject(MessageCenter.genMessage(MsgType.TEXT, "SERVER", "FORMAT ERROR", "Invalid format"));
-                    break;
+                    return false;
             }
-            return status;
         }
         catch (ClassNotFoundException cnfe) {
             System.out.println("Error receiving message");
+            return false;
+        }
+        catch (NullPointerException npe) {
+            System.out.println(username+" abruptly disconnected");
             return false;
         }
     }
