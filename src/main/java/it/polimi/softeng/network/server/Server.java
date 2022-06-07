@@ -29,8 +29,6 @@ public class Server {
             syntaxException.printStackTrace();
             System.exit(-1);
         }
-
-        BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
         ServerSocket serverSocket;
         Integer port=SERVER_PORT;
         if (args.length!=0 && args[0]!=null) {
@@ -44,22 +42,29 @@ public class Server {
                 System.out.println("Not a valid number");
                 port=null;
             }
+            BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
             String portNumber;
-            while (port==null || port<49152 || port>65535) {
-                System.out.print("Server port (default 50033, range 49152-65535): ");
-                try {
-                    if ((portNumber=in.readLine()).length()!=0 && !portNumber.equals("local")) {
-                        port=Integer.parseInt(portNumber);
-                    } else {
-                        port=SERVER_PORT;
+            try {
+                while (port==null || port<49152 || port>65535) {
+                    System.out.print("Server port (default 50033, range 49152-65535): ");
+                    try {
+                        if ((portNumber=in.readLine()).length()!=0 && !portNumber.equals("local")) {
+                            port=Integer.parseInt(portNumber);
+                        } else {
+                            port=SERVER_PORT;
+                        }
+                    }
+                    catch (IOException io) {
+                        System.out.println("Error reading port number");
+                    }
+                    catch (NumberFormatException nfe) {
+                        System.out.println("Not a valid number");
                     }
                 }
-                catch (IOException io) {
-                    System.out.println("Error reading port number");
-                }
-                catch (NumberFormatException nfe) {
-                    System.out.println("Not a valid number");
-                }
+                in.close();
+            }
+            catch (IOException io) {
+                System.out.println("Error closing server input stream");
             }
         }
         try {

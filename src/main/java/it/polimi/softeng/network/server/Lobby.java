@@ -14,6 +14,7 @@ import it.polimi.softeng.network.message.MsgType;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -54,7 +55,7 @@ public class Lobby implements Runnable {
             System.out.println("Lobby "+lobbyName+" is empty");
         }
         catch (LobbyClientDisconnectedException lcde) {
-            message=MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Lobby closed due to disconnection","Game over due to "+(lcde.getMessage().equals("")?"sudden disconnection":lcde.getMessage()+" has disconnected")+": "+controller.calculateWinningTeam()+" has won");
+            message=MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Lobby closed due to disconnection","Game over due to "+(lcde.getMessage().equals("")?"sudden disconnection":lcde.getMessage()+" has disconnected")+": save file to continue game "+saveFile.getName());
         }
         catch (GameIsOverException gioe) {
             String winningTeam="no team";
@@ -76,98 +77,91 @@ public class Lobby implements Runnable {
                 }
             }
         }
+        if (controller!=null) {
+            controller.closeFileStream();
+        }
         clients.clear();
     }
     private void setupLobby(LobbyClient client) throws LobbyClientDisconnectedException {
         try {
             File saveDirectory=new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath()+"save");
-            File[] saveList=saveDirectory.listFiles();
+            File[] saveList=saveDirectory.listFiles(file -> file.getName().endsWith(".bin"));
+            if (saveList==null) {
+                saveList=new File[]{};
+            }
+            int fileChoice=-1;
             client.sendMessage(MsgType.TEXT,"Lobby welcome message","Welcome to the lobby");
-            while (whiteList==null) {
-                client.sendMessage(MsgType.TEXT,"Create or load","[Create] or [Load] game:");
-                switch(((Info_Message)client.getMessage()).getInfo().toUpperCase()) {
-                    case "C":
-                    case "CREATE":
+            while(whiteList==null) {
+                client.sendMessage(MsgType.TEXT,"Save select","Select a save file or create a new game");
+                client.sendMessage(MsgType.TEXT,"Create game list","0 Create new game");
+                for (int i=0; i<saveList.length; i++) {
+                    client.sendMessage(MsgType.TEXT,"List files",(i+1)+": "+saveList[i].getName().replace(".bin",""));
+                }
+                while (fileChoice<0 || fileChoice>saveList.length) {
+                    try {
+                        fileChoice=Integer.parseInt(((Info_Message) client.getMessage()).getInfo());
+                    }
+                    catch (NumberFormatException nfe) {
+                        client.sendMessage(MsgType.ERROR,"Incorrect format","Not a number");
+                    }
+                }
+                if (fileChoice==0) {
+                    client.sendMessage(MsgType.TEXT,"New game","Creating new game");
+                    while (maxPlayers<2 || maxPlayers>4) {
+                        client.sendMessage(MsgType.TEXT,"Player num select","Player num(2-4):");
+                        try {
+                            maxPlayers=Integer.parseInt(((Info_Message)client.getMessage()).getInfo());
+                        }
+                        catch (NumberFormatException nfe) {
+                            client.sendMessage(MsgType.TEXT,"Format error","Wrong format\nPlayer num(2-4):");
+                        }
+                    }
+                    client.sendMessage(MsgType.TEXT,"Expert mode selection","Expert mode (y/n):");
+                    while (expertMode==null) {
+                        switch(((Info_Message)client.getMessage()).getInfo().toUpperCase()) {
+                            case "Y":
+                                expertMode=true;
+                                break;
+                            case "N":
+                                expertMode=false;
+                                break;
+                            default:
+                                client.sendMessage(MsgType.TEXT,"Format error","Wrong format\nExpert mode (y/n):");
+                                break;
+                        }
+                    }
+                    saveFile=new File(saveDirectory.getPath()+"/"+lobbyName.replace(" ","_")+"_"+maxPlayers+"_"+(expertMode?"expert":"normal")+".bin");
+                    if (saveFile.exists()) {
+                        client.sendMessage(MsgType.TEXT,"File exists","Existing file with same name will be overwritten");
+                    } else {
+                        try {
+                            if (!saveFile.createNewFile()) {
+                                throw new IOException();
+                            }
+                        }
+                        catch (IOException io) {
+                            client.sendMessage(MsgType.ERROR,"File system error: could not create save file","Error creating save file");
+                        }
+                    }
+                } else {
+                    saveFile=saveList[fileChoice-1];
+                    controller=new LobbyController(lobbyName,saveFile);
+                    if (controller.getGame()==null) {
+                        client.sendMessage(MsgType.ERROR,"Game load error","Error loading game save");
+                        saveFile.renameTo(new File(saveFile.getPath()+"_corrupted"));
+                    } else {
                         whiteList=new ArrayList<>();
-                        client.sendMessage(MsgType.TEXT,"New game","Creating new game");
-                        while (maxPlayers<2 || maxPlayers>4) {
-                            client.sendMessage(MsgType.TEXT,"Player num select","Player num(2-4):");
-                            try {
-                                maxPlayers=Integer.parseInt(((Info_Message)client.getMessage()).getInfo());
-                            }
-                            catch (NumberFormatException nfe) {
-                                client.sendMessage(MsgType.TEXT,"Format error","Wrong format\nPlayer num(2-4):");
-                            }
-                        }
-                        client.sendMessage(MsgType.TEXT,"Expert mode selection","Expert mode (y/n):");
-                        while (expertMode==null) {
-                            switch(((Info_Message)client.getMessage()).getInfo().toUpperCase()) {
-                                case "Y":
-                                    expertMode=true;
-                                    break;
-                                case "N":
-                                    expertMode=false;
-                                    break;
-                                default:
-                                    client.sendMessage(MsgType.TEXT,"Format error","Wrong format\nExpert mode (y/n):");
-                                    break;
-                            }
-                        }
-                        saveFile=new File(saveDirectory.getPath()+lobbyName+"_"+maxPlayers+"_"+(expertMode?"expert":"normal"));
-                        if (saveFile.exists()) {
-                            client.sendMessage(MsgType.TEXT,"File exists","Existing file will be overwritten");
-                        } else {
-                            try {
-                                if (!saveFile.createNewFile()) {
-                                    throw new IOException();
-                                }
-                            }
-                            catch (IOException io) {
-                                client.sendMessage(MsgType.ERROR,"File system error: could not create save file","Error creating save file");
-                            }
-                        }
-                        break;
-                    case "L":
-                    case "LOAD":
-                        if (saveList==null || saveList.length==0) {
-                            client.sendMessage(MsgType.TEXT,"No saves","No save files to load");
-                            break;
-                        }
-                        for (int i=0; i<saveList.length; i++) {
-                            client.sendMessage(MsgType.TEXT,"List files",i+": "+saveList[i].getName().replace(".bin",""));
-                        }
-                        int fileChoice=-1;
-                        while (fileChoice<0 || fileChoice>saveList.length) {
-                            client.sendMessage(MsgType.TEXT,"Select file","Choose file to load");
-                            try {
-                                fileChoice=Integer.parseInt(((Info_Message) client.getMessage()).getInfo());
-                            }
-                            catch (NumberFormatException nfe) {
-                                client.sendMessage(MsgType.ERROR,"Incorrect format","Not a number");
-                            }
-                        }
-                        controller=new LobbyController(lobbyName,saveList[fileChoice]);
-                        if (controller.getGame()==null) {
-                            client.sendMessage(MsgType.ERROR,"Game load error","Error loading game save");
-                            saveFile.renameTo(new File(saveFile.getPath()+"_corrupted"));
-                            this.whiteList=null;
-                            break;
-                        }
-                        this.whiteList=new ArrayList<>();
                         for (Player p : controller.getGame().getPlayers()) {
-                            this.whiteList.add(p.getName());
+                            whiteList.add(p.getName());
                         }
                         if (!whiteList.contains(lobbyMaster)) {
                             client.sendMessage(MsgType.DISCONNECT,"Not on whitelist","You are not a player on this save file "+this.whiteList);
                             this.whiteList=null;
                             break;
                         }
-                        this.maxPlayers=controller.getGame().getPlayers().size();
-                        this.expertMode=controller.getGame().isExpertMode();
-                        break;
-                    default:
-                        client.sendMessage(MsgType.ERROR,"Out of bounds","Out of range (0-"+(saveList!=null?saveList.length-1:0)+")");
-                        break;
+                        maxPlayers=controller.getGame().getPlayers().size();
+                        expertMode=controller.getGame().isExpertMode();
+                    }
                 }
             }
             client.sendMessage(MsgType.TEXT, "Game setup params", "Game parameters\nPlayer num: " + maxPlayers + "\nExpert mode: " + expertMode);

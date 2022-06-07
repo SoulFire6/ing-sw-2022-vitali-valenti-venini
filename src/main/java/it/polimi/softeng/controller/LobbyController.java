@@ -55,6 +55,19 @@ public class LobbyController {
         }
         return objectOutputStream;
     }
+
+    public void closeFileStream() {
+        if (saveFileStream!=null) {
+            try {
+                saveFileStream.close();
+                System.out.println("Closed stream");
+            }
+            catch (IOException io) {
+                System.out.println("Error closing stream");
+            }
+
+        }
+    }
     private Game createGame(ArrayList<String> playerNames,boolean expertMode) throws InvalidPlayerNumException {
         Bag_Tile bag=new Bag_Tile(24);
         ArrayList<Player> players=playerController.genPlayers(playerNames);
@@ -81,7 +94,9 @@ public class LobbyController {
     private ReducedGame loadGame(File saveFile) throws GameLoadException {
         try {
             ObjectInputStream objectInputStream=new ObjectInputStream(new FileInputStream(saveFile));
-            return (ReducedGame)objectInputStream.readObject();
+            ReducedGame reducedGame=(ReducedGame) objectInputStream.readObject();
+            objectInputStream.close();
+            return reducedGame;
         }
         catch (IOException io) {
             io.printStackTrace();
