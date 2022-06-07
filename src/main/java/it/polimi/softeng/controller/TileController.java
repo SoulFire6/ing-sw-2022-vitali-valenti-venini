@@ -1,14 +1,7 @@
 package it.polimi.softeng.controller;
 
 import it.polimi.softeng.exceptions.*;
-import it.polimi.softeng.model.Island_Tile;
-import it.polimi.softeng.model.Cloud_Tile;
-import it.polimi.softeng.model.Bag_Tile;
-import it.polimi.softeng.model.Player;
-import it.polimi.softeng.model.Colour;
-import it.polimi.softeng.model.Team;
-import it.polimi.softeng.model.CharacterCard;
-
+import it.polimi.softeng.model.*;
 
 
 import java.util.*;
@@ -72,7 +65,7 @@ public class TileController {
     }
     public boolean moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException,GameIsOverException {
         int maxAmount=p.getSchoolBoard().getLastUsedCard().getMotherNatureValue();
-        if (charCardController!=null && charCardController.getActiveStatus("MagicPostman")) {
+        if (charCardController!=null && charCardController.getActiveStatus(CharID.MAGIC_POSTMAN,cards)) {
             maxAmount+=2;
         }
         if (n>maxAmount) {
@@ -93,7 +86,11 @@ public class TileController {
                         checkAndMerge(islands,island);
                     }
                 } else {
-                    //TODO: return no entry tile to grandma herbs
+                    for (CharacterCard card : cards) {
+                        if (card.getCharacter().equals(CharID.GRANDMA_HERBS)) {
+                            card.getCharacter().setMemory(((Integer)card.getCharacter().getMemory())+1);
+                        }
+                    }
                 }
                 break;
             }
@@ -158,14 +155,22 @@ public class TileController {
         } else {
             //centaur negates tower influence of current island, knight adds 2 to initial influence to conquering player's team
             if (currentTeam!=null) {
-                teamInfluence.put(currentTeam,teamInfluence.get(currentTeam)+(island.getTowers()*(charController.getActiveStatus("CENTAUR")?0:1)));
+                teamInfluence.put(currentTeam,teamInfluence.get(currentTeam)+(island.getTowers()*(charController.getActiveStatus(CharID.CENTAUR,cards)?0:1)));
 
             }
-            teamInfluence.put(conqueringTeam,teamInfluence.get(conqueringTeam)+2*(charController.getActiveStatus("KNIGHT")?1:0));
+            teamInfluence.put(conqueringTeam,teamInfluence.get(conqueringTeam)+2*(charController.getActiveStatus(CharID.KNIGHT,cards)?1:0));
         }
         //Student Disk Influence
         for (Colour c: Colour.values()) {
-            if (charController==null || !charController.checkDisabledColour(c, cards)) {
+            EnumMap<Colour,Boolean> disabledColours=null;
+            if (cards!=null) {
+                for (CharacterCard card : cards) {
+                    if (card.getCharacter().equals(CharID.SHROOM_VENDOR)) {
+                        disabledColours=(EnumMap<Colour, Boolean>) card.getCharacter().getMemory();
+                    }
+                }
+            }
+            if (disabledColours==null || !disabledColours.get(c)) {
                 for (Team t: Team.values()) {
                     if (teamColours.get(t).contains(c)) {
                         teamInfluence.put(t,teamInfluence.get(t)+island.getContents().get(c));

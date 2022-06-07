@@ -5,13 +5,13 @@ import it.polimi.softeng.exceptions.InsufficientResourceException;
 import it.polimi.softeng.exceptions.InvalidPlayerNumException;
 import it.polimi.softeng.model.*;
 
-import it.polimi.softeng.model.CharacterCardSubTypes.ColourBooleanMap_CharCard;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,20 +23,14 @@ public class CharCardControllerTest {
     public void testGenCards() {
         int testNum=3;
         charController=new CharCardController();
-        cards=charController.genNewCharacterCards(testNum);
+        cards=charController.genNewCharacterCards(testNum,null);
         assertEquals(testNum,cards.size());
     }
 
     @Test
     public void testGenNullCards() {
-        cards=charController.genNewCharacterCards(13);
+        cards=charController.genNewCharacterCards(13,null);
         assertNull(cards);
-    }
-
-    @Test
-    public void testGetCharID() {
-        System.out.println(cards);
-        charController.getCharCardID(cards.get(0));
     }
 
     @Test
@@ -45,19 +39,35 @@ public class CharCardControllerTest {
         ArrayList<String> playerNames=new ArrayList<>();
         playerNames.add(player.getName());
         playerNames.add("test 2");
-        Game game;
+        LobbyController testController;
         try {
-            game=new LobbyController(playerNames,true,null,null).getGame();
-            CharacterCard card=game.getCharacterCards().get(0);
+            do {
+                testController=new LobbyController(playerNames,true,null,null);
+                ArrayList<CharacterCard> cards=new ArrayList<> (testController.getGame().getCharacterCards());
+                for (CharacterCard card : cards) {
+                    switch (card.getCharacter()) {
+                        case CENTAUR:
+                        case KNIGHT:
+                        case FARMER:
+                        case MAGIC_POSTMAN:
+                            break;
+                        default:
+                            testController.getGame().getCharacterCards().remove(card);
+                            break;
+                    }
+                }
+            }while(testController.getGame().getCharacterCards().size()==0);
+            final LobbyController controller=testController;
+            CharacterCard card=controller.getGame().getCharacterCards().get(0);
             int initialCost=card.getCost();
             player.setSchoolBoard(new SchoolBoard_Tile("test",0,0,0,null,0));
-            assertThrows(InsufficientResourceException.class,()->charController.activateCard(player,card.getCardID(),game));
+            assertThrows(InsufficientResourceException.class,()->charController.activateCard(player,card.getCardID(),"",controller));
             player.getSchoolBoard().setCoins(initialCost);
-            assertDoesNotThrow(()->charController.activateCard(player,card.getCardID(),game));
+            assertDoesNotThrow(()->charController.activateCard(player,card.getCardID(),"",controller));
             assertEquals(0,player.getSchoolBoard().getCoins());
             assertEquals(initialCost+1,card.getCost());
-            assertThrows(CharacterCardNotFoundException.class,()->charController.activateCard(player,"illegal id",game));
-            assertTrue(charController.getActiveStatus(card.getCardID()));
+            assertThrows(CharacterCardNotFoundException.class,()->charController.activateCard(player,"illegal id","",controller));
+            assertTrue(card.isActive());
         }
         catch (InvalidPlayerNumException ipne) {
             fail();
@@ -67,8 +77,15 @@ public class CharCardControllerTest {
     @Test
     public void testDeactivateAllCards() {
         charController=new CharCardController();
-        cards=charController.genNewCharacterCards(12);
-        charController.deactivateAllCards(cards);
+        cards=charController.genNewCharacterCards(12,new Bag_Tile(10));
+        for (CharacterCard card : cards) {
+            card.setActive(true);
+            assertTrue(card.isActive());
+        }
+        charController.deactivateAllCards(cards,null);
+        for (CharacterCard card : cards) {
+            assertFalse(card.isActive());
+        }
     }
 
     @Test
@@ -81,7 +98,7 @@ public class CharCardControllerTest {
             try {
                 controller=new LobbyController(names,true,"testController",null);
                 for (CharacterCard card: controller.getGame().getCharacterCards()) {
-                    if (card.getCardID().equals("ShroomVendor")) {
+                    if (card.getCharacter().equals(CharID.SHROOM_VENDOR)) {
                         shroomVendor=card;
                         controller.getGame().getPlayers().get(0).getSchoolBoard().setCoins(shroomVendor.getCost());
                         break;
@@ -96,19 +113,10 @@ public class CharCardControllerTest {
         final CharacterCard shroomCard=shroomVendor;
         EnumMap<Colour,Boolean> disabledColourMap=Colour.genBooleanMap();
         disabledColourMap.put(c,true);
-        assertDoesNotThrow(()->charController.activateCard(lobbyController.getGame().getPlayers().get(0), shroomCard.getCardID(),lobbyController.getGame()));
-        ((ColourBooleanMap_CharCard)shroomCard).setMemory(disabledColourMap);
-        assertTrue(charController.getActiveStatus(shroomCard.getCardID()));
-        assertTrue(charController.checkDisabledColour(c,controller.getGame().getCharacterCards()));
-    }
-
-    @Test
-    public void testErrorGeneratingCard() {
-        String[] testCard={"herald","not a number"};
-        assertNull(charController.createCharacterCard(testCard));
-        testCard[0]="not a char id";
-        testCard[1]="1";
-        assertNull(charController.createCharacterCard(testCard));
+        assertDoesNotThrow(()->charController.activateCard(lobbyController.getGame().getPlayers().get(0), shroomCard.getCardID(), "red",lobbyController));
+        shroomCard.getCharacter().setMemory(disabledColourMap);
+        assertTrue(shroomCard.isActive());
+        //assertTrue(charController.checkDisabledColour(c,controller.getGame().getCharacterCards()));
     }
 
     @Test

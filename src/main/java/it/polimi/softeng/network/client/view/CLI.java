@@ -1,6 +1,7 @@
 package it.polimi.softeng.network.client.view;
 
 import it.polimi.softeng.controller.TurnManager;
+import it.polimi.softeng.model.CharID;
 import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.model.Team;
@@ -264,7 +265,29 @@ public class CLI implements View {
     }
 
     private String getCharacterData(ReducedCharacterCard card) {
-        return card.getId();
+        StringBuilder cardData=new StringBuilder();
+        cardData.append(card.getId()).append(" (").append(card.getCost()).append(") ");
+        try {
+            switch (CharID.MemType.valueOf(card.getMemoryType())) {
+                case INTEGER:
+                    cardData.append(card.getMemory());
+                    break;
+                case NONE:
+                    break;
+                default:
+                    EnumMap<Colour,?> cardMem=(EnumMap<Colour, ?>) card.getMemory();
+                    for (Colour c : Colour.values()) {
+                        cardData.append(windowsTerminal?c.name().toLowerCase()+": ":getDisplayStyle(c.name()));
+                        cardData.append(cardMem.get(c));
+                        cardData.append(windowsTerminal?"":getDisplayStyle("RESET")).append(" ");
+                    }
+                break;
+            }
+        }
+        catch (IllegalArgumentException iae) {
+            cardData.append(" memory error");
+        }
+        return cardData.toString();
         //TODO add memory data
     }
 

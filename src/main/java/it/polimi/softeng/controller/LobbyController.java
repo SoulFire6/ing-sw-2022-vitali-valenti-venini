@@ -43,7 +43,9 @@ public class LobbyController {
     }
 
     private ObjectOutputStream setupFileStream(File saveFile) {
-        System.out.println("SAVING TO:"+saveFile.getPath());
+        if (saveFile==null) {
+            return null;
+        }
         ObjectOutputStream objectOutputStream;
         try {
             if (saveFile.isDirectory()) {
@@ -80,7 +82,7 @@ public class LobbyController {
         ArrayList<Team> teams = playerController.getTeams(players);
         ArrayList<Island_Tile> islands = tileController.genIslands(12,new Bag_Tile(2));
         ArrayList<Cloud_Tile> clouds = tileController.genClouds(playerNames.size(),3+playerNames.size()%2,bag);
-        return new Game("Game",players,teams,bag,clouds,islands,expertMode,expertMode?20:0,expertMode?charCardController.genNewCharacterCards(3):null);
+        return new Game("Game",players,teams,bag,clouds,islands,expertMode,expertMode?20:0,expertMode?charCardController.genNewCharacterCards(3,bag):null);
     }
     public void saveGame() {
         if (saveFileStream!=null) {
@@ -92,8 +94,6 @@ public class LobbyController {
                 System.out.println("COULD NOT SAVE GAME");
                 io.printStackTrace();
             }
-        } else {
-            System.out.println("No save file is set");
         }
     }
     private ReducedGame loadGame(File saveFile) throws GameLoadException {
@@ -111,7 +111,7 @@ public class LobbyController {
             throw new GameLoadException("Class not found");
         }
     }
-    private Game convertSaveFile(ReducedGame reducedGame) {
+    private Game convertSaveFile(ReducedGame reducedGame) throws GameLoadException {
         if (reducedGame==null) {
             return null;
         }
@@ -164,9 +164,17 @@ public class LobbyController {
         //LOAD CHARACTERCARDS
         if (charCardController!=null) {
             characterCards=new ArrayList<>();
+            CharacterCard card;
+            CharID character;
             for (ReducedCharacterCard reducedCharacterCard : reducedGame.getCharacterCards()) {
-                characterCards.add(charCardController.createCharacterCard(new String[]{reducedCharacterCard.getId(),String.valueOf(reducedCharacterCard.getCost())}));
-                //TODO LOAD MEMORY
+                try {
+                    character=CharID.valueOf(reducedCharacterCard.getCharID());
+                    character.setMemory(reducedCharacterCard.getMemory());
+                    characterCards.add(new CharacterCard(reducedCharacterCard.getId(),reducedCharacterCard.getCost(),character));
+                }
+                catch (IllegalArgumentException iae) {
+                    throw new GameLoadException("Failed to load card with id "+reducedCharacterCard.getId());
+                }
             }
         }
         return new Game("Game",players,playerController.getTeams(players),bag,clouds,islands, reducedGame.isExpertMode(), reducedGame.getCoins(),characterCards);
@@ -183,6 +191,13 @@ public class LobbyController {
     public CharCardController getCharCardController() {
         return this.charCardController;
     }
+    public TileController getTileController() {
+        return this.tileController;
+    }
+    public PlayerController getPlayerController() {
+        return playerController;
+    }
+
     public ArrayList<Message> parseMessage(Message inMessage) throws LobbyClientDisconnectedException, GameIsOverException {
         Player currentPlayer=null;
         ArrayList<Message> response=new ArrayList<>();
@@ -288,6 +303,7 @@ public class LobbyController {
                                 tileController.refillClouds(game.getClouds(),game.getBag());
                             }
                             turnManager.nextAction();
+                            charCardController.deactivateAllCards(game.getCharacterCards(),game.getPlayers());
                             response.add(MessageCenter.genMessage(MsgType.CLOUDS,lobbyName,inMessage.getContext(),game.getClouds()));
                             response.add(MessageCenter.genMessage(MsgType.PLAYERS,lobbyName,currentPlayer.getName(),game.getPlayers()));
                             actionMessage=currentPlayer.getName()+" has refilled from cloud "+inMessage.getContext();
@@ -299,8 +315,7 @@ public class LobbyController {
                             if (turnManager.getTurnState()==TurnManager.TurnState.ASSISTANT_CARDS_PHASE) {
                                 throw new WrongPhaseException("Cannot play character cards  "+turnManager.getTurnState().getDescription());
                             }
-                            charCardController.activateCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),game);
-                            //TODO add immediate effects for specific cards
+                            charCardController.activateCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),inMessage.getContext(),this);
                             response.add(MessageCenter.genMessage(MsgType.CHARACTERCARDS,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),game.getCharacterCards()));
                             actionMessage=currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID();
                             break;

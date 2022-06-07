@@ -3,10 +3,15 @@ package it.polimi.softeng.model;
 public class CharacterCard {
     private final String cardID;
     private int cost;
+    private final CharID character;
 
-    public CharacterCard(String id,int cost) {
-        this.cardID=id;
+    private boolean active;
+
+    public CharacterCard(String cardID,int cost,CharID character) {
+        this.cardID=cardID;
         this.cost=cost;
+        this.character=character;
+        this.active=false;
     }
     public String getCardID() {
         return this.cardID;
@@ -17,4 +22,15 @@ public class CharacterCard {
     public void incrementCost() {
         this.cost+=1;
     }
+
+    public CharID getCharacter() {
+        return this.character;
+    }
+    public void setActive(boolean active) {
+        this.active=active;
+    }
+    public boolean isActive() {
+        return this.active;
+    }
+
 }

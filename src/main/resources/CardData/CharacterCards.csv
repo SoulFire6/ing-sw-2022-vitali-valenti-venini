@@ -1,13 +1,13 @@
-cardID,cost
-Monk,2
-Herald,3
-MagicPostman,1
-GrandmaHerbs,2
-Centaur,3
-Jester,1
-Knight,2
-ShroomVendor,3
-Minstrel,1
-SpoiledPrincess,2
-Thief,3
-Farmer,2
+cardDisplayName,cost,charID
+Monk,2,MONK
+Herald,3,HERALD
+Magic Postman,1,MAGIC_POSTMAN
+Grandma Herbs,2,GRANDMA_HERBS
+Centaur,3,CENTAUR
+Jester,1,JESTER
+Knight,2,KNIGHT
+Shroom Vendor,3,SHROOM_VENDOR
+Minstrel,1,MINSTREL
+Spoiled Princess,2,SPOILED_PRINCESS
+Thief,3,THIEF
+Farmer,2,FARMER
