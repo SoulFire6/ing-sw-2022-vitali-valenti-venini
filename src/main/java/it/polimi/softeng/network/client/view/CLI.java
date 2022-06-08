@@ -268,27 +268,37 @@ public class CLI implements View {
         StringBuilder cardData=new StringBuilder();
         cardData.append(card.getId()).append(" (").append(card.getCost()).append(") ");
         try {
-            switch (CharID.MemType.valueOf(card.getMemoryType())) {
+            CharID.MemType memType=CharID.MemType.valueOf(card.getMemoryType());
+            EnumMap<Colour,?> cardMem;
+            switch (memType) {
+                case INTEGER_COLOUR_MAP:
+                    cardMem=card.getMemory(Integer.class);
+                    break;
+                case BOOLEAN_COLOUR_MAP:
+                    cardMem=card.getMemory(Boolean.class);
+                    break;
+                case PLAYER_COLOUR_MAP:
+                    cardMem=card.getMemory(String.class);
+                    break;
                 case INTEGER:
                     cardData.append(card.getMemory());
-                    break;
                 case NONE:
-                    break;
                 default:
-                    EnumMap<Colour,?> cardMem=(EnumMap<Colour, ?>) card.getMemory();
-                    for (Colour c : Colour.values()) {
-                        cardData.append(windowsTerminal?c.name().toLowerCase()+": ":getDisplayStyle(c.name()));
-                        cardData.append(cardMem.get(c));
-                        cardData.append(windowsTerminal?"":getDisplayStyle("RESET")).append(" ");
-                    }
-                break;
+                    return cardData.toString();
+            }
+            if (cardMem==null) {
+                return cardData.append(" Error reading data").toString();
+            }
+            for (Colour c : Colour.values()) {
+                cardData.append(windowsTerminal?c.name().toLowerCase().charAt(0)+": ":getDisplayStyle(c.name()));
+                cardData.append(memType==CharID.MemType.BOOLEAN_COLOUR_MAP?((Boolean)cardMem.get(c)?"Y":"N"):cardMem.get(c));
+                cardData.append(windowsTerminal?"":getDisplayStyle("RESET")).append(" ");
             }
         }
         catch (IllegalArgumentException iae) {
             cardData.append(" memory error");
         }
         return cardData.toString();
-        //TODO add memory data
     }
 
     private void clearScreen() {

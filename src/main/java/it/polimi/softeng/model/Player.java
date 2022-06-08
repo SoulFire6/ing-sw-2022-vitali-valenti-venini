@@ -1,8 +1,8 @@
 package it.polimi.softeng.model;
 
 public class Player {
-    private String name;
-    private Team team;
+    private final String name;
+    private final Team team;
     private Player teamMate;
     private SchoolBoard_Tile schoolBoard;
 

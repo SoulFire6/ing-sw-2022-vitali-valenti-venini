@@ -247,7 +247,7 @@ public enum CharID {
         INTEGER(),
         INTEGER_COLOUR_MAP(Colour.genIntegerMap()),
         BOOLEAN_COLOUR_MAP(Colour.genBooleanMap()),
-        PLAYER_COLOUR_MAP(Colour.genPlayerMap());
+        PLAYER_COLOUR_MAP(Colour.genStringMap());
 
         MemType(EnumMap<Colour, ?> memory) {
             this.memory = memory;
@@ -294,6 +294,10 @@ public enum CharID {
         } catch (ClassCastException cce) {
             return null;
         }
+    }
+
+    public Object getUncastedMemory() {
+        return this.memType.memory;
     }
 
     public void setMemory(Object memory) {

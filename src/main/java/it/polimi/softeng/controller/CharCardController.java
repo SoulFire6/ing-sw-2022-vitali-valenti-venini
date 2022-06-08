@@ -52,17 +52,17 @@ public class CharCardController {
                     break;
                 case PLAYER_COLOUR_MAP:
                     if (players!=null) {
-                        EnumMap<Colour,Player> mem=card.getCharacter().getMemory(Player.class);
+                        EnumMap<Colour,String> mem=card.getCharacter().getMemory(String.class);
                         if (mem!=null) {
                             for (Colour c : Colour.values()) {
                                 for (Player p: players) {
-                                    p.getSchoolBoard().setProfessor(c, p.equals(mem.get(c)));
+                                    p.getSchoolBoard().setProfessor(c, p.getName().equals(mem.get(c)));
                                 }
                             }
                         }
 
                     }
-                    card.getCharacter().setMemory(Colour.genPlayerMap());
+                    card.getCharacter().setMemory(Colour.genStringMap());
                     break;
                 default:
                     break;

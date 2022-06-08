@@ -22,12 +22,12 @@ public enum Colour {
         return booleanMap;
     }
 
-    public static EnumMap<Colour,Player> genPlayerMap() {
-        EnumMap<Colour,Player> playerMap=new EnumMap<>(Colour.class);
+    public static EnumMap<Colour,String> genStringMap() {
+        EnumMap<Colour,String> stringMap=new EnumMap<>(Colour.class);
         for (Colour c: Colour.values()) {
-            playerMap.put(c,null);
+            stringMap.put(c,null);
         }
-        return playerMap;
+        return stringMap;
     }
     public static Colour parseChosenColour(String input) {
         try {
