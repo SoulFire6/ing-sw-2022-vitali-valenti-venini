@@ -308,7 +308,6 @@ public class CLI implements View {
             } else {
                 System.out.println((char)27+properties.getProperty("ANSI_CLEAR"));
                 System.out.flush();
-
             }
         }
         catch (IOException io) {
@@ -333,6 +332,7 @@ public class CLI implements View {
                 return MessageCenter.genMessage(MsgType.DISKTOISLAND,username,input[1],diskColour);
             }
         }
+        StringBuilder arguments=new StringBuilder();
         switch (input[0].toUpperCase()) {
             case "CHAR":
             case "CHARACTER":
@@ -340,11 +340,10 @@ public class CLI implements View {
                     display("Not enough arguments");
                     return null;
                 }
-                String options="";
                 for (int i=2; i<input.length; i++) {
-                    options=options.concat(input[i]).concat(" ");
+                    arguments.append(input[i]).append(" ");
                 }
-                return MessageCenter.genMessage(MsgType.PLAYCHARCARD,username,input[1],options);
+                return MessageCenter.genMessage(MsgType.PLAYCHARCARD,username,arguments.toString(),input[1]);
             case "ASSIST":
             case "ASSISTANT":
                 if (input.length<2) {
@@ -359,7 +358,6 @@ public class CLI implements View {
                 }
                 return MessageCenter.genMessage(MsgType.CHOOSECLOUD,username,input[1],input[1]);
             case "MN":
-            case "MOTHERNATURE":
                 if (input.length<2) {
                     display("Not enough arguments");
                     return null;
@@ -371,24 +369,31 @@ public class CLI implements View {
                     display("Not enough arguments");
                     return null;
                 }
-                String message="";
                 for (int i=2; i<input.length; i++) {
-                    message=message.concat(input[i]+" ");
+                    arguments.append(input[i]).append(" ");
                 }
-                return MessageCenter.genMessage(MsgType.WHISPER,username,input[1],message);
+                return MessageCenter.genMessage(MsgType.WHISPER,username,input[1],arguments.toString());
             case "CHARINFO":
                 if (input.length<2) {
                     display("Not enough arguments");
                     return null;
                 }
+                for (int i=1; i<input.length; i++) {
+                    arguments.append(input[i]).append("_");
+                }
+                arguments.deleteCharAt(arguments.length()-1);
                 String info;
                 boolean found=false;
-                if ((info=characterInfo.getProperty(input[1].toLowerCase()+"_setup"))!=null) {
+                if ((info=characterInfo.getProperty(arguments.toString().toUpperCase()+"_SETUP"))!=null) {
                     display("Setup: "+info);
                     found=true;
                 }
-                if ((info=characterInfo.getProperty(input[1].toLowerCase()+"_effect"))!=null) {
+                if ((info=characterInfo.getProperty(arguments.toString().toUpperCase()+"_EFFECT"))!=null) {
                     display("Effect:"+info);
+                    found=true;
+                }
+                if ((info=characterInfo.getProperty(arguments.toString().toUpperCase()+"_HELP"))!=null) {
+                    display("How to use: "+info);
                     found=true;
                 }
                 if (!found) {
@@ -399,10 +404,11 @@ public class CLI implements View {
                 return MessageCenter.genMessage(MsgType.DISCONNECT,username,"Disconnecting",null);
             case "HELP":
                 display("Possible commands:\n" +
-                        "- [Colour] dining - moves student disk to dining room\n" +
-                        "- [Colour] [island id] - moves student disk to island\n" +
                         "- char | character [char id] - play character card\n" +
                         "- assist | assistant [assist id] - play assistant card\n" +
+                        "- [Colour] dining - moves student disk to dining room\n" +
+                        "- [Colour] [island id] - moves student disk to island\n" +
+                        "- mn [amount] - move mother nature by the amount specified\n" +
                         "- refill [cloud id] - choose cloud to refill entrance from\n" +
                         "- msg | whisper [username] - send a message to another player\n" +
                         "- charinfo [char name] - prints character card info\n" +

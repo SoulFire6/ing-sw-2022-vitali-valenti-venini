@@ -53,12 +53,7 @@ public class ReducedCharacterCard implements Serializable {
                 }
             }
             return testMap;
-        } catch (ClassCastException cce) {
-            return null;
-        }
-        catch (NullPointerException npe) {
-            System.out.println(valueClass);
-            npe.printStackTrace();
+        } catch (ClassCastException | NullPointerException e) {
             return null;
         }
     }
