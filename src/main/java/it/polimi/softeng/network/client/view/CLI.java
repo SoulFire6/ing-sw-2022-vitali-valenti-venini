@@ -10,21 +10,25 @@ import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 
 import java.beans.PropertyChangeEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
+import java.io.*;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 public class CLI implements View {
     private String username=null;
     private final BufferedReader in;
+
+    private Socket socket;
     private ObjectOutputStream toServer=null;
     private final boolean windowsTerminal, loadedProperties;
     private final Properties properties=new Properties();
     private final Properties characterInfo=new Properties();
+    private static final String DEFAULT_IP="127.0.0.1";
+    private static final Integer DEFAULT_PORT=50033;
+    private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$";
 
     public CLI() {
         boolean loadStatus=true;
@@ -34,25 +38,26 @@ public class CLI implements View {
             this.characterInfo.load(getClass().getResourceAsStream("/CardData/CharacterCards.properties"));
         }
         catch (IOException io) {
-            display("Could not find properties file, defaulting to basic CLI");
+            display("Could not find properties file, defaulting to basic CLI",MsgType.ERROR);
             loadStatus=false;
         }
-        this.windowsTerminal=System.getProperty("os.name").contains("Windows");
+        this.windowsTerminal=System.getProperty("os.name").contains("Windows") && !System.getProperty("java.class.path").contains("idea_rt.jar");
         this.loadedProperties=loadStatus;
     }
     @Override
     public void run() {
         clearScreen();
-        display(getDisplayStyle(Colour.RED.name()));
-        display("      ▄████████    ▄████████  ▄█     ▄████████ ███▄▄▄▄       ███     ▄██   ▄      ▄████████\n" +
+        display(getDisplayStyle(Colour.RED.name()),MsgType.TEXT);
+        display(getDisplayStyle(Colour.RED.name())+
+                "      ▄████████    ▄████████  ▄█     ▄████████ ███▄▄▄▄       ███     ▄██   ▄      ▄████████\n" +
                 "      ███    ███   ███    ███ ███    ███    ███ ███▀▀▀██▄ ▀█████████▄ ███   ██▄   ███    ███\n" +
                 "      ███    █▀    ███    ███ ███▌   ███    ███ ███   ███    ▀███▀▀██ ███▄▄▄███   ███    █▀\n" +
                 "     ▄███▄▄▄      ▄███▄▄▄▄██▀ ███▌   ███    ███ ███   ███     ███   ▀ ▀▀▀▀▀▀███   ███\n" +
                 "    ▀▀███▀▀▀     ▀▀███▀▀▀▀▀   ███▌ ▀███████████ ███   ███     ███     ▄██   ███ ▀███████████\n" +
                 "      ███    █▄  ▀███████████ ███    ███    ███ ███   ███     ███     ███   ███          ███\n" +
                 "      ███    ███   ███    ███ ███    ███    ███ ███   ███     ███     ███   ███    ▄█    ███\n" +
-                "      ██████████   ███    ███ █▀     ███    █▀   ▀█   █▀     ▄████▀    ▀█████▀   ▄████████▀");
-            System.out.println(getDisplayStyle("RESET"));
+                "      ██████████   ███    ███ █▀     ███    █▀   ▀█   █▀     ▄████▀    ▀█████▀   ▄████████▀" +
+                getDisplayStyle("RESET"),MsgType.TEXT);
         while (toServer==null) {
             try {
                 Thread.sleep(1000);
@@ -75,11 +80,129 @@ public class CLI implements View {
     }
 
     @Override
-    public void setToServer(ObjectOutputStream toServer) {
-        this.toServer=toServer;
+    public ObjectInputStream setUpConnection(String[] args) {
+        String ip=null;
+        Integer port;
+        Pattern pattern=Pattern.compile(IP_FORMAT);
+        while (socket==null) {
+            if (args[0]!=null) {
+                if (args[0].length()<3 || args[0].length()>10 || args[0].contains(" ")) {
+                    System.out.println("Invalid format, username must be 3-10 character and must not contain spaces");
+                } else {
+                    username=args[0];
+                }
+            }
+            while(username==null) {
+                System.out.print("Username: ");
+                try {
+                    username=in.readLine();
+                    if (username.length() < 3 || username.length() > 10 || username.contains(" ")) {
+                        username=null;
+                        System.out.println("Invalid format, username must be 3-10 character and must not contain spaces");
+                    }
+                }
+                catch (IOException io) {
+                    System.out.println("Error reading input");
+                }
+            }
+            if (args.length>1 && args[1]!=null) {
+                if (args[1].equals("") || args[1].equalsIgnoreCase("local")) {
+                    ip=DEFAULT_IP;
+                } else {
+                    if (pattern.matcher(args[1]).matches()) {
+                        ip=args[1];
+                    } else {
+                        System.out.println("Invalid ip format");
+                    }
+                }
+            }
+            while (ip==null) {
+                System.out.print("Server ip (local or empty for default localhost): ");
+                try {
+                    ip=in.readLine();
+                    if (ip.equals("") || ip.equalsIgnoreCase("local")) {
+                        ip=DEFAULT_IP;
+                    } else {
+                        if (!pattern.matcher(ip).matches()) {
+                            ip=null;
+                            System.out.println("Invalid ip format");
+                        }
+                    }
+                }
+                catch (IOException io) {
+                    System.out.println("Error reading input");
+                }
+
+            }
+            try {
+                if (args[2].equals("") || args[2].equalsIgnoreCase("local")) {
+                    port=DEFAULT_PORT;
+                } else {
+                    port=Integer.parseInt(args[2]);
+                }
+            }
+            catch (NullPointerException | IllegalArgumentException iae) {
+                port=null;
+            }
+            while (port==null || port<49152 || port>65535) {
+                System.out.print("Server port (local or empty for default 50033) [49152-65535]: ");
+                try {
+                    String portNumber=in.readLine();
+                    if (portNumber.equals("") || portNumber.equalsIgnoreCase("local")) {
+                        port=DEFAULT_PORT;
+                    } else {
+                        port=Integer.parseInt(in.readLine());
+                    }
+                }
+                catch (IOException io) {
+                    System.out.println("Error reading input");
+                }
+                catch (IllegalArgumentException iae) {
+                    System.out.println("Must be a number");
+                }
+            }
+            try {
+                socket=new Socket(ip,port);
+            }
+            catch (IOException io) {
+                System.out.println("Error connecting to server, try again");
+                return setUpConnection(new String[]{username,null,null});
+            }
+        }
+        try {
+            toServer=new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream objectInputStream=new ObjectInputStream(socket.getInputStream());
+            toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT, username, null, null));
+            return objectInputStream;
+        }
+        catch (IOException io) {
+            System.out.println("Error establishing data streams, try again");
+            return setUpConnection(new String[]{username,null,null});
+        }
     }
 
     @Override
+    public void closeConnection() {
+        try {
+            toServer.close();
+            socket.close();
+        }
+        catch (IOException ignored) {
+        }
+    }
+    @Override
+    public void display(String message, MsgType displayType) {
+        //TODO ADD OTHER TYPES OF DISPLAY
+        switch (displayType) {
+            case ERROR:
+                System.out.println(getDisplayStyle(Colour.RED.name())+"ERROR: "+message+getDisplayStyle("RESET"));
+                break;
+            default:
+                System.out.println(message);
+                break;
+        }
+    }
+
     public void sendMessage(Message message) {
         try {
             toServer.writeObject(message);
@@ -87,65 +210,14 @@ public class CLI implements View {
             toServer.reset();
         }
         catch (IOException io) {
-            display("Could not send message");
+            System.out.println("Could not send message");
         }
     }
-    @Override
-    public String setUsername() {
-        String username=null;
-        while (username==null) {
-            display("Username: ");
-            try {
-                username=in.readLine();
-            }
-            catch (IOException io) {
-                display("\nError reading input");
-            }
-        }
-        this.username=username;
-        return username;
-    }
-    @Override
-    public String setIP(String defaultIP) {
-        String ip;
-        try {
-            System.out.print("Server ip (local or empty for default localhost): ");
-            ip=in.readLine();
-            if (ip.equals("") || ip.equals("local")) {
-                return defaultIP;
-            }
-            return ip;
-        }
-        catch (IOException io) {
-            display("Error reading input");
-            return null;
-        }
-    }
-    @Override
-    public int setPort(int defaultPort) {
-        String port=null;
-        try {
-            System.out.print("Server port (local or empty for default 50033): ");
-            port=in.readLine();
-            if (port.equals("") || port.equals("local")) {
-                return defaultPort;
-            }
-            return Integer.parseInt(port);
-        }
-        catch (IOException io) {
-            display("Error reading input");
-            return -1;
-        }
-        catch (NumberFormatException nfe) {
-            display(port+" is not a number");
-            return -1;
-        }
-    }
-    @Override
-    public void display(String message) {
-        System.out.println(message);
-    }
+
     public String getDisplayStyle(String styleName) {
+        if (windowsTerminal) {
+            return "";
+        }
         String displayStyle=properties.getProperty("ANSI_"+styleName);
         if (!loadedProperties || displayStyle==null) {
             return "";
@@ -315,15 +387,23 @@ public class CLI implements View {
         }
     }
 
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        //CLI only prints model after every update has been made, as otherwise there would be more prints than needed
+        if (evt.getPropertyName().equals("turn state") || evt.getPropertyName().equals("loaded game")) {
+            printModel((ReducedGame) evt.getNewValue());
+        }
+    }
+
     public Message parseMessage(String[] input) {
         if (input.length==0 || input[0].isEmpty()) {
-            display("For list of commands type help");
+            display("For list of commands type help",MsgType.TEXT);
             return null;
         }
         Colour diskColour=Colour.parseChosenColour(input[0]);
         if (diskColour!=null) {
             if (input.length<2) {
-                display("Error, not enough arguments");
+                display("Error, not enough arguments",MsgType.ERROR);
                 return null;
             }
             if (input[1].equalsIgnoreCase("DINING")) {
@@ -337,7 +417,7 @@ public class CLI implements View {
             case "CHAR":
             case "CHARACTER":
                 if (input.length<2) {
-                    display("Not enough arguments");
+                    display("Not enough arguments",MsgType.ERROR);
                     return null;
                 }
                 for (int i=2; i<input.length; i++) {
@@ -347,26 +427,26 @@ public class CLI implements View {
             case "ASSIST":
             case "ASSISTANT":
                 if (input.length<2) {
-                    display("Not enough arguments");
+                    display("Not enough arguments",MsgType.ERROR);
                     return null;
                 }
                 return MessageCenter.genMessage(MsgType.PLAYASSISTCARD,username,input[1],input[1]);
             case "REFILL":
                 if (input.length<2) {
-                    display("Not enough arguments");
+                    display("Not enough arguments",MsgType.ERROR);
                     return null;
                 }
                 return MessageCenter.genMessage(MsgType.CHOOSECLOUD,username,input[1],input[1]);
             case "MN":
                 if (input.length<2) {
-                    display("Not enough arguments");
+                    display("Not enough arguments",MsgType.ERROR);
                     return null;
                 }
                 return MessageCenter.genMessage(MsgType.MOVEMN,username,input[1],Integer.parseInt(input[1]));
             case "MSG":
             case "WHISPER":
                 if (input.length<3) {
-                    display("Not enough arguments");
+                    display("Not enough arguments",MsgType.ERROR);
                     return null;
                 }
                 for (int i=2; i<input.length; i++) {
@@ -375,7 +455,7 @@ public class CLI implements View {
                 return MessageCenter.genMessage(MsgType.WHISPER,username,input[1],arguments.toString());
             case "CHARINFO":
                 if (input.length<2) {
-                    display("Not enough arguments");
+                    display("Not enough arguments",MsgType.ERROR);
                     return null;
                 }
                 for (int i=1; i<input.length; i++) {
@@ -385,19 +465,19 @@ public class CLI implements View {
                 String info;
                 boolean found=false;
                 if ((info=characterInfo.getProperty(arguments.toString().toUpperCase()+"_SETUP"))!=null) {
-                    display("Setup: "+info);
+                    display("Setup: "+info,MsgType.TEXT);
                     found=true;
                 }
                 if ((info=characterInfo.getProperty(arguments.toString().toUpperCase()+"_EFFECT"))!=null) {
-                    display("Effect:"+info);
+                    display("Effect:"+info,MsgType.TEXT);
                     found=true;
                 }
                 if ((info=characterInfo.getProperty(arguments.toString().toUpperCase()+"_HELP"))!=null) {
-                    display("How to use: "+info);
+                    display("How to use: "+info,MsgType.TEXT);
                     found=true;
                 }
                 if (!found) {
-                    System.out.println("Character id not found");
+                    display("Character id not found",MsgType.ERROR);
                 }
                 return null;
             case "DISCONNECT":
@@ -412,18 +492,11 @@ public class CLI implements View {
                         "- refill [cloud id] - choose cloud to refill entrance from\n" +
                         "- msg | whisper [username] - send a message to another player\n" +
                         "- charinfo [char name] - prints character card info\n" +
-                        "- disconnect - quit game, triggers game over for other players");
+                        "- disconnect - quit game, triggers game over for other players",
+                        MsgType.TEXT);
                 return null;
             default:
                 return MessageCenter.genMessage(MsgType.TEXT,username,"Basic response",input[0]);
-        }
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        //CLI only prints model after every update has been made, as otherwise there would be more prints than needed
-        if (evt.getPropertyName().equals("turn state") || evt.getPropertyName().equals("loaded game")) {
-            printModel((ReducedGame) evt.getNewValue());
         }
     }
 }

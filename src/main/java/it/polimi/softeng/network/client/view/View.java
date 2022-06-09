@@ -1,19 +1,12 @@
 package it.polimi.softeng.network.client.view;
 
-import it.polimi.softeng.network.message.Message;
+import it.polimi.softeng.network.message.MsgType;
 
 import java.beans.PropertyChangeListener;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 
 public interface View extends Runnable, PropertyChangeListener {
-    void setToServer(ObjectOutputStream toServer);
-    void sendMessage(Message message);
-    String setUsername();
-    String setIP(String defaultIp);
-    int setPort(int defaultPort);
-    void display(String message);
-
-    private void threadSleep(int milliseconds, String waitMessage) {
-
-    }
+    ObjectInputStream setUpConnection(String[] args);
+    void closeConnection();
+    void display(String message, MsgType displayType);
 }

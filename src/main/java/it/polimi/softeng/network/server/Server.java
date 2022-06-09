@@ -9,7 +9,6 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystemException;
 import java.util.HashMap;
 
 public class Server {
@@ -96,7 +95,7 @@ public class Server {
             inMessage=(Message)in.readObject();
             username=inMessage.getSender();
             System.out.println("New client: "+username);
-            out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Welcome message","Connected to server with username: "+username));
+            out.writeObject(MessageCenter.genMessage(MsgType.CONNECT,"SERVER","Welcome message","Connected to server with username: "+username));
             while (!clientSatisfied) {
                 checkLobbies();
                 out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Serving client",username+", [create] or [join] lobby?\nOtherwise [disconnect]"));
