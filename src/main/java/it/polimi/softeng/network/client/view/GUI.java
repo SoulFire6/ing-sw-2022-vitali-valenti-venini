@@ -79,25 +79,19 @@ public class GUI extends Application implements View {
         while (controller==null) {
             threadSleep(1000,"Waiting for controller");
         }
-        switch (displayType) {
-            case CONNECT:
-                Platform.runLater(()->controller.testChangeUI(null));
-                break;
-            default:
-                Platform.runLater(()-> {
-                    Alert alert = new Alert(Alert.AlertType.NONE);
-                    alert.setContentText(message);
-                    switch (displayType) {
-                        case ERROR:
-                            alert.setAlertType(Alert.AlertType.ERROR);
-                            break;
-                        default:
-                            alert.setAlertType(Alert.AlertType.INFORMATION);
-                            break;
+        Platform.runLater(()-> {
+            Alert alert = new Alert(Alert.AlertType.NONE);
+            alert.setContentText(message);
+            switch (displayType) {
+                case ERROR:
+                    alert.setAlertType(Alert.AlertType.ERROR);
+                    break;
+                    default:
+                        alert.setAlertType(Alert.AlertType.INFORMATION);
+                        break;
                     }
                     alert.showAndWait();
-                });
-        }
+        });
     }
 
     //GUI makes the fxml controller the property listener instead of itself

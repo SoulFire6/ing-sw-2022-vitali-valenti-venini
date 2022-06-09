@@ -1,6 +1,8 @@
 package it.polimi.softeng.network.client.view;
 
 import it.polimi.softeng.controller.TurnManager;
+import it.polimi.softeng.model.ReducedModel.ReducedGame;
+import it.polimi.softeng.model.ReducedModel.ReducedTurnState;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.application.Platform;
@@ -41,11 +43,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     @FXML
     private TextField usernameField,ipField,portField;
     @FXML
-    private Button exitButton, closePopupButton;
-    @FXML
-    private Label popupLabel;
-    @FXML
-    private Button testChangeUIButton,toggleHandButton;
+    private Button joinButton;
     @FXML
     private ToolBar assistantCards;
 
@@ -54,32 +52,11 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.exitButton.setOnAction(this::checkConnectionParams);
-
-        this.testChangeUIButton.setOnAction(this::testChangeUI);
-        this.testChangeUIButton.setTooltip(new Tooltip("Click to change UI"));
-        this.toggleHandButton.setOnAction(this::testToggleHand);
+        this.joinButton.setOnAction(this::checkConnectionParams);
 
         this.setupVBox.setVisible(true);
         this.gameVBox.setVisible(false);
         this.serverSetup.setVisible(false);
-    }
-
-    //TODO remove test method
-    public void testChangeUI(ActionEvent actionEvent) {
-        ArrayList<Pane> displays=new ArrayList<>(Arrays.asList(setupVBox,gameVBox,serverSetup));
-        for (Pane curr : displays) {
-            if (curr.isVisible()) {
-                Pane next=displays.get((displays.indexOf(curr)+1)%displays.size());
-                curr.setVisible(false);
-                next.setVisible(true);
-                System.out.println("Switching from "+curr.getId()+" to "+next.getId()+": "+((!curr.isVisible() && next.isVisible())?"SUCCESS":"ERROR"));
-                break;
-            }
-        }
-    }
-    private void testToggleHand(ActionEvent actionEvent) {
-        assistantCards.setVisible(!assistantCards.isVisible());
     }
 
     public void setupLoginParams(String[] args) {
@@ -131,6 +108,8 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
             socket=new Socket(ipField.getText(),Integer.parseInt(portField.getText()));
             toServer=new ObjectOutputStream(socket.getOutputStream());
             toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT, username, null, null));
+            setupVBox.setVisible(false);
+            serverSetup.setVisible(true);
         }
         catch (IOException io) {
             alert.setContentText("Error connecting to server, try again");
@@ -149,13 +128,6 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
         catch (IOException ignored) {
         }
     }
-    public void closeApp(ActionEvent actionEvent) {
-        Platform.exit();
-        System.exit(0);
-    }
-    public void closeWindow(ActionEvent actionEvent) {
-        ((Stage)((Button)actionEvent.getSource()).getScene().getWindow()).close();
-    }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
@@ -168,11 +140,20 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 System.out.println("FIND AND UPDATE SINGLE PLAYER");
                 break;
             case "TURN STATE":
-                System.out.println("UPDATE TURN STATE");
+                ReducedGame model=((ReducedGame)evt.getNewValue());
+                currentPhase=model.getCurrentPhase();
+                currentPlayer=model.getCurrentPlayer();
+                assistantCards.setVisible(currentPhase == TurnManager.TurnState.ASSISTANT_CARDS_PHASE);
                 break;
             default:
+                setupGame((ReducedGame)evt.getNewValue());
                 System.out.println("LOAD FULL MODEL");
                 break;
         }
+    }
+    private void setupGame(ReducedGame model) {
+        serverSetup.setVisible(false);
+        gameVBox.setVisible(true);
+        //TODO implement
     }
 }

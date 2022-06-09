@@ -47,7 +47,6 @@ public class CLI implements View {
     @Override
     public void run() {
         clearScreen();
-        display(getDisplayStyle(Colour.RED.name()),MsgType.TEXT);
         display(getDisplayStyle(Colour.RED.name())+
                 "      ▄████████    ▄████████  ▄█     ▄████████ ███▄▄▄▄       ███     ▄██   ▄      ▄████████\n" +
                 "      ███    ███   ███    ███ ███    ███    ███ ███▀▀▀██▄ ▀█████████▄ ███   ██▄   ███    ███\n" +
