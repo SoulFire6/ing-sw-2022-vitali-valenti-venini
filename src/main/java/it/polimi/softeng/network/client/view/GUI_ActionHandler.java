@@ -2,17 +2,14 @@ package it.polimi.softeng.network.client.view;
 
 import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
-import it.polimi.softeng.model.ReducedModel.ReducedTurnState;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -20,8 +17,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -37,13 +32,11 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     private static final Integer DEFAULT_PORT=50033;
     private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$";
     @FXML
-    private VBox setupVBox,gameVBox;
-    @FXML
-    private Pane serverSetup;
+    private Pane setupVBox,serverSetup,gameVBox;
     @FXML
     private TextField usernameField,ipField,portField;
     @FXML
-    private Button joinButton;
+    private Button joinButton,exitButton,createLobbyButton,joinLobbyButton,disconnectButton;
     @FXML
     private ToolBar assistantCards;
 
@@ -53,6 +46,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.joinButton.setOnAction(this::checkConnectionParams);
+        //this.exitButton.setOnAction();
 
         this.setupVBox.setVisible(true);
         this.gameVBox.setVisible(false);
@@ -154,6 +148,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     private void setupGame(ReducedGame model) {
         serverSetup.setVisible(false);
         gameVBox.setVisible(true);
+        //assistantCards
         //TODO implement
     }
 }
