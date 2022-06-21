@@ -11,9 +11,14 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<Pane prefHeight="802.0" prefWidth="1343.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<Pane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" style="-fx-background-image: url('Assets/GUI/Icons/Eriantys.png'); -fx-background-repeat: no-repeat; -fx-background-size: cover">
     <children>
-        <VBox fx:id="setupVBox" layoutX="381.0" layoutY="177.0" prefHeight="212.0" prefWidth="568.0">
+        <VBox fx:id="setupVBox">
+            <ImageView>
+                <Image url="/Assets/GUI/Icons/Logo.png"/>
+            </ImageView>
             <Label text="Username: " />
             <TextField fx:id="usernameField" prefWidth="128.0" promptText="Waiting for username">
                 <VBox.margin>
@@ -32,7 +37,6 @@
                     <Insets bottom="5.0" top="5.0" />
                 </VBox.margin>
             </TextField>
-            <Button fx:id="exitButton" alignment="BASELINE_LEFT" text="Quit" />
             <Button fx:id="joinButton" alignment="BASELINE_RIGHT" text="Join" />
             <padding>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -56,34 +60,16 @@
                       <Button fx:id="toggleHandButton" layoutX="1046.0" layoutY="527.0" mnemonicParsing="false" text="Show/hide hand" />
                     </children>
                 </Pane>
-                <ToolBar fx:id="assistantCards" nodeOrientation="LEFT_TO_RIGHT" prefHeight="166.0" prefWidth="1200.0" style="-fx-background-color: BLACK;">
-                    <items>
-                        <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="66.0" text="Button" />
-                        <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="66.0" text="Button" />
-                        <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="66.0" text="Button" />
-                        <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="66.0" text="Button" />
-                        <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="66.0" text="Button" />
-                        <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="66.0" text="Button" />
-                        <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="66.0" text="Button" />
-                        <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="66.0" text="Button" />
-                        <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="66.0" text="Button" />
-                        <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="66.0" text="Button" />
-                  <Pane prefHeight="11.0" prefWidth="1200.0" />
-                    </items>
-                </ToolBar>
+                <ToolBar fx:id="assistantCards" nodeOrientation="LEFT_TO_RIGHT" prefHeight="-Infinity" prefWidth="-Infinity" style="-fx-background-color: BLACK;" />
             </children>
         </VBox>
-        <Pane fx:id="serverSetup" prefHeight="812.0" prefWidth="1353.0" style="-fx-background-color: #716c6c;" visible="false">
+        <VBox fx:id="serverSetup" alignment="CENTER" visible="false">
             <children>
-                <Pane id="Server options" layoutX="617.0" layoutY="235.0" prefHeight="253.0" prefWidth="230.0" style="-fx-background-color: #7676c5;">
-                    <children>
-                        <Button fx:id="createLobbyButton" alignment="TOP_LEFT" layoutX="79.0" layoutY="14.0" mnemonicParsing="false" text="Create" />
-                        <Button fx:id="joinLobbyButton" alignment="CENTER" layoutX="86.0" layoutY="114.0" mnemonicParsing="false" text="Join" />
-                        <Button fx:id="disconnectButton" alignment="TOP_LEFT" layoutX="66.0" layoutY="213.0" mnemonicParsing="false" text="Disconnect" />
-                    </children>
-                </Pane>
+                <Label fx:id="optionsLabel"/>
+                <VBox fx:id="optionsPane"/>
+                <TextField fx:id="optionsField" visible="false"/>
                 <Pane prefHeight="200.0" prefWidth="200.0" />
             </children>
-        </Pane>
+        </VBox>
     </children>
 </Pane>

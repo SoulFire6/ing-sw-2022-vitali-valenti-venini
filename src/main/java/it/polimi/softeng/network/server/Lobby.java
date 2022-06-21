@@ -89,30 +89,33 @@ public class Lobby implements Runnable {
             client.sendMessage(MsgType.TEXT,"Lobby welcome message","Welcome to the lobby");
             while(whiteList==null) {
                 client.sendMessage(MsgType.TEXT,"Save select","Select a save file or create a new game");
-                client.sendMessage(MsgType.TEXT,"Create game list","0 Create new game");
+                StringBuilder saveListOptions=new StringBuilder();
+                saveListOptions.append("[0 - Create new game]\n");
                 for (int i=0; i<saveList.length; i++) {
-                    client.sendMessage(MsgType.TEXT,"List files",(i+1)+": "+saveList[i].getName().replace(".bin",""));
+                    saveListOptions.append("[").append(i + 1).append(" - ").append(saveList[i].getName().replace(".bin", "")).append("]\n");
                 }
+                client.sendMessage(MsgType.INPUT,"Select save file",saveListOptions.toString());
                 while (fileChoice<0 || fileChoice>saveList.length) {
                     try {
                         fileChoice=Integer.parseInt(((Info_Message) client.getMessage()).getInfo());
                     }
                     catch (NumberFormatException nfe) {
-                        client.sendMessage(MsgType.ERROR,"Incorrect format","Not a number");
+                        nfe.printStackTrace();
+                        client.sendMessage(MsgType.ERROR,"Incorrect format","Not a number : "+((Info_Message) client.getMessage()).getInfo());
                     }
                 }
                 if (fileChoice==0) {
                     client.sendMessage(MsgType.TEXT,"New game","Creating new game");
                     while (maxPlayers<2 || maxPlayers>4) {
-                        client.sendMessage(MsgType.TEXT,"Player num select","Player num(2-4):");
+                        client.sendMessage(MsgType.INPUT,"Player num select","Player num [2][3][4]:");
                         try {
                             maxPlayers=Integer.parseInt(((Info_Message)client.getMessage()).getInfo());
                         }
                         catch (NumberFormatException nfe) {
-                            client.sendMessage(MsgType.TEXT,"Format error","Wrong format\nPlayer num(2-4):");
+                            client.sendMessage(MsgType.ERROR,"Format error","Wrong format\nPlayer num(2-4):");
                         }
                     }
-                    client.sendMessage(MsgType.TEXT,"Expert mode selection","Expert mode (y/n):");
+                    client.sendMessage(MsgType.INPUT,"Expert mode selection","Expert mode [y]/[n]):");
                     while (expertMode==null) {
                         switch(((Info_Message)client.getMessage()).getInfo().toUpperCase()) {
                             case "Y":
@@ -257,11 +260,11 @@ public class Lobby implements Runnable {
     }
     public String getLobbyStats() {
         if (maxPlayers==0) {
-            return this.lobbyName+": not ready";
+            return "["+this.lobbyName+"]: not ready";
         }
         ArrayList<String> waitingFor = new ArrayList<>(whiteList);
         waitingFor.removeAll(clients.keySet());
-        return this.lobbyName+": "+(this.expertMode?"expert":"normal")+" game ["+this.clients.size()+"/"+this.maxPlayers+"], Currently connected: "+this.clients.keySet()+(waitingFor.size()>0?", Waiting for: "+waitingFor:"");
+        return "["+this.lobbyName+"]: "+(this.expertMode?"expert":"normal")+" game ["+this.clients.size()+"/"+this.maxPlayers+"], Currently connected: "+this.clients.keySet()+(waitingFor.size()>0?", Waiting for: "+waitingFor:"");
     }
     public void processMessageQueue() throws LobbyClientDisconnectedException,GameIsOverException,LobbyEmptyException {
         Message msg;

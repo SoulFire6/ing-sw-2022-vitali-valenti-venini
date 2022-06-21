@@ -98,7 +98,7 @@ public class Server {
             out.writeObject(MessageCenter.genMessage(MsgType.CONNECT,"SERVER","Welcome message","Connected to server with username: "+username));
             while (!clientSatisfied) {
                 checkLobbies();
-                out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Serving client",username+", [create] or [join] lobby?\nOtherwise [disconnect]"));
+                out.writeObject(MessageCenter.genMessage(MsgType.INPUT,"SERVER","Serving client",username+", [create] or [join] lobby?\nOtherwise [disconnect]"));
                 clientSatisfied=processRequest(username,clientSocket,in,out);
             }
             System.out.println("Client ["+username+"]'s request processed");
@@ -121,7 +121,7 @@ public class Server {
                     for (String lobby : lobbies.keySet()) {
                         out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Listing lobbies",lobbies.get(lobby).getLobbyStats()));
                     }
-                    out.writeObject(MessageCenter.genMessage(MsgType.TEXT, "SERVER", "Lobby id", "Enter lobby id: "));
+                    out.writeObject(MessageCenter.genMessage(MsgType.INPUT, "SERVER", "Lobby id", "Enter lobby id: "));
                     response=(Info_Message)in.readObject();
                     lobbyName=response.getInfo();
                     if (lobbies.get(lobbyName) == null) {
@@ -141,10 +141,12 @@ public class Server {
                         out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","No lobbies","There are no lobbies to join, try creating one instead"));
                         return false;
                     }
+                    StringBuilder lobbyStats=new StringBuilder();
                     for (String lobby : lobbies.keySet()) {
-                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Listing lobbies",lobbies.get(lobby).getLobbyStats()));
+                        lobbyStats.append(lobbies.get(lobby).getLobbyStats());
                     }
-                    out.writeObject(MessageCenter.genMessage(MsgType.TEXT, "SERVER", "Lobby id", "Enter lobby id: "));
+                    out.writeObject(MessageCenter.genMessage(MsgType.INPUT,"SERVER","Listing lobbies",lobbyStats.toString()));
+                    out.writeObject(MessageCenter.genMessage(MsgType.INPUT, "SERVER", "Lobby id", "Enter lobby id: "));
                     response=(Info_Message) in.readObject();
                     lobbyName=response.getInfo();
                     if (lobbies.get(lobbyName) == null) {

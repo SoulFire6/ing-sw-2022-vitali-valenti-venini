@@ -3,6 +3,7 @@ package it.polimi.softeng.network.message;
 public enum MsgType {
     //Info messages
     TEXT(MainType.INFO),
+    INPUT(MainType.INFO),
     WHISPER(MainType.INFO),
     CONNECT(MainType.INFO),
     DISCONNECT(MainType.INFO),

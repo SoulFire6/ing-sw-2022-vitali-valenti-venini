@@ -10,7 +10,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 import java.beans.PropertyChangeEvent;
@@ -23,16 +22,6 @@ public class GUI extends Application implements View {
 
     public GUI() {
     }
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
-        GUI gui=new GUI();
-        new Thread(gui).start();
-        ObjectInputStream fromServer=gui.setUpConnection(new String[]{"cal","local","local"});
-        Message inMessage;
-        while ((inMessage=(Message) fromServer.readObject())!=null) {
-            System.out.println(((Info_Message)inMessage).getInfo());
-        }
-        gui.display("Testing popup",MsgType.ERROR);
-    }
     @Override
     public void start(Stage stage) throws Exception {
         controller=new GUI_ActionHandler();
@@ -42,7 +31,10 @@ public class GUI extends Application implements View {
         stage.setTitle("Eriantys");
         stage.setScene(new Scene(root));
         stage.show();
-        stage.setOnCloseRequest(event-> Platform.exit());
+        stage.setOnCloseRequest(event-> {
+            Platform.exit();
+            System.exit(0);
+        });
     }
     @Override
     public void run() {
@@ -75,23 +67,10 @@ public class GUI extends Application implements View {
 
     @Override
     public void display(String message, MsgType displayType) {
-        //TODO ADD OTHER DISPLAY TYPES
         while (controller==null) {
             threadSleep(1000,"Waiting for controller");
         }
-        Platform.runLater(()-> {
-            Alert alert = new Alert(Alert.AlertType.NONE);
-            alert.setContentText(message);
-            switch (displayType) {
-                case ERROR:
-                    alert.setAlertType(Alert.AlertType.ERROR);
-                    break;
-                    default:
-                        alert.setAlertType(Alert.AlertType.INFORMATION);
-                        break;
-                    }
-                    alert.showAndWait();
-        });
+        Platform.runLater(()-> controller.display(message,displayType));
     }
 
     //GUI makes the fxml controller the property listener instead of itself
