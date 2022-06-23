@@ -4,22 +4,17 @@ import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Paint;
 
-import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -42,19 +37,13 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     private static final Integer DEFAULT_PORT=50033;
     private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$";
     @FXML
-    private Pane setupVBox,serverSetup,gameVBox;
-
+    private VBox setupVBox,serverSetupVBox,optionsVBox,gameVBox;
     @FXML
     private Label optionsLabel;
-
     @FXML
-    private VBox optionsPane;
-
-    @FXML TextField optionsField;
+    private TextField usernameField,ipField,portField, optionsField;
     @FXML
-    private TextField usernameField,ipField,portField;
-    @FXML
-    private Button joinButton,exitButton,createLobbyButton,joinLobbyButton,disconnectButton;
+    private Button joinButton,exitButton;
     @FXML
     private ToolBar assistantCards;
 
@@ -67,7 +56,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
 
         this.setupVBox.setVisible(true);
         this.gameVBox.setVisible(false);
-        this.serverSetup.setVisible(false);
+        this.serverSetupVBox.setVisible(false);
     }
 
     public void setupLoginParams(String[] args) {
@@ -120,7 +109,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
             toServer=new ObjectOutputStream(socket.getOutputStream());
             toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT, username, null, null));
             setupVBox.setVisible(false);
-            serverSetup.setVisible(true);
+            serverSetupVBox.setVisible(true);
         }
         catch (IOException io) {
             alert.setContentText("Error connecting to server, try again");
@@ -131,23 +120,17 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
         return socket;
     }
 
-    public void display(String message, MsgType type) {
+    public void display(String message, String context, MsgType type) {
         //TODO add other display types
         //TODO add style
         switch (type) {
             case INPUT:
-                //Skip sender information
-                message=message.substring(message.indexOf("]")+2);
-                optionsPane.getChildren().clear();
-                optionsField.setVisible(false);
+                System.out.println("Message "+message);
+                System.out.println("Context "+context);
                 ArrayList<Button> buttonOptions=new ArrayList<>();
-                int idx=message.indexOf("[");
-                while(idx!=-1) {
-                    buttonOptions.add(new Button(message.substring(message.indexOf("[", idx) + 1, message.indexOf("]", idx + 1))));
-                    idx = message.indexOf("[", idx + 1);
-                }
-                if (buttonOptions.isEmpty()) {
-                    optionsLabel.setText(message);
+                optionsLabel.setText(message.substring(!message.contains("]")?0:message.indexOf("]")+2));
+                optionsVBox.getChildren().clear();
+                if (!context.contains(">")) {
                     optionsField.setVisible(true);
                     optionsField.setOnAction(event->{
                         try {
@@ -161,28 +144,34 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                     });
                     break;
                 }
-                for (Button button : buttonOptions) {
-                    button.setPrefWidth(200);
-                    button.setOnAction(event-> {
+                for (String option : context.split("-")) {
+                    Button optionButton=new Button(option.contains(" > ")?option.substring(option.indexOf(" > ")+2):option);
+                    optionButton.setPrefWidth(200);
+                    optionButton.setOnAction(event-> {
                         try {
-                            toServer.writeObject(MessageCenter.genMessage(MsgType.TEXT,username, button.getText(),button.getText().split(" - ")[0]));
-                            optionsPane.getChildren().clear();
+                            toServer.writeObject(MessageCenter.genMessage(MsgType.TEXT,username, optionButton.getText(),option.contains(" > ")?option.substring(0,option.indexOf(" >")):option));
+                            optionsVBox.getChildren().clear();
                         } catch (IOException e) {
                             Alert alert=new Alert(Alert.AlertType.ERROR);
                             alert.setContentText("Error sending message to server");
                             alert.showAndWait();
                         }
                     });
+                    buttonOptions.add(optionButton);
+                    VBox.setMargin(optionButton,new Insets(10));
                 }
-                optionsPane.getChildren().addAll(buttonOptions);
+                optionsVBox.getChildren().addAll(buttonOptions);
                 break;
             case ERROR:
-                optionsLabel.setText(message);
-                optionsLabel.setStyle("-fx-text-fill: red;");
+                Alert alert=new Alert(Alert.AlertType.ERROR);
+                alert.setContentText(message);
+                alert.showAndWait();
                 break;
             default:
-                optionsLabel.setText(message);
-                optionsLabel.setStyle("-fx-text-fill: black;");
+                if (optionsLabel.isVisible()) {
+                    optionsLabel.setText(message);
+                }
+                //TODO add chat messages from server and other players while in game
                 break;
         }
     }
@@ -219,7 +208,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
         }
     }
     private void setupGame(ReducedGame model) {
-        serverSetup.setVisible(false);
+        serverSetupVBox.setVisible(false);
         gameVBox.setVisible(true);
         //assistantCards
         //TODO implement

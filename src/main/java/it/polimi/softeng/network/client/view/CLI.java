@@ -38,7 +38,7 @@ public class CLI implements View {
             this.characterInfo.load(getClass().getResourceAsStream("/CardData/CharacterCards.properties"));
         }
         catch (IOException io) {
-            display("Could not find properties file, defaulting to basic CLI",MsgType.ERROR);
+            display("Could not find properties file, defaulting to basic CLI","IO Error",MsgType.ERROR);
             loadStatus=false;
         }
         this.windowsTerminal=System.getProperty("os.name").contains("Windows") && !System.getProperty("java.class.path").contains("idea_rt.jar");
@@ -56,7 +56,7 @@ public class CLI implements View {
                 "      ███    █▄  ▀███████████ ███    ███    ███ ███   ███     ███     ███   ███          ███\n" +
                 "      ███    ███   ███    ███ ███    ███    ███ ███   ███     ███     ███   ███    ▄█    ███\n" +
                 "      ██████████   ███    ███ █▀     ███    █▀   ▀█   █▀     ▄████▀    ▀█████▀   ▄████████▀" +
-                getDisplayStyle("RESET"),MsgType.TEXT);
+                getDisplayStyle("RESET"),"Eriantys logo",MsgType.TEXT);
         while (toServer==null) {
             try {
                 Thread.sleep(1000);
@@ -190,9 +190,15 @@ public class CLI implements View {
         }
     }
     @Override
-    public void display(String message, MsgType displayType) {
+    public void display(String message, String context,MsgType displayType) {
         //TODO ADD OTHER TYPES OF DISPLAY
         switch (displayType) {
+            case INPUT:
+                System.out.println(message);
+                if (context.contains(">")) {
+                    System.out.println(context.replace("-","\n"));
+                }
+                break;
             case ERROR:
                 System.out.println(getDisplayStyle(Colour.RED.name())+"ERROR: "+message+getDisplayStyle("RESET"));
                 break;
@@ -396,13 +402,13 @@ public class CLI implements View {
 
     public Message parseMessage(String[] input) {
         if (input.length==0 || input[0].isEmpty()) {
-            display("For list of commands type help",MsgType.TEXT);
+            display("For list of commands type help",null,MsgType.TEXT);
             return null;
         }
         Colour diskColour=Colour.parseChosenColour(input[0]);
         if (diskColour!=null) {
             if (input.length<2) {
-                display("Error, not enough arguments",MsgType.ERROR);
+                display("Error, not enough arguments",null,MsgType.ERROR);
                 return null;
             }
             if (input[1].equalsIgnoreCase("DINING")) {
@@ -416,7 +422,7 @@ public class CLI implements View {
             case "CHAR":
             case "CHARACTER":
                 if (input.length<2) {
-                    display("Not enough arguments",MsgType.ERROR);
+                    display("Not enough arguments","Error",MsgType.ERROR);
                     return null;
                 }
                 for (int i=2; i<input.length; i++) {
@@ -426,26 +432,26 @@ public class CLI implements View {
             case "ASSIST":
             case "ASSISTANT":
                 if (input.length<2) {
-                    display("Not enough arguments",MsgType.ERROR);
+                    display("Not enough arguments","Error",MsgType.ERROR);
                     return null;
                 }
                 return MessageCenter.genMessage(MsgType.PLAYASSISTCARD,username,input[1],input[1]);
             case "REFILL":
                 if (input.length<2) {
-                    display("Not enough arguments",MsgType.ERROR);
+                    display("Not enough arguments","Error",MsgType.ERROR);
                     return null;
                 }
                 return MessageCenter.genMessage(MsgType.CHOOSECLOUD,username,input[1],input[1]);
             case "MN":
                 if (input.length<2) {
-                    display("Not enough arguments",MsgType.ERROR);
+                    display("Not enough arguments","Error",MsgType.ERROR);
                     return null;
                 }
                 return MessageCenter.genMessage(MsgType.MOVEMN,username,input[1],Integer.parseInt(input[1]));
             case "MSG":
             case "WHISPER":
                 if (input.length<3) {
-                    display("Not enough arguments",MsgType.ERROR);
+                    display("Not enough arguments","Error",MsgType.ERROR);
                     return null;
                 }
                 for (int i=2; i<input.length; i++) {
@@ -454,7 +460,7 @@ public class CLI implements View {
                 return MessageCenter.genMessage(MsgType.WHISPER,username,input[1],arguments.toString());
             case "CHARINFO":
                 if (input.length<2) {
-                    display("Not enough arguments",MsgType.ERROR);
+                    display("Not enough arguments","Error",MsgType.ERROR);
                     return null;
                 }
                 for (int i=1; i<input.length; i++) {
@@ -464,19 +470,19 @@ public class CLI implements View {
                 String info;
                 boolean found=false;
                 if ((info=characterInfo.getProperty(arguments.toString().toUpperCase()+"_SETUP"))!=null) {
-                    display("Setup: "+info,MsgType.TEXT);
+                    display("Setup: "+info,"Character setup",MsgType.TEXT);
                     found=true;
                 }
                 if ((info=characterInfo.getProperty(arguments.toString().toUpperCase()+"_EFFECT"))!=null) {
-                    display("Effect:"+info,MsgType.TEXT);
+                    display("Effect:"+info,"Character effect",MsgType.TEXT);
                     found=true;
                 }
                 if ((info=characterInfo.getProperty(arguments.toString().toUpperCase()+"_HELP"))!=null) {
-                    display("How to use: "+info,MsgType.TEXT);
+                    display("How to use: "+info,"Character help",MsgType.TEXT);
                     found=true;
                 }
                 if (!found) {
-                    display("Character id not found",MsgType.ERROR);
+                    display("Character id not found","Error",MsgType.ERROR);
                 }
                 return null;
             case "DISCONNECT":
@@ -492,7 +498,7 @@ public class CLI implements View {
                         "- msg | whisper [username] - send a message to another player\n" +
                         "- charinfo [char name] - prints character card info\n" +
                         "- disconnect - quit game, triggers game over for other players",
-                        MsgType.TEXT);
+                        "Command list",MsgType.TEXT);
                 return null;
             default:
                 return MessageCenter.genMessage(MsgType.TEXT,username,"Basic response",input[0]);

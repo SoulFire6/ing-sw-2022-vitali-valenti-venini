@@ -1,8 +1,6 @@
 package it.polimi.softeng.network.client.view;
 
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
-import it.polimi.softeng.network.message.Info_Message;
-import it.polimi.softeng.network.message.Message;
 
 import it.polimi.softeng.network.message.MsgType;
 import javafx.application.Application;
@@ -55,7 +53,7 @@ public class GUI extends Application implements View {
             return new ObjectInputStream(controller.getSocket().getInputStream());
         }
         catch (IOException io) {
-            display("Error connecting to server, try again",MsgType.ERROR);
+            display("Error connecting to server, try again","Connection error",MsgType.ERROR);
             return setUpConnection(args);
         }
     }
@@ -66,11 +64,11 @@ public class GUI extends Application implements View {
     }
 
     @Override
-    public void display(String message, MsgType displayType) {
+    public void display(String message, String context, MsgType displayType) {
         while (controller==null) {
             threadSleep(1000,"Waiting for controller");
         }
-        Platform.runLater(()-> controller.display(message,displayType));
+        Platform.runLater(()-> controller.display(message,context,displayType));
     }
 
     //GUI makes the fxml controller the property listener instead of itself

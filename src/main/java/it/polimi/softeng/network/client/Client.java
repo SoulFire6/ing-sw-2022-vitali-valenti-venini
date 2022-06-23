@@ -54,7 +54,7 @@ public class Client {
     public void parseMessageFromServer(Message message) {
         switch (message.getType()) {
             case INFO:
-                view.display("["+message.getSender()+"]: "+((Info_Message)message).getInfo(),message.getSubType());
+                view.display("["+message.getSender()+"]: "+((Info_Message)message).getInfo(),message.getContext(),message.getSubType());
                 break;
             case LOAD:
                 switch (message.getSubType()) {
@@ -85,12 +85,12 @@ public class Client {
                         this.model.setCoins(((Coin_Load_Msg)message).getLoad());
                     case TURNSTATE:
                         this.model.setTurnState(((TurnState_Load_Msg)message).getLoad());
-                        view.display("["+message.getSender()+"]: "+message.getContext(),message.getSubType());
+                        view.display("["+message.getSender()+"]: "+message.getContext(), message.getContext(), message.getSubType());
                         break;
                 }
                 break;
             default:
-                view.display("Unexpected message received",MsgType.ERROR);
+                view.display("Unexpected message received","Error",MsgType.ERROR);
                 break;
         }
     }

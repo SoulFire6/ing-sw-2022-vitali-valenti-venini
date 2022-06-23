@@ -8,5 +8,5 @@ import java.io.ObjectInputStream;
 public interface View extends Runnable, PropertyChangeListener {
     ObjectInputStream setUpConnection(String[] args);
     void closeConnection();
-    void display(String message, MsgType displayType);
+    void display(String message, String context, MsgType displayType);
 }

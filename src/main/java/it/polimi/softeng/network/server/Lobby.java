@@ -88,13 +88,12 @@ public class Lobby implements Runnable {
             int fileChoice=-1;
             client.sendMessage(MsgType.TEXT,"Lobby welcome message","Welcome to the lobby");
             while(whiteList==null) {
-                client.sendMessage(MsgType.TEXT,"Save select","Select a save file or create a new game");
                 StringBuilder saveListOptions=new StringBuilder();
-                saveListOptions.append("[0 - Create new game]\n");
+                saveListOptions.append("0 > Create new game-");
                 for (int i=0; i<saveList.length; i++) {
-                    saveListOptions.append("[").append(i + 1).append(" - ").append(saveList[i].getName().replace(".bin", "")).append("]\n");
+                    saveListOptions.append(i + 1).append(" > ").append(saveList[i].getName().replace(".bin", "")).append("-");
                 }
-                client.sendMessage(MsgType.INPUT,"Select save file",saveListOptions.toString());
+                client.sendMessage(MsgType.INPUT,saveListOptions.substring(0,saveListOptions.length()-1),"Select save file or create new game");
                 while (fileChoice<0 || fileChoice>saveList.length) {
                     try {
                         fileChoice=Integer.parseInt(((Info_Message) client.getMessage()).getInfo());
@@ -107,7 +106,7 @@ public class Lobby implements Runnable {
                 if (fileChoice==0) {
                     client.sendMessage(MsgType.TEXT,"New game","Creating new game");
                     while (maxPlayers<2 || maxPlayers>4) {
-                        client.sendMessage(MsgType.INPUT,"Player num select","Player num [2][3][4]:");
+                        client.sendMessage(MsgType.INPUT,"2 > Black vs White-3 > Black vs White vs Grey-4 > 2 Black vs 2 White","Player num (2-4):");
                         try {
                             maxPlayers=Integer.parseInt(((Info_Message)client.getMessage()).getInfo());
                         }
@@ -115,7 +114,7 @@ public class Lobby implements Runnable {
                             client.sendMessage(MsgType.ERROR,"Format error","Wrong format\nPlayer num(2-4):");
                         }
                     }
-                    client.sendMessage(MsgType.INPUT,"Expert mode selection","Expert mode [y]/[n]):");
+                    client.sendMessage(MsgType.INPUT,"Y > Expert-N > Normal","Expert mode (y/n):");
                     while (expertMode==null) {
                         switch(((Info_Message)client.getMessage()).getInfo().toUpperCase()) {
                             case "Y":
@@ -161,7 +160,8 @@ public class Lobby implements Runnable {
                     }
                     catch (GameLoadException gle) {
                         client.sendMessage(MsgType.ERROR,"Game load error","Error loading game save");
-                        saveFile.renameTo(new File(saveFile.getPath()+"_corrupted"));
+                        saveFile.delete();
+                        //saveFile.renameTo(new File(saveFile.getPath()+"_corrupted"));
                         fileChoice=-1;
                     }
                 }
@@ -169,6 +169,10 @@ public class Lobby implements Runnable {
             client.sendMessage(MsgType.TEXT, "Game setup params", "Game parameters\nPlayer num: " + maxPlayers + "\nExpert mode: " + expertMode);
         }
         catch (NullPointerException npe) {
+            //Delete incomplete save file
+            if (saveFile!=null) {
+                saveFile.delete();
+            }
             npe.printStackTrace();
             throw new LobbyClientDisconnectedException("Lobby master "+lobbyMaster);
         }

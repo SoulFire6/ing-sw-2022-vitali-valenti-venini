@@ -13,9 +13,10 @@
 
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
-<Pane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" style="-fx-background-image: url('Assets/GUI/Icons/Eriantys.png'); -fx-background-repeat: no-repeat; -fx-background-size: cover">
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" style="-fx-background-image: url('Assets/GUI/Icons/Eriantys.png'); -fx-background-repeat: no-repeat; -fx-background-size: cover">
     <children>
-        <VBox fx:id="setupVBox">
+        <VBox fx:id="setupVBox" alignment="CENTER_LEFT">
             <ImageView>
                 <Image url="/Assets/GUI/Icons/Logo.png"/>
             </ImageView>
@@ -63,13 +64,13 @@
                 <ToolBar fx:id="assistantCards" nodeOrientation="LEFT_TO_RIGHT" prefHeight="-Infinity" prefWidth="-Infinity" style="-fx-background-color: BLACK;" />
             </children>
         </VBox>
-        <VBox fx:id="serverSetup" alignment="CENTER" visible="false">
+        <VBox fx:id="serverSetupVBox" alignment="CENTER" visible="false">
             <children>
                 <Label fx:id="optionsLabel"/>
-                <VBox fx:id="optionsPane"/>
+                <VBox fx:id="optionsVBox"/>
                 <TextField fx:id="optionsField" visible="false"/>
                 <Pane prefHeight="200.0" prefWidth="200.0" />
             </children>
         </VBox>
     </children>
-</Pane>
+</AnchorPane>

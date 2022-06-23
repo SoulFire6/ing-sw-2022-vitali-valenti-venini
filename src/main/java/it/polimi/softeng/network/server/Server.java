@@ -98,7 +98,7 @@ public class Server {
             out.writeObject(MessageCenter.genMessage(MsgType.CONNECT,"SERVER","Welcome message","Connected to server with username: "+username));
             while (!clientSatisfied) {
                 checkLobbies();
-                out.writeObject(MessageCenter.genMessage(MsgType.INPUT,"SERVER","Serving client",username+", [create] or [join] lobby?\nOtherwise [disconnect]"));
+                out.writeObject(MessageCenter.genMessage(MsgType.INPUT,"SERVER","C > Create-J > Join-D > Disconnect",username+", create or join lobby?\nOtherwise disconnect"));
                 clientSatisfied=processRequest(username,clientSocket,in,out);
             }
             System.out.println("Client ["+username+"]'s request processed");
@@ -138,15 +138,14 @@ public class Server {
                 case "J":
                 case "JOIN":
                     if (lobbies.size()==0) {
-                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","No lobbies","There are no lobbies to join, try creating one instead"));
+                        out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","No lobbies","There are no lobbies to join, try creating one instead"));
                         return false;
                     }
                     StringBuilder lobbyStats=new StringBuilder();
                     for (String lobby : lobbies.keySet()) {
-                        lobbyStats.append(lobbies.get(lobby).getLobbyStats());
+                        lobbyStats.append(lobbies.get(lobby).getLobbyStats()).append("-");
                     }
-                    out.writeObject(MessageCenter.genMessage(MsgType.INPUT,"SERVER","Listing lobbies",lobbyStats.toString()));
-                    out.writeObject(MessageCenter.genMessage(MsgType.INPUT, "SERVER", "Lobby id", "Enter lobby id: "));
+                    out.writeObject(MessageCenter.genMessage(MsgType.INPUT,"SERVER", lobbyStats.substring(0,lobbyStats.length()-1),"Select a lobby:"));
                     response=(Info_Message) in.readObject();
                     lobbyName=response.getInfo();
                     if (lobbies.get(lobbyName) == null) {
