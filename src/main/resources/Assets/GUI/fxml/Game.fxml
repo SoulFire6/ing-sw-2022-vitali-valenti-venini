@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import it.polimi.softeng.network.client.view.FXML_Controllers.*?>
+
+<fx:root type="javafx.scene.layout.AnchorPane" prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #6161bd" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <VBox fx:id="oppositePlayer" ></VBox>
+    <VBox fx:id="leftPlayer"></VBox>
+    <VBox fx:id="rightPlayer"></VBox>
+    <VBox fx:id="you"></VBox>
+    <GridPane fx:id="tiles" prefHeight="800" prefWidth="800" gridLinesVisible="true">
+        <IslandAnchorPane island-id="Island_1"  img-src="Island_1.png" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <IslandAnchorPane island-id="Island_2"  img-src="Island_2.png" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <IslandAnchorPane island-id="Island_3"  img-src="Island_3.png" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <IslandAnchorPane island-id="Island_4"  img-src="Island_1.png" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+        <IslandAnchorPane island-id="Island_5"  img-src="Island_2.png" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        <IslandAnchorPane island-id="Island_6"  img-src="Island_3.png" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+        <IslandAnchorPane island-id="Island_7"  img-src="Island_1.png" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
+        <IslandAnchorPane island-id="Island_8"  img-src="Island_2.png" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+        <IslandAnchorPane island-id="Island_9"  img-src="Island_3.png" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+        <IslandAnchorPane island-id="Island_10" img-src="Island_1.png" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+        <IslandAnchorPane island-id="Island_11" img-src="Island_2.png" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+        <IslandAnchorPane island-id="Island_12" img-src="Island_3.png" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <CloudAnchorPane cloud-id="Cloud_1" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <CloudAnchorPane cloud-id="Cloud_2" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+        <CloudAnchorPane cloud-id="Cloud_3" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <CloudAnchorPane cloud-id="Cloud_4" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+    </GridPane>
+    <AnchorPane fx:id="characterCards"></AnchorPane>
+    <Button fx:id="toggleHandButton" layoutX="1046.0" layoutY="527.0" mnemonicParsing="false" text="Show/hide hand" />
+    <ToolBar fx:id="assistantCards" nodeOrientation="LEFT_TO_RIGHT" prefHeight="-Infinity" prefWidth="-Infinity" style="-fx-background-color: BLACK;" />
+</fx:root>

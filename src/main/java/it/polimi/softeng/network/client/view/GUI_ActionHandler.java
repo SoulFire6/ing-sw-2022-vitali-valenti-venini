@@ -2,6 +2,7 @@ package it.polimi.softeng.network.client.view;
 
 import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
+import it.polimi.softeng.network.client.view.FXML_Controllers.GameAnchorPane;
 import it.polimi.softeng.network.client.view.FXML_Controllers.LoginVBox;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
@@ -11,10 +12,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Paint;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -35,7 +33,9 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     @FXML
     private LoginVBox loginVBox;
     @FXML
-    private VBox inputVBox,gameVBox;
+    private VBox inputVBox;
+    @FXML
+    private GameAnchorPane gameAnchorPane;
     @FXML
     private ToolBar assistantCards;
     public GUI_ActionHandler() {
@@ -44,7 +44,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.loginVBox.setVisible(true);
         this.inputVBox.setVisible(false);
-        this.gameVBox.setVisible(false);
+        this.gameAnchorPane.setVisible(false);
     }
 
     public void setupLoginParams(String[] args) {
@@ -177,7 +177,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     }
     private void setupGame(ReducedGame model) {
         inputVBox.setVisible(false);
-        gameVBox.setVisible(true);
+        gameAnchorPane.setVisible(true);
         //assistantCards
         //TODO implement
     }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<fx:root maxHeight="200" maxWidth="200" minHeight="200" minWidth="200" type="javafx.scene.layout.AnchorPane" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <ImageView fx:id="cloudImage" fitHeight="200.0" fitWidth="200.0">
+            <Image url="/Assets/GUI/Tiles/Cloud.png" />
+        </ImageView>
+        <Label fx:id="yellow" layoutX="38.0" layoutY="88.0" prefHeight="25" prefWidth="25" style="-fx-background-image: url('Assets/GUI/Icons/Yellow_Disk.png');-fx-background-size: contain" />
+        <Label fx:id="blue" layoutX="51.0" layoutY="128.0" prefHeight="25" prefWidth="25" style="-fx-background-image: url('Assets/GUI/Icons/Blue_Disk.png');-fx-background-size: contain" />
+        <Label fx:id="green" layoutX="113.0" layoutY="132.0" prefHeight="25" prefWidth="25" style="-fx-background-image: url('Assets/GUI/Icons/Green_Disk.png');-fx-background-size: contain" />
+        <Label fx:id="red" layoutX="127.0" layoutY="87.0" prefHeight="25" prefWidth="25" style="-fx-background-image: url('Assets/GUI/Icons/Red_Disk.png');-fx-background-size: contain" />
+        <Label fx:id="purple" layoutX="85.0" layoutY="48.0" prefHeight="25" prefWidth="25" style="-fx-background-image: url('Assets/GUI/Icons/Purple_Disk.png');-fx-background-size: contain" />
+    </children>
+</fx:root>

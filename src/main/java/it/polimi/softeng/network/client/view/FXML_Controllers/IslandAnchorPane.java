@@ -34,7 +34,7 @@ public class IslandAnchorPane extends AnchorPane {
             loader.setController(this);
             loader.load();
             this.islandID=id;
-            islandImage.setImage(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Tiles/")).toExternalForm()+imgSrc));
+            islandImage.setImage(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Tiles/")).toExternalForm()+(imgSrc.isEmpty()?"Island_1.png":imgSrc)));
             colourButtons.put(Colour.YELLOW,yellow);
             colourButtons.put(Colour.BLUE,blue);
             colourButtons.put(Colour.GREEN,green);
@@ -42,6 +42,7 @@ public class IslandAnchorPane extends AnchorPane {
             colourButtons.put(Colour.PURPLE,purple);
         }
         catch (IOException io) {
+            io.printStackTrace();
             throw new RuntimeException(io);
         }
     }
@@ -75,5 +76,8 @@ public class IslandAnchorPane extends AnchorPane {
                 alert.showAndWait();
             }
         });
+    }
+    public String getIslandID() {
+        return this.islandID;
     }
 }
