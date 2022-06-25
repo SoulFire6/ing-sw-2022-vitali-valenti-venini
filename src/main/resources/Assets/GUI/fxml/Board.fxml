@@ -12,7 +12,7 @@
    <children>
       <ImageView fitHeight="257.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../../../../../../target/classes/Assets/GUI/Tiles/SchoolBoard.png" />
+            <Image url="/Assets/GUI/Tiles/SchoolBoard.png" />
          </image>
       </ImageView>
       <StackPane layoutX="106.0" layoutY="30.0" prefHeight="27.0" prefWidth="284.0">

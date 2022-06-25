@@ -52,11 +52,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.joinButton.setOnAction(this::checkConnectionParams);
 
-        this.setupVBox.setVisible(true);
-        this.gameVBox.setVisible(false);
-        this.serverSetupVBox.setVisible(false);
     }
 
     public void setupLoginParams(String[] args) {
