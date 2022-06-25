@@ -17,7 +17,7 @@ import java.io.ObjectOutputStream;
 import java.util.EnumMap;
 import java.util.Objects;
 
-public class Island_Fxml extends AnchorPane {
+public class IslandAnchorPane extends AnchorPane {
 
     private final String islandID;
 
@@ -27,7 +27,7 @@ public class Island_Fxml extends AnchorPane {
     @FXML
     ButtonWithLabel yellow, blue, green, red, purple, motherNature;
 
-    public Island_Fxml(@NamedArg("island-id") String id, @NamedArg("img-src") String imgSrc) {
+    public IslandAnchorPane(@NamedArg("island-id") String id, @NamedArg("img-src") String imgSrc) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Island.fxml"));
             loader.setRoot(this);
