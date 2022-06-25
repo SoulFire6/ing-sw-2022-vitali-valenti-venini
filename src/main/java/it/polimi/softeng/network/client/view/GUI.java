@@ -23,7 +23,7 @@ public class GUI extends Application implements View {
     @Override
     public void start(Stage stage) throws Exception {
         controller=new GUI_ActionHandler();
-        FXMLLoader loader=new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Board.fxml"));
+        FXMLLoader loader=new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Eriantys.fxml"));
         loader.setController(controller);
         Parent root=loader.load();
         stage.setTitle("Eriantys");
@@ -48,7 +48,7 @@ public class GUI extends Application implements View {
         Platform.runLater(()-> controller.setupLoginParams(args));
         while (controller.getSocket()==null) {
             threadSleep(500,"Waiting for socket");
-            controller.tryConnection();
+            Platform.runLater(()->controller.tryConnection());
         }
         try {
             return new ObjectInputStream(controller.getSocket().getInputStream());

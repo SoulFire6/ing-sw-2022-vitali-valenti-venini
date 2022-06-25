@@ -85,4 +85,7 @@ public class LoginVBox extends VBox {
     public boolean getValidLogin() {
         return this.validLogin;
     }
+    public void invalidateLogin() {
+        this.validLogin=false;
+    }
 }

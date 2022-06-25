@@ -74,6 +74,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 serverSetupVBox.setVisible(true);
             }
             catch (IOException io) {
+                loginVBox.invalidateLogin();
                 Alert alert=new Alert(Alert.AlertType.ERROR);
                 alert.setContentText("Error connecting to server");
                 alert.showAndWait();
