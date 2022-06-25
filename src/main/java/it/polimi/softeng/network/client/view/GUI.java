@@ -47,8 +47,8 @@ public class GUI extends Application implements View {
         }
         Platform.runLater(()-> controller.setupLoginParams(args));
         while (controller.getSocket()==null) {
-            threadSleep(500,"Waiting for socket");
             Platform.runLater(()->controller.tryConnection());
+            threadSleep(500,"Waiting for socket");
         }
         try {
             return new ObjectInputStream(controller.getSocket().getInputStream());

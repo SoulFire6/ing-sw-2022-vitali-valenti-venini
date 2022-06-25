@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -15,6 +13,7 @@
 <AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" style="-fx-background-image: url('Assets/GUI/Icons/Eriantys.png'); -fx-background-repeat: no-repeat; -fx-background-size: cover">
     <children>
         <LoginVBox fx:id="loginVBox" alignment="CENTER" />
+        <VBox fx:id="inputVBox" alignment="TOP_CENTER" prefHeight="400.0" prefWidth="600.0" />
         <VBox fx:id="gameVBox" prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #6161bd">
             <children>
                 <Pane prefHeight="596.0" prefWidth="1200.0">
@@ -34,14 +33,6 @@
                     </children>
                 </Pane>
                 <ToolBar fx:id="assistantCards" nodeOrientation="LEFT_TO_RIGHT" prefHeight="-Infinity" prefWidth="-Infinity" style="-fx-background-color: BLACK;" />
-            </children>
-        </VBox>
-        <VBox fx:id="serverSetupVBox" alignment="CENTER" visible="false">
-            <children>
-                <Label fx:id="optionsLabel"/>
-                <VBox fx:id="optionsVBox"/>
-                <TextField fx:id="optionsField" visible="false"/>
-                <Pane prefHeight="200.0" prefWidth="200.0" />
             </children>
         </VBox>
     </children>

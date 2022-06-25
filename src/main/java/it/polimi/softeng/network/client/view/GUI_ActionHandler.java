@@ -11,7 +11,10 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,11 +35,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     @FXML
     private LoginVBox loginVBox;
     @FXML
-    private VBox serverSetupVBox,optionsVBox,gameVBox;
-    @FXML
-    private Label optionsLabel;
-    @FXML
-    TextField optionsField;
+    private VBox inputVBox,gameVBox;
     @FXML
     private ToolBar assistantCards;
     public GUI_ActionHandler() {
@@ -44,8 +43,8 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.loginVBox.setVisible(true);
+        this.inputVBox.setVisible(false);
         this.gameVBox.setVisible(false);
-        this.serverSetupVBox.setVisible(false);
     }
 
     public void setupLoginParams(String[] args) {
@@ -69,9 +68,11 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 username=loginVBox.getUsernameField().getText();
                 socket=new Socket(loginVBox.getIpField().getText(),Integer.parseInt(loginVBox.getPortField().getText()));
                 toServer=new ObjectOutputStream(socket.getOutputStream());
+                System.out.println("SENDING");
                 toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT, username, null, null));
+                System.out.println("SENT");
                 loginVBox.setVisible(false);
-                serverSetupVBox.setVisible(true);
+                inputVBox.setVisible(true);
             }
             catch (IOException io) {
                 loginVBox.invalidateLogin();
@@ -90,32 +91,37 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
         //TODO add style
         switch (type) {
             case INPUT:
+                inputVBox.setVisible(true);
+                inputVBox.getChildren().clear();
                 System.out.println("Message "+message);
                 System.out.println("Context "+context);
                 ArrayList<Button> buttonOptions=new ArrayList<>();
-                optionsLabel.setText(message.substring(!message.contains("]")?0:message.indexOf("]")+2));
-                optionsVBox.getChildren().clear();
+                Label inputLabel=new Label(message.substring(!message.contains("]")?0:message.indexOf("]")+2));
+                inputLabel.setStyle("-fx-background-color: white");
+                inputVBox.getChildren().add(inputLabel);
                 if (!context.contains(">")) {
-                    optionsField.setVisible(true);
-                    optionsField.setOnAction(event->{
+                    TextField optionField=new TextField();
+                    optionField.setOnAction(event->{
                         try {
-                            toServer.writeObject(MessageCenter.genMessage(MsgType.TEXT,username, optionsField.getText(),optionsField.getText()));
-                            optionsField.setVisible(false);
+                            toServer.writeObject(MessageCenter.genMessage(MsgType.TEXT,username, optionField.getText(),optionField.getText()));
+                            inputVBox.getChildren().clear();
                         } catch (IOException e) {
                             Alert alert=new Alert(Alert.AlertType.ERROR);
                             alert.setContentText("Error sending message to server");
                             alert.showAndWait();
                         }
                     });
+                    inputVBox.getChildren().add(optionField);
                     break;
                 }
                 for (String option : context.split("-")) {
                     Button optionButton=new Button(option.contains(" > ")?option.substring(option.indexOf(" > ")+2):option);
                     optionButton.setPrefWidth(200);
+                    optionButton.setWrapText(true);
                     optionButton.setOnAction(event-> {
                         try {
                             toServer.writeObject(MessageCenter.genMessage(MsgType.TEXT,username, optionButton.getText(),option.contains(" > ")?option.substring(0,option.indexOf(" >")):option));
-                            optionsVBox.getChildren().clear();
+                            inputVBox.getChildren().clear();
                         } catch (IOException e) {
                             Alert alert=new Alert(Alert.AlertType.ERROR);
                             alert.setContentText("Error sending message to server");
@@ -125,7 +131,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                     buttonOptions.add(optionButton);
                     VBox.setMargin(optionButton,new Insets(10));
                 }
-                optionsVBox.getChildren().addAll(buttonOptions);
+                inputVBox.getChildren().addAll(buttonOptions);
                 break;
             case ERROR:
                 Alert alert=new Alert(Alert.AlertType.ERROR);
@@ -133,9 +139,6 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 alert.showAndWait();
                 break;
             default:
-                if (optionsLabel.isVisible()) {
-                    optionsLabel.setText(message);
-                }
                 //TODO add chat messages from server and other players while in game
                 break;
         }
@@ -173,7 +176,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
         }
     }
     private void setupGame(ReducedGame model) {
-        serverSetupVBox.setVisible(false);
+        inputVBox.setVisible(false);
         gameVBox.setVisible(true);
         //assistantCards
         //TODO implement

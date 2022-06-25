@@ -264,11 +264,11 @@ public class Lobby implements Runnable {
     }
     public String getLobbyStats() {
         if (maxPlayers==0) {
-            return "["+this.lobbyName+"]: not ready";
+            return this.lobbyName+ ">"+this.lobbyName+" is not ready";
         }
         ArrayList<String> waitingFor = new ArrayList<>(whiteList);
         waitingFor.removeAll(clients.keySet());
-        return "["+this.lobbyName+"]: "+(this.expertMode?"expert":"normal")+" game ["+this.clients.size()+"/"+this.maxPlayers+"], Currently connected: "+this.clients.keySet()+(waitingFor.size()>0?", Waiting for: "+waitingFor:"");
+        return this.lobbyName+" > "+(this.expertMode?"expert":"normal")+" game ["+this.clients.size()+"/"+this.maxPlayers+"]\n Currently connected: "+this.clients.keySet()+(waitingFor.size()>0?", \nWaiting for: "+waitingFor:"");
     }
     public void processMessageQueue() throws LobbyClientDisconnectedException,GameIsOverException,LobbyEmptyException {
         Message msg;
