@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+
+<?import it.polimi.softeng.network.client.view.FXML_Controllers.*?>
+<fx:root type="javafx.scene.layout.AnchorPane" prefHeight="200" prefWidth="200" xmlns:fx="http://javafx.com/fxml">
+    <children>
+        <ImageView fx:id="islandImage" fitHeight="400.0" fitWidth="400.0"/>
+        <ButtonWithLabel fx:id="motherNature"/>
+        <ButtonWithLabel fx:id="yellow" layoutX="150" layoutY="64" button-style="-fx-background-image: url('/Assets/GUI/Icons/Yellow_Disk.png')" />
+        <ButtonWithLabel fx:id="blue" layoutX="115.0" layoutY="139.0" button-style="-fx-background-image: url('/Assets/GUI/Icons/Blue_Disk.png')" />
+        <ButtonWithLabel fx:id="green" layoutX="200.0" layoutY="189.0" button-style="-fx-background-image: url('/Assets/GUI/Icons/Green_Disk.png')" />
+        <ButtonWithLabel fx:id="red" layoutX="270.0" layoutY="139.0" button-style="-fx-background-image: url('/Assets/GUI/Icons/Red_Disk.png')" />
+        <ButtonWithLabel fx:id="purple" layoutX="245.0" layoutY="64.0" button-style="-fx-background-image: url('/Assets/GUI/Icons/Purple_Disk.png')" />
+    </children>
+</fx:root>

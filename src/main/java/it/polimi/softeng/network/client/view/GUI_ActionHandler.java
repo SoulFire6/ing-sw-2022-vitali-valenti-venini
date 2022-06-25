@@ -2,17 +2,15 @@ package it.polimi.softeng.network.client.view;
 
 import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
+import it.polimi.softeng.network.client.view.FXML_Controllers.LoginVBox;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.beans.PropertyChangeEvent;
@@ -23,93 +21,63 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.regex.Pattern;
 
 //GUI Controller
 public class GUI_ActionHandler implements Initializable, PropertyChangeListener {
-
-    private static String username;
-    private static Socket socket;
+    private String username;
+    private Socket socket;
     private ObjectOutputStream toServer;
     private TurnManager.TurnState currentPhase;
     private String currentPlayer;
-    private static final String DEFAULT_IP="127.0.0.1";
-    private static final Integer DEFAULT_PORT=50033;
-    private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$";
     @FXML
-    private VBox setupVBox,serverSetupVBox,optionsVBox,gameVBox;
+    private LoginVBox loginVBox;
+    @FXML
+    private VBox serverSetupVBox,optionsVBox,gameVBox;
     @FXML
     private Label optionsLabel;
     @FXML
-    private TextField usernameField,ipField,portField, optionsField;
-    @FXML
-    private Button joinButton,exitButton;
+    TextField optionsField;
     @FXML
     private ToolBar assistantCards;
-
-
     public GUI_ActionHandler() {
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+        this.loginVBox.setVisible(true);
+        this.gameVBox.setVisible(false);
+        this.serverSetupVBox.setVisible(false);
     }
 
     public void setupLoginParams(String[] args) {
-        if (usernameField.getText().isEmpty()) {
-            usernameField.setText(args[0]);
+        TextField textField=loginVBox.getUsernameField();
+        if (textField!=null && textField.getText().isEmpty()) {
+            textField.setText(args[0]);
         }
-        if (ipField!=null && ipField.getText().isEmpty()) {
-            ipField.setText(args[1]);
+        textField=loginVBox.getIpField();
+        if (textField!=null && textField.getText().isEmpty()) {
+            textField.setText(args[1]);
         }
-        if (portField!=null && portField.getText().isEmpty()) {
-            portField.setText(args[2]);
+        textField=loginVBox.getPortField();
+        if (textField!=null && textField.getText().isEmpty()) {
+            textField.setText(args[2]);
         }
     }
 
-    private void checkConnectionParams(ActionEvent actionEvent) {
-        Pattern pattern=Pattern.compile(IP_FORMAT);
-        Alert alert=new Alert(Alert.AlertType.WARNING);
-        username=usernameField.getText();
-        if (username.length()<3 || username.length()>10 || username.contains(" ")) {
-            alert.setContentText("Username must be 3-10 characters long and not contain spaces");
-            alert.showAndWait();
-            return;
-        }
-        if (ipField.getText()==null || ipField.getText().equals("") || ipField.getText().equalsIgnoreCase("local")) {
-            ipField.setText(DEFAULT_IP);
-        }
-        if (!pattern.matcher(ipField.getText()).matches()) {
-            alert.setContentText("Invalid ip format");
-            alert.showAndWait();
-            return;
-        }
-        if (portField.getText()==null || portField.getText().equals("") || portField.getText().equalsIgnoreCase("local")) {
-            portField.setText(DEFAULT_PORT.toString());
-        }
-        try {
-            int port=Integer.parseInt(portField.getText());
-            if (port<49152 || port>65535) {
-                alert.setContentText("Port range 49152-65535");
-                alert.showAndWait();
-                return;
+    public void tryConnection() {
+        if (loginVBox.getValidLogin()) {
+            try {
+                username=loginVBox.getUsernameField().getText();
+                socket=new Socket(loginVBox.getIpField().getText(),Integer.parseInt(loginVBox.getPortField().getText()));
+                toServer=new ObjectOutputStream(socket.getOutputStream());
+                toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT, username, null, null));
+                loginVBox.setVisible(false);
+                serverSetupVBox.setVisible(true);
             }
-        }
-        catch (IllegalArgumentException iae) {
-            alert.setContentText("Port must be a number");
-            alert.showAndWait();
-            return;
-        }
-        try {
-            socket=new Socket(ipField.getText(),Integer.parseInt(portField.getText()));
-            toServer=new ObjectOutputStream(socket.getOutputStream());
-            toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT, username, null, null));
-            setupVBox.setVisible(false);
-            serverSetupVBox.setVisible(true);
-        }
-        catch (IOException io) {
-            alert.setContentText("Error connecting to server, try again");
-            alert.showAndWait();
+            catch (IOException io) {
+                Alert alert=new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Error connecting to server");
+                alert.showAndWait();
+            }
         }
     }
     public Socket getSocket() {
