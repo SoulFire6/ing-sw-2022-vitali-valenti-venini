@@ -395,7 +395,7 @@ public class CLI implements View {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         //CLI only prints model after every update has been made, as otherwise there would be more prints than needed
-        if (evt.getPropertyName().equals("turn state") || evt.getPropertyName().equals("loaded game")) {
+        if (evt.getPropertyName().equals(ReducedGame.UpdateType.TURN_STATE.name()) || evt.getPropertyName().equals(ReducedGame.UpdateType.LOADED_GAME.name())) {
             printModel((ReducedGame) evt.getNewValue());
         }
     }

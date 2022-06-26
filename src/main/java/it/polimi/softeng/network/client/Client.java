@@ -41,6 +41,7 @@ public class Client {
             fromServer.close();
             view.closeConnection();
         } catch (ClassNotFoundException | ClassCastException ce) {
+            ce.printStackTrace();
             System.out.println("Error reading message from server");
         } catch (IOException io) {
             System.out.println("Abrupt disconnection");

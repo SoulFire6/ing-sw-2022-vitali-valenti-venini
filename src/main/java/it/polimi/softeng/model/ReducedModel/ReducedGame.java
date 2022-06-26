@@ -9,6 +9,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class ReducedGame implements Serializable {
+
+    public enum UpdateType{
+        PLAYERS,PLAYER,BAG,CLOUDS,ISLANDS,COINS,CHARACTER_CARDS,TURN_STATE,LOADED_GAME
+    }
     private final String id;
     private ArrayList<ReducedPlayer> players;
     private ReducedBag bag;
@@ -71,13 +75,13 @@ public class ReducedGame implements Serializable {
     }
     public void setPlayers(ArrayList<ReducedPlayer> players) {
         this.players=players;
-        propertyChangeSupport.firePropertyChange("players",null,this);
+        propertyChangeSupport.firePropertyChange(UpdateType.PLAYERS.name(),null,this.players);
     }
     public void setPlayer(ReducedPlayer player) {
         for (ReducedPlayer reducedPlayer : this.players) {
             if (reducedPlayer.getName().equals(player.getName())) {
                 this.players.set(this.players.indexOf(reducedPlayer),player);
-                propertyChangeSupport.firePropertyChange("player",null,this);
+                propertyChangeSupport.firePropertyChange(UpdateType.PLAYER.name(), null,reducedPlayer);
                 break;
             }
         }
@@ -87,21 +91,21 @@ public class ReducedGame implements Serializable {
     }
     public void setBag(ReducedBag bag) {
         this.bag=bag;
-        propertyChangeSupport.firePropertyChange("bag",null,this);
+        propertyChangeSupport.firePropertyChange(UpdateType.BAG.name(), null,this.bag);
     }
     public ArrayList<ReducedCloud> getClouds() {
         return clouds;
     }
     public void setClouds(ArrayList<ReducedCloud> clouds) {
         this.clouds=clouds;
-        propertyChangeSupport.firePropertyChange("clouds",null,this);
+        propertyChangeSupport.firePropertyChange(UpdateType.CLOUDS.name(), null,this.clouds);
     }
     public ArrayList<ReducedIsland> getIslands() {
         return islands;
     }
     public void setIslands(ArrayList<ReducedIsland> islands) {
         this.islands=islands;
-        propertyChangeSupport.firePropertyChange("islands",null,this);
+        propertyChangeSupport.firePropertyChange(UpdateType.ISLANDS.name(), null,this.islands);
     }
     public boolean isExpertMode() {
         return expertMode;
@@ -111,21 +115,21 @@ public class ReducedGame implements Serializable {
     }
     public void setCoins(int coins) {
         this.coins=coins;
-        this.propertyChangeSupport.firePropertyChange("coins",null,this);
+        this.propertyChangeSupport.firePropertyChange(UpdateType.COINS.name(), null,this.coins);
     }
     public ArrayList<ReducedCharacterCard> getCharacterCards() {
         return this.characterCards;
     }
     public void setCharacterCards(ArrayList<ReducedCharacterCard> characterCards) {
         this.characterCards = characterCards;
-        this.propertyChangeSupport.firePropertyChange("character cards",null,this);
+        this.propertyChangeSupport.firePropertyChange(UpdateType.CHARACTER_CARDS.name(), null,this.characterCards);
     }
 
     public void setTurnState(ReducedTurnState turnState) {
         this.currentPlayer=turnState.getCurrentPlayer();
         this.currentPhase=turnState.getCurrentPhase();
         this.remainingMoves= turnState.getRemainingMoves();
-        this.propertyChangeSupport.firePropertyChange("turn state",null,this);
+        this.propertyChangeSupport.firePropertyChange(UpdateType.TURN_STATE.name(), null,this);
     }
 
     public String getCurrentPlayer() {
@@ -149,6 +153,6 @@ public class ReducedGame implements Serializable {
     }
     //notifies view the first time the model is loaded on the client
     public void notifyGameLoaded() {
-        this.propertyChangeSupport.firePropertyChange("loaded game",null,this);
+        this.propertyChangeSupport.firePropertyChange(UpdateType.LOADED_GAME.name(), null,this);
     }
 }

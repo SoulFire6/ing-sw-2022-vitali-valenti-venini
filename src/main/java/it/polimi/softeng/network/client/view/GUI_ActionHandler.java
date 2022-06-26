@@ -3,6 +3,7 @@ package it.polimi.softeng.network.client.view;
 import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
+import it.polimi.softeng.model.ReducedModel.ReducedPlayer;
 import it.polimi.softeng.network.client.view.FXML_Controllers.GameAnchorPane;
 import it.polimi.softeng.network.client.view.FXML_Controllers.LoginVBox;
 import it.polimi.softeng.network.message.MessageCenter;
@@ -156,21 +157,27 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
         //TODO implement various GUI updates
         Platform.runLater(()->{
             try {
-                switch (evt.getPropertyName().toUpperCase()) {
-                    case "PLAYERS":
+                switch (ReducedGame.UpdateType.valueOf(evt.getPropertyName())) {
+                    case PLAYERS:
                         System.out.println("UPDATE PLAYERS");
                         break;
-                    case "PLAYER":
+                    case PLAYER:
+                        gameAnchorPane.updatePlayer(toServer,username,(ReducedPlayer) evt.getNewValue());
                         System.out.println("FIND AND UPDATE SINGLE PLAYER");
                         break;
-                    case "TURN STATE":
+                    case TURN_STATE:
                         gameAnchorPane.updateTurnState((ReducedGame)evt.getNewValue());
                         break;
-                    default:
+                    case LOADED_GAME:
                         inputVBox.setVisible(false);
                         gameAnchorPane.setVisible(true);
                         gameAnchorPane.setupGame(toServer,username,(ReducedGame) evt.getNewValue());
                         System.out.println("LOAD FULL MODEL");
+                        break;
+                    default:
+                        Alert alert=new Alert(Alert.AlertType.WARNING);
+                        alert.setContentText("Unrecognised update");
+                        alert.showAndWait();
                         break;
                 }
             }
