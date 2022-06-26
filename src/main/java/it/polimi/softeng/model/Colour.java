@@ -4,8 +4,14 @@ import java.util.EnumMap;
 import java.util.Random;
 
 public enum Colour {
-    YELLOW,BLUE,GREEN,RED,PURPLE;
-
+    YELLOW("Yellow"),BLUE("Blue"),GREEN("Green"),RED("Red"),PURPLE("Purple");
+    private final String name;
+    Colour(String name) {
+        this.name=name;
+    }
+    public String getName() {
+        return this.name;
+    }
     public static EnumMap<Colour,Integer> genIntegerMap() {
         EnumMap<Colour,Integer> integerMap=new EnumMap<>(Colour.class);
         for (Colour c: Colour.values()) {

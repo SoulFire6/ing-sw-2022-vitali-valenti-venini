@@ -1,11 +1,13 @@
 package it.polimi.softeng.network.client.view;
 
 import it.polimi.softeng.controller.TurnManager;
+import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
 import it.polimi.softeng.network.client.view.FXML_Controllers.GameAnchorPane;
 import it.polimi.softeng.network.client.view.FXML_Controllers.LoginVBox;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -28,16 +30,12 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     private String username;
     private Socket socket;
     private ObjectOutputStream toServer;
-    private TurnManager.TurnState currentPhase;
-    private String currentPlayer;
     @FXML
     private LoginVBox loginVBox;
     @FXML
     private VBox inputVBox;
     @FXML
     private GameAnchorPane gameAnchorPane;
-    @FXML
-    private ToolBar assistantCards;
     public GUI_ActionHandler() {
     }
     @Override
@@ -156,29 +154,35 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         //TODO implement various GUI updates
-        switch (evt.getPropertyName().toUpperCase()) {
-            case "PLAYERS":
-                System.out.println("UPDATE PLAYERS");
-                break;
-            case "PLAYER":
-                System.out.println("FIND AND UPDATE SINGLE PLAYER");
-                break;
-            case "TURN STATE":
-                ReducedGame model=((ReducedGame)evt.getNewValue());
-                currentPhase=model.getCurrentPhase();
-                currentPlayer=model.getCurrentPlayer();
-                assistantCards.setVisible(currentPhase == TurnManager.TurnState.ASSISTANT_CARDS_PHASE);
-                break;
-            default:
-                setupGame((ReducedGame)evt.getNewValue());
-                System.out.println("LOAD FULL MODEL");
-                break;
-        }
-    }
-    private void setupGame(ReducedGame model) {
-        inputVBox.setVisible(false);
-        gameAnchorPane.setVisible(true);
-        //assistantCards
-        //TODO implement
+        Platform.runLater(()->{
+            try {
+                switch (evt.getPropertyName().toUpperCase()) {
+                    case "PLAYERS":
+                        System.out.println("UPDATE PLAYERS");
+                        break;
+                    case "PLAYER":
+                        System.out.println("FIND AND UPDATE SINGLE PLAYER");
+                        break;
+                    case "TURN STATE":
+                        gameAnchorPane.updateTurnState((ReducedGame)evt.getNewValue());
+                        break;
+                    default:
+                        inputVBox.setVisible(false);
+                        gameAnchorPane.setVisible(true);
+                        gameAnchorPane.setupGame(toServer,username,(ReducedGame) evt.getNewValue());
+                        System.out.println("LOAD FULL MODEL");
+                        break;
+                }
+            }
+            catch (UpdateGUIException uge) {
+                Alert alert=new Alert(Alert.AlertType.ERROR);
+                alert.setContentText(uge.getMessage());
+                alert.showAndWait();
+                alert.setOnCloseRequest(event->{
+                    Platform.exit();
+                    System.exit(-1);
+                });
+            }
+        });
     }
 }

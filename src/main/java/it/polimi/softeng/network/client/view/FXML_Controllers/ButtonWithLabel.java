@@ -1,6 +1,8 @@
 package it.polimi.softeng.network.client.view.FXML_Controllers;
 
 import javafx.beans.NamedArg;
+import javafx.beans.binding.DoubleBinding;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -40,6 +42,12 @@ public class ButtonWithLabel extends StackPane {
         this.label.setText(label);
     }
 
+    public void setSize(DoubleBinding value) {
+        button.prefHeightProperty().bind(value);
+        button.prefWidthProperty().bind(value);
+        //button.setStyle("-fx-background-size: contain");
+        setBackgroundVisible(true);
+    }
     public void setBackgroundVisible(boolean visible) {
         if (visible) {
             button.setBackground(buttonBackground);
