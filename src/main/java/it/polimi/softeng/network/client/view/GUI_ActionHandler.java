@@ -1,20 +1,21 @@
 package it.polimi.softeng.network.client.view;
 
-import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.exceptions.UpdateGUIException;
-import it.polimi.softeng.model.ReducedModel.ReducedGame;
-import it.polimi.softeng.model.ReducedModel.ReducedPlayer;
-import it.polimi.softeng.network.client.view.FXML_Controllers.GameAnchorPane;
+import it.polimi.softeng.model.ReducedModel.*;
+import it.polimi.softeng.network.client.view.FXML_Controllers.GamePane;
 import it.polimi.softeng.network.client.view.FXML_Controllers.LoginVBox;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
 import java.beans.PropertyChangeEvent;
@@ -28,6 +29,8 @@ import java.util.ResourceBundle;
 
 //GUI Controller
 public class GUI_ActionHandler implements Initializable, PropertyChangeListener {
+
+    private Parent root;
     private String username;
     private Socket socket;
     private ObjectOutputStream toServer;
@@ -36,18 +39,33 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     @FXML
     private VBox inputVBox;
     @FXML
-    private GameAnchorPane gameAnchorPane;
+    private GamePane gameAnchorPane;
     public GUI_ActionHandler() {
+        try {
+            FXMLLoader loader=new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Eriantys.fxml"));
+            loader.setController(this);
+            root=loader.load();
+        }
+        catch (IOException io) {
+            io.printStackTrace();
+        }
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.loginVBox.setVisible(true);
         this.inputVBox.setVisible(false);
         this.gameAnchorPane.setVisible(false);
+        this.inputVBox.setManaged(false);
+        this.inputVBox.layoutXProperty().bind(((AnchorPane)inputVBox.getParent()).widthProperty().divide(2));
+        this.inputVBox.layoutYProperty().bind(((AnchorPane)inputVBox.getParent()).heightProperty().divide(2));
+    }
+
+    public Parent getRoot() {
+        return root;
     }
 
     public void setupLoginParams(String[] args) {
-        TextField textField=loginVBox.getUsernameField();
+        TextField textField=this.loginVBox.getUsernameField();
         if (textField!=null && textField.getText().isEmpty()) {
             textField.setText(args[0]);
         }
@@ -62,7 +80,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     }
 
     public void tryConnection() {
-        if (loginVBox.getValidLogin()) {
+        if (this.loginVBox!=null && this.loginVBox.getValidLogin()) {
             try {
                 username=loginVBox.getUsernameField().getText();
                 socket=new Socket(loginVBox.getIpField().getText(),Integer.parseInt(loginVBox.getPortField().getText()));
@@ -159,6 +177,10 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
             try {
                 switch (ReducedGame.UpdateType.valueOf(evt.getPropertyName())) {
                     case PLAYERS:
+                        for (ReducedPlayer player : (ArrayList<ReducedPlayer>) evt.getNewValue()) {
+                            System.out.println("Updating "+player.getName());
+                            gameAnchorPane.updatePlayer(toServer,username,player);
+                        }
                         System.out.println("UPDATE PLAYERS");
                         break;
                     case PLAYER:
@@ -168,11 +190,25 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                     case TURN_STATE:
                         gameAnchorPane.updateTurnState((ReducedGame)evt.getNewValue());
                         break;
+                    case ISLANDS:
+                        gameAnchorPane.updateIslands(toServer,username,(ArrayList<ReducedIsland>)evt.getNewValue());
+                        break;
+                    case CLOUDS:
+                        gameAnchorPane.updateClouds((ArrayList<ReducedCloud>) evt.getNewValue());
+                        break;
+                    case COINS:
+                        //TODO implement
+                        break;
+                    case BAG:
+                        //TODO implement
+                        break;
+                    case CHARACTER_CARDS:
+                        gameAnchorPane.updateCharacterCards(toServer,username,(ArrayList<ReducedCharacterCard>) evt.getNewValue());
+                        break;
                     case LOADED_GAME:
                         inputVBox.setVisible(false);
                         gameAnchorPane.setVisible(true);
                         gameAnchorPane.setupGame(toServer,username,(ReducedGame) evt.getNewValue());
-                        System.out.println("LOAD FULL MODEL");
                         break;
                     default:
                         Alert alert=new Alert(Alert.AlertType.WARNING);
@@ -189,6 +225,11 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                     Platform.exit();
                     System.exit(-1);
                 });
+            }
+            catch (ClassCastException cce) {
+                Alert alert=new Alert(Alert.AlertType.ERROR);
+                alert.setContentText(cce.getMessage());
+                alert.showAndWait();
             }
         });
     }

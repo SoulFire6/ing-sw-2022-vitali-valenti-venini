@@ -192,11 +192,11 @@ public class Server {
                             lobby.getClients().notify();
                             return true;
                         } else {
-                            out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Username already in use","Player with that username already exists"));
+                            out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","Username already in use","Player with that username already exists"));
                             System.out.println(username+" is a duplicate username for lobby "+lobbyName);
                         }
                     } else {
-                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Lobby full","Lobby is full ["+maxPlayers+"/"+maxPlayers+"]"));
+                        out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","Lobby full","Lobby is full ["+maxPlayers+"/"+maxPlayers+"]"));
                         System.out.println(username+" tried to join lobby "+lobbyName+", but it was full");
                     }
                 }

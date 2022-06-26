@@ -12,19 +12,19 @@
             <Image url="/Assets/GUI/Icons/Logo.png"/>
         </image>
     </ImageView>
-    <Label text="Username: " />
+    <Label fx:id="usernameLabel" text="Username: " style="-fx-background-color: white"/>
     <TextField fx:id="usernameField" prefWidth="128.0" promptText="Waiting for username">
         <VBox.margin>
             <Insets bottom="5.0" top="5.0" />
         </VBox.margin>
     </TextField>
-    <Label text="Ip: " />
+    <Label fx:id="ipLabel" text="Ip: " style="-fx-background-color: white" />
     <TextField fx:id="ipField" prefWidth="128.0" promptText="Server ip (local or empty for default localhost)">
         <VBox.margin>
             <Insets bottom="5.0" top="5.0" />
         </VBox.margin>
     </TextField>
-    <Label text="Port: " />
+    <Label fx:id="portLabel" text="Port: " style="-fx-background-color: white" />
     <TextField fx:id="portField" prefWidth="128.0" promptText="Server port (local or empty for default 50033)">
         <VBox.margin>
             <Insets bottom="5.0" top="5.0" />

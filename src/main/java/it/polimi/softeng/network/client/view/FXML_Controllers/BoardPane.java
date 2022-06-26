@@ -5,8 +5,8 @@ import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
 
-public class BoardAnchorPane extends AnchorPane {
-    public BoardAnchorPane() {
+public class BoardPane extends AnchorPane {
+    public BoardPane() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Board.fxml"));
             loader.setRoot(this);

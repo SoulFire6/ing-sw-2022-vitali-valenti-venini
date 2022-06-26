@@ -2,13 +2,14 @@ package it.polimi.softeng.network.client.view.FXML_Controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextAlignment;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 
@@ -16,10 +17,10 @@ public class LoginVBox extends VBox {
     @FXML
     TextField usernameField, ipField, portField;
     @FXML
+    Label usernameLabel, ipLabel, portLabel;
+    @FXML
     Button joinButton;
-
     private boolean validLogin;
-    private static Socket socket;
     private static final String DEFAULT_IP="127.0.0.1";
     private static final Integer DEFAULT_PORT=50033;
     private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$";
@@ -32,8 +33,20 @@ public class LoginVBox extends VBox {
             loader.load();
             this.validLogin=false;
             this.joinButton.setOnAction(this::connectToServer);
+            for (TextField textField : Arrays.asList(usernameField,ipField,portField)) {
+                textField.prefHeightProperty().bind(this.heightProperty().divide(20));
+                textField.prefWidthProperty().bind(this.widthProperty().divide(10));
+                textField.setAlignment(Pos.CENTER);
+            }
+            for (Label label : Arrays.asList(usernameLabel,ipLabel,portLabel)) {
+                label.prefHeightProperty().bind(this.heightProperty().divide(20));
+                label.prefWidthProperty().bind(this.widthProperty().divide(5));
+                label.setAlignment(Pos.CENTER_LEFT);
+                label.setTextAlignment(TextAlignment.LEFT);
+            }
         }
         catch (IOException io) {
+            io.printStackTrace();
             throw new RuntimeException(io);
         }
     }

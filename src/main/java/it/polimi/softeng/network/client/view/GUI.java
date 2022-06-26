@@ -21,11 +21,9 @@ public class GUI extends Application implements View {
     public GUI() {
     }
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         controller=new GUI_ActionHandler();
-        FXMLLoader loader=new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Eriantys.fxml"));
-        loader.setController(controller);
-        Parent root=loader.load();
+        Parent root=controller.getRoot();
         stage.setTitle("Eriantys");
         stage.setScene(new Scene(root));
         stage.show();

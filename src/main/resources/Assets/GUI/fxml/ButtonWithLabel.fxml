@@ -5,7 +5,7 @@
 
 <fx:root type="javafx.scene.layout.StackPane" xmlns:fx="http://javafx.com/fxml">
     <children>
-        <Label fx:id="label"/>
+        <Label fx:id="label" style="-fx-background-color: white"/>
         <Button fx:id="button" minHeight="25" minWidth="25"/>
     </children>
 </fx:root>

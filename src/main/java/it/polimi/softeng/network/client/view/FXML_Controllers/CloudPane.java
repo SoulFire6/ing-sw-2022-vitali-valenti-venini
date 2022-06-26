@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Objects;
 
-public class CloudAnchorPane extends AnchorPane {
+public class CloudPane extends AnchorPane {
 
     @FXML
     ImageView cloudImage;
@@ -29,7 +29,7 @@ public class CloudAnchorPane extends AnchorPane {
     private final EnumMap<Colour, Background> backgrounds=new EnumMap<>(Colour.class);
 
     private final ArrayList<Label> slots=new ArrayList<>();
-    public CloudAnchorPane() {
+    public CloudPane() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Cloud.fxml"));
             loader.setRoot(this);

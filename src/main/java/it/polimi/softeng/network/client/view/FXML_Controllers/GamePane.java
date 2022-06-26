@@ -1,17 +1,20 @@
 package it.polimi.softeng.network.client.view.FXML_Controllers;
 
+import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -20,8 +23,9 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
-public class GameAnchorPane extends AnchorPane {
+public class GamePane extends AnchorPane {
     @FXML
     VBox you, oppositePlayer, leftPlayer, rightPlayer;
     @FXML
@@ -35,30 +39,29 @@ public class GameAnchorPane extends AnchorPane {
     @FXML
     Label currentPhase,currentPlayer;
     private final ArrayList<VBox> otherPlayers=new ArrayList<>();
-    private final ArrayList<IslandAnchorPane> visibleIslands=new ArrayList<>();
-    private final ArrayList<CloudAnchorPane> visibleClouds=new ArrayList<>();
-    public GameAnchorPane() {
+    private final ArrayList<IslandPane> visibleIslands=new ArrayList<>();
+    private final ArrayList<CloudPane> visibleClouds=new ArrayList<>();
+    public GamePane() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Game.fxml"));
             loader.setRoot(this);
             loader.setController(this);
             loader.load();
-            tiles.setAlignment(Pos.CENTER);
             for (Node node : tiles.getChildren()) {
                 if (node.getId()!=null) {
                     if (node.getId().contains("Island")) {
-                        visibleIslands.add((IslandAnchorPane) node);
+                        visibleIslands.add((IslandPane) node);
                     }
                     if (node.getId().contains("Cloud")) {
-                        visibleClouds.add((CloudAnchorPane) node);
+                        visibleClouds.add((CloudPane) node);
                     }
                 }
             }
-            for (IslandAnchorPane island : visibleIslands) {
+            for (IslandPane island : visibleIslands) {
                 island.prefHeightProperty().bind(tiles.heightProperty().subtract(100).divide(4));
                 island.prefWidthProperty().bind(tiles.widthProperty().subtract(100).divide(4));
             }
-            for (CloudAnchorPane cloud : visibleClouds) {
+            for (CloudPane cloud : visibleClouds) {
                 cloud.prefHeightProperty().bind(tiles.heightProperty().subtract(100).divide(4));
                 cloud.prefWidthProperty().bind(tiles.widthProperty().subtract(100).divide(4));
             }
@@ -83,41 +86,42 @@ public class GameAnchorPane extends AnchorPane {
     }
 
     public void setupIslands(ObjectOutputStream toServer, String sender) {
-        for (IslandAnchorPane island : visibleIslands) {
+        for (IslandPane island : visibleIslands) {
             island.setupButtons(toServer,sender);
         }
     }
     public void updateIslands(ObjectOutputStream toServer, String sender, ArrayList<ReducedIsland> reducedIslands) throws UpdateGUIException {
         boolean foundIsland;
-        ReducedIsland motherNatureIsland=null;
+        int distance;
+        ReducedIsland motherNatureIsland = null;
         for (ReducedIsland reducedIsland : reducedIslands) {
             if (reducedIsland.hasMotherNature()) {
-                motherNatureIsland=reducedIsland;
+                motherNatureIsland = reducedIsland;
                 break;
             }
         }
-        if (motherNatureIsland==null) {
+        if (motherNatureIsland == null) {
             throw new UpdateGUIException("Error updating islands");
         }
-        for (IslandAnchorPane island : visibleIslands) {
-            foundIsland=false;
+        for (IslandPane island : visibleIslands) {
+            foundIsland = false;
             for (ReducedIsland reducedIsland : reducedIslands) {
                 if (island.getId().equals(reducedIsland.getID())) {
-                    foundIsland=true;
-                    island.update(toServer,sender,reducedIsland,Math.abs(reducedIslands.indexOf(motherNatureIsland)-reducedIslands.indexOf(reducedIsland)));
-                    break;
+                    foundIsland = true;
+                    distance = reducedIslands.indexOf(motherNatureIsland) - reducedIslands.indexOf(reducedIsland);
+                    island.update(toServer, sender, reducedIsland, distance < 0 ? reducedIslands.size() + distance : distance);
                 }
-            }
-            //hides merged islands
-            if (!foundIsland) {
-                island.setVisible(false);
-                visibleIslands.remove(island);
+                //hides merged islands
+                if (!foundIsland) {
+                    island.setVisible(false);
+                    visibleIslands.remove(island);
+                }
             }
         }
     }
 
     public void setupClouds(ObjectOutputStream toServer, String sender) {
-        for (CloudAnchorPane cloud : visibleClouds) {
+        for (CloudPane cloud : visibleClouds) {
             cloud.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_PRESSED, mouseEvent -> {
                 try {
                     toServer.writeObject(MessageCenter.genMessage(MsgType.CHOOSECLOUD,sender,cloud.getId(),cloud.getId()));
@@ -131,7 +135,7 @@ public class GameAnchorPane extends AnchorPane {
     }
     public void updateClouds(ArrayList<ReducedCloud> reducedClouds) {
         boolean foundCloud;
-        for (CloudAnchorPane cloud : visibleClouds) {
+        for (CloudPane cloud : visibleClouds) {
             foundCloud=false;
             for (ReducedCloud reducedCloud : reducedClouds) {
                 if (cloud.getId().equals(reducedCloud.getId())) {
@@ -165,12 +169,14 @@ public class GameAnchorPane extends AnchorPane {
 
     public void updateHand(ObjectOutputStream toServer, String sender, ArrayList<ReducedAssistantCard> cards) {
         assistantCards.getItems().clear();
+        if (assistantCards.getContextMenu()!=null) {
+            assistantCards.getContextMenu().getItems().clear();
+        }
         for (ReducedAssistantCard card : cards) {
-            Button assistantCard=new Button(card.getId());
-            assistantCard.setPrefWidth(assistantCards.getPrefWidth());
-            assistantCard.setPrefHeight(assistantCard.getPrefHeight());
-            assistantCard.setStyle("-fx-background-image: url("+getClass().getResource("/Assets/GUI/Cards/Assistants/"+card.getId()+"_LQ.png")+");-fx-background-size: contain; -fx-background-repeat: no-repeat");
-            assistantCard.setOnAction(event->{
+            ImageView assistantCard=new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Cards/Assistants/" + card.getId() + "_LQ.png")).toExternalForm()));
+            assistantCard.fitHeightProperty().bind(assistantCards.heightProperty());
+            assistantCard.fitWidthProperty().bind(assistantCard.fitHeightProperty().divide(3).multiply(2));
+            assistantCard.addEventHandler(MouseEvent.MOUSE_PRESSED,event->{
                 try {
                     toServer.writeObject(MessageCenter.genMessage(MsgType.PLAYASSISTCARD,sender,card.getId(),card.getId()));
                 }
@@ -192,7 +198,10 @@ public class GameAnchorPane extends AnchorPane {
         //TODO implement
     }
     public void updateTurnState(ReducedGame model) {
-        currentPhase.setText(model.getCurrentPhase().getDescription());
-        currentPlayer.setText(model.getCurrentPlayer());
+        currentPhase.setText("Current phase: "+model.getCurrentPhase().getDescription()+(model.getCurrentPhase().equals(TurnManager.TurnState.MOVE_STUDENTS_PHASE)?"(Remaining moves: "+model.getRemainingMoves()+")":""));
+        currentPlayer.setText("Current player:"+model.getCurrentPlayer());
+    }
+    public void updateCharacterCards(ObjectOutputStream toServer, String sender, ArrayList<ReducedCharacterCard> cards) {
+
     }
 }
