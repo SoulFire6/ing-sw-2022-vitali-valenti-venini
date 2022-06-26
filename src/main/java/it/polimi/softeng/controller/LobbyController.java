@@ -303,7 +303,9 @@ public class LobbyController {
                                 tileController.refillClouds(game.getClouds(),game.getBag());
                             }
                             turnManager.nextAction();
-                            charCardController.deactivateAllCards(game.getCharacterCards(),game.getPlayers());
+                            if (charCardController!=null) {
+                                charCardController.deactivateAllCards(game.getCharacterCards(),game.getPlayers());
+                            }
                             response.add(MessageCenter.genMessage(MsgType.CLOUDS,lobbyName,inMessage.getContext(),game.getClouds()));
                             response.add(MessageCenter.genMessage(MsgType.PLAYERS,lobbyName,currentPlayer.getName(),game.getPlayers()));
                             actionMessage=currentPlayer.getName()+" has refilled from cloud "+inMessage.getContext();

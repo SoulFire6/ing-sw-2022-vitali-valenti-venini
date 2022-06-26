@@ -4,33 +4,36 @@
 <?import it.polimi.softeng.network.client.view.FXML_Controllers.*?>
 
 <fx:root type="javafx.scene.layout.AnchorPane" prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #6161bd" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
-    <VBox fx:id="oppositePlayer"/>
-    <VBox fx:id="leftPlayer"/>
-    <VBox fx:id="rightPlayer"/>
-    <GridPane fx:id="tiles" gridLinesVisible="true" BorderPane.alignment="CENTER">
-        <IslandPane fx:id="Island_1" img-src="Island_1.png" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <IslandPane fx:id="Island_2" img-src="Island_2.png" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-        <IslandPane fx:id="Island_3" img-src="Island_3.png" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-        <IslandPane fx:id="Island_4" img-src="Island_1.png" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-        <IslandPane fx:id="Island_5" img-src="Island_2.png" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-        <IslandPane fx:id="Island_6" img-src="Island_3.png" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
-        <IslandPane fx:id="Island_7" img-src="Island_1.png" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
-        <IslandPane fx:id="Island_8" img-src="Island_2.png" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
-        <IslandPane fx:id="Island_9" img-src="Island_3.png" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
-        <IslandPane fx:id="Island_10" img-src="Island_1.png" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
-        <IslandPane fx:id="Island_11" img-src="Island_2.png" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
-        <IslandPane fx:id="Island_12" img-src="Island_3.png" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-        <CloudPane fx:id="Cloud_1" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        <CloudPane fx:id="Cloud_2" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-        <CloudPane fx:id="Cloud_3" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        <CloudPane fx:id="Cloud_4" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+    <VBox fx:id="oppositePlayer" AnchorPane.topAnchor="0"/>
+    <VBox fx:id="leftPlayer" AnchorPane.leftAnchor="0"/>
+    <VBox fx:id="rightPlayer" AnchorPane.rightAnchor="0"/>
+    <GridPane fx:id="tiles" prefHeight="400" prefWidth="400" gridLinesVisible="true" BorderPane.alignment="CENTER" AnchorPane.topAnchor="200" AnchorPane.bottomAnchor="200" AnchorPane.rightAnchor="200" AnchorPane.leftAnchor="200">
+        <IslandPane fx:id="Island_1" img-src="Island_1.png" GridPane.columnIndex="0" GridPane.rowIndex="0" prefHeight="100" prefWidth="100"/>
+        <IslandPane fx:id="Island_2" img-src="Island_2.png" GridPane.columnIndex="0" GridPane.rowIndex="1" prefHeight="100" prefWidth="100"/>
+        <IslandPane fx:id="Island_3" img-src="Island_3.png" GridPane.columnIndex="0" GridPane.rowIndex="2" prefHeight="100" prefWidth="100"/>
+        <IslandPane fx:id="Island_4" img-src="Island_1.png" GridPane.columnIndex="0" GridPane.rowIndex="3" prefHeight="100" prefWidth="100"/>
+        <IslandPane fx:id="Island_5" img-src="Island_2.png" GridPane.columnIndex="1" GridPane.rowIndex="3" prefHeight="100" prefWidth="100"/>
+        <IslandPane fx:id="Island_6" img-src="Island_3.png" GridPane.columnIndex="2" GridPane.rowIndex="3" prefHeight="100" prefWidth="100"/>
+        <IslandPane fx:id="Island_7" img-src="Island_1.png" GridPane.columnIndex="3" GridPane.rowIndex="3" prefHeight="100" prefWidth="100"/>
+        <IslandPane fx:id="Island_8" img-src="Island_2.png" GridPane.columnIndex="3" GridPane.rowIndex="2" prefHeight="100" prefWidth="100"/>
+        <IslandPane fx:id="Island_9" img-src="Island_3.png" GridPane.columnIndex="3" GridPane.rowIndex="1" prefHeight="100" prefWidth="100"/>
+        <IslandPane fx:id="Island_10" img-src="Island_1.png" GridPane.columnIndex="3" GridPane.rowIndex="0" prefHeight="100" prefWidth="100"/>
+        <IslandPane fx:id="Island_11" img-src="Island_2.png" GridPane.columnIndex="2" GridPane.rowIndex="0" prefHeight="100" prefWidth="100"/>
+        <IslandPane fx:id="Island_12" img-src="Island_3.png" GridPane.columnIndex="1" GridPane.rowIndex="0" prefHeight="100" prefWidth="100"/>
+        <CloudPane fx:id="Cloud_1" GridPane.columnIndex="1" GridPane.rowIndex="1" prefHeight="100" prefWidth="100"/>
+        <CloudPane fx:id="Cloud_2" GridPane.columnIndex="2" GridPane.rowIndex="2" prefHeight="100" prefWidth="100"/>
+        <CloudPane fx:id="Cloud_3" GridPane.columnIndex="1" GridPane.rowIndex="2" prefHeight="100" prefWidth="100"/>
+        <CloudPane fx:id="Cloud_4" GridPane.columnIndex="2" GridPane.rowIndex="1" prefHeight="100" prefWidth="100"/>
     </GridPane>
-    <VBox fx:id="you" BorderPane.alignment="BOTTOM_CENTER">
+    <VBox fx:id="you" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="200" AnchorPane.leftAnchor="200">
         <AnchorPane fx:id="schoolBoard"/>
-        <Label fx:id="currentPhase" style="-fx-background-color: white"/>
-        <Label fx:id="currentPlayer" style="-fx-background-color: white"/>
+        <Label fx:id="currentPhase" style="-fx-background-color: white" />
+        <Label fx:id="currentPlayer" style="-fx-background-color: white" />
         <Button fx:id="toggleHandButton" mnemonicParsing="false" text="Show/hide hand" />
         <ToolBar fx:id="assistantCards" minHeight="80" minWidth="60" maxHeight="80" maxWidth="600" nodeOrientation="LEFT_TO_RIGHT" style="-fx-background-color: BLACK;" />
     </VBox>
+    <ScrollPane prefWidth="200" prefHeight="200" AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="0">
+        <VBox fx:id="gameChat"/>
+    </ScrollPane>
     <AnchorPane fx:id="characterCards"/>
 </fx:root>

@@ -55,9 +55,6 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
         this.loginVBox.setVisible(true);
         this.inputVBox.setVisible(false);
         this.gameAnchorPane.setVisible(false);
-        this.inputVBox.setManaged(false);
-        this.inputVBox.layoutXProperty().bind(((AnchorPane)inputVBox.getParent()).widthProperty().divide(2));
-        this.inputVBox.layoutYProperty().bind(((AnchorPane)inputVBox.getParent()).heightProperty().divide(2));
     }
 
     public Parent getRoot() {
@@ -104,20 +101,19 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     }
 
     public void display(String message, String context, MsgType type) {
-        //TODO add other display types
-        //TODO add style
+        String sender=message.contains("]:")?message.substring(message.indexOf("[")+1,message.indexOf("]:")-2):null;
+        message=message.substring(message.indexOf("]:")+2);
         switch (type) {
             case INPUT:
                 inputVBox.setVisible(true);
                 inputVBox.getChildren().clear();
-                System.out.println("Message "+message);
-                System.out.println("Context "+context);
                 ArrayList<Button> buttonOptions=new ArrayList<>();
-                Label inputLabel=new Label(message.substring(!message.contains("]")?0:message.indexOf("]")+2));
+                Label inputLabel=new Label(message);
                 inputLabel.setStyle("-fx-background-color: white");
                 inputVBox.getChildren().add(inputLabel);
                 if (!context.contains(">")) {
                     TextField optionField=new TextField();
+                    optionField.setPrefWidth(200);
                     optionField.setOnAction(event->{
                         try {
                             toServer.writeObject(MessageCenter.genMessage(MsgType.TEXT,username, optionField.getText(),optionField.getText()));
@@ -150,13 +146,24 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 }
                 inputVBox.getChildren().addAll(buttonOptions);
                 break;
+            case DISPLAY:
             case ERROR:
-                Alert alert=new Alert(Alert.AlertType.ERROR);
+                Alert alert=new Alert(type.equals(MsgType.ERROR)?Alert.AlertType.ERROR:Alert.AlertType.INFORMATION);
                 alert.setContentText(message);
                 alert.showAndWait();
                 break;
+            case TURNSTATE:
+            case WHISPER:
+                gameAnchorPane.addChatMessage(sender,message,type);
+                break;
+            case CONNECT:
+            case TEXT:
+                System.out.println(message);
+                break;
             default:
-                //TODO add chat messages from server and other players while in game
+                Alert warning=new Alert(Alert.AlertType.WARNING);
+                warning.setContentText("Unexpected message type");
+                warning.showAndWait();
                 break;
         }
     }

@@ -5,7 +5,6 @@ import it.polimi.softeng.model.ReducedModel.ReducedGame;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;

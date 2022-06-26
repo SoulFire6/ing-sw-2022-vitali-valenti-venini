@@ -8,10 +8,7 @@ import it.polimi.softeng.network.message.MsgType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -32,6 +29,9 @@ public class GamePane extends AnchorPane {
     GridPane tiles;
     @FXML
     AnchorPane characterCards,turnState;
+
+    @FXML
+    VBox gameChat;
     @FXML
     Button toggleHandButton;
     @FXML
@@ -74,6 +74,22 @@ public class GamePane extends AnchorPane {
         }
     }
 
+    public void addChatMessage(String sender, String message, MsgType type) {
+        Label chatLabel=new Label(sender+": "+message);
+        switch (type) {
+            case ERROR:
+                chatLabel.setStyle("-fx-text-fill: red");
+                break;
+            case DISPLAY:
+                chatLabel.setStyle("-fx-text-fill: blue");
+                break;
+            default:
+                chatLabel.setStyle("-fx-text-fill: orange");
+                break;
+        }
+        this.gameChat.getChildren().add(chatLabel);
+    }
+
     public void setupGame(ObjectOutputStream toServer, String sender, ReducedGame model) throws UpdateGUIException {
         setupIslands(toServer,sender);
         updateIslands(toServer,sender,model.getIslands());
@@ -91,7 +107,6 @@ public class GamePane extends AnchorPane {
         }
     }
     public void updateIslands(ObjectOutputStream toServer, String sender, ArrayList<ReducedIsland> reducedIslands) throws UpdateGUIException {
-        boolean foundIsland;
         int distance;
         ReducedIsland motherNatureIsland = null;
         for (ReducedIsland reducedIsland : reducedIslands) {
@@ -104,20 +119,17 @@ public class GamePane extends AnchorPane {
             throw new UpdateGUIException("Error updating islands");
         }
         for (IslandPane island : visibleIslands) {
-            foundIsland = false;
             for (ReducedIsland reducedIsland : reducedIslands) {
                 if (island.getId().equals(reducedIsland.getID())) {
-                    foundIsland = true;
                     distance = reducedIslands.indexOf(motherNatureIsland) - reducedIslands.indexOf(reducedIsland);
                     island.update(toServer, sender, reducedIsland, distance < 0 ? reducedIslands.size() + distance : distance);
+                    break;
                 }
                 //hides merged islands
-                if (!foundIsland) {
-                    island.setVisible(false);
-                    visibleIslands.remove(island);
-                }
+                island.setVisible(false);
             }
         }
+        visibleIslands.removeIf(islandPane -> !islandPane.isVisible());
     }
 
     public void setupClouds(ObjectOutputStream toServer, String sender) {
@@ -173,6 +185,7 @@ public class GamePane extends AnchorPane {
             assistantCards.getContextMenu().getItems().clear();
         }
         for (ReducedAssistantCard card : cards) {
+            System.out.println("SETTING CARD");
             ImageView assistantCard=new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Cards/Assistants/" + card.getId() + "_LQ.png")).toExternalForm()));
             assistantCard.fitHeightProperty().bind(assistantCards.heightProperty());
             assistantCard.fitWidthProperty().bind(assistantCard.fitHeightProperty().divide(3).multiply(2));

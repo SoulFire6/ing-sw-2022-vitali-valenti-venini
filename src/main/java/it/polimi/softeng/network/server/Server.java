@@ -132,7 +132,7 @@ public class Server {
                         new Thread(lobbies.get(lobbyName)).start();
                         return true;
                     } else {
-                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Error: lobby already exists","Lobby already exists, try joining instead"));
+                        out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","Error: lobby already exists","Lobby already exists, try joining instead"));
                         return false;
                     }
                 case "J":
