@@ -101,7 +101,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     }
 
     public void display(String message, String context, MsgType type) {
-        String sender=message.contains("]:")?message.substring(message.indexOf("[")+1,message.indexOf("]:")-2):null;
+        String sender=message.contains("]:")?message.substring(message.indexOf("["),message.indexOf("]:")-2):null;
         message=message.substring(message.indexOf("]:")+2);
         switch (type) {
             case INPUT:
