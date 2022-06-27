@@ -1,5 +1,6 @@
 package it.polimi.softeng.controller;
 
+
 import it.polimi.softeng.exceptions.DiningRoomFullException;
 import it.polimi.softeng.exceptions.InsufficientResourceException;
 
@@ -14,8 +15,32 @@ import java.util.Random;
 import java.util.Collections;
 
 
+/**
+ Controller class that handles players generation and player utilities function
+ */
 public class PlayerController {
+    /**
+     * This method is used to get all the teams of the current game
+     * @param players players of the current game
+     * @return ArrayList<Team> all of the teams that play the game
+     */
+    public ArrayList<Team> getTeams(ArrayList<Player> players) {
+        ArrayList<Team> teams= new ArrayList<>();
+        for (Player p: players) {
+            if (!teams.contains(p.getTeam())) {
+                teams.add(p.getTeam());
+            }
+        }
+        return teams;
+    }
 
+
+    /**
+     * This method generates players with given names
+     * @param playerNames the names of the players of the game
+     * @exception InvalidPlayerNumException when player number is greater than 4 or smaller than 2
+     * @return ArrayList<Player> the generated players
+     */
     public ArrayList<Player> genPlayers(ArrayList<String> playerNames) throws InvalidPlayerNumException{
         Random rand=new Random();
         ArrayList<Player> players=new ArrayList<>();
@@ -50,16 +75,13 @@ public class PlayerController {
         }
         return players;
     }
-    public ArrayList<Team> getTeams(ArrayList<Player> players) {
-        ArrayList<Team> teams= new ArrayList<>();
-        for (Player p: players) {
-            if (!teams.contains(p.getTeam())) {
-                teams.add(p.getTeam());
-            }
-        }
-        return teams;
-    }
 
+    /**
+     * This method is used to know which players are from a certain team
+     * @param players all the players of the current game
+     * @param t the team from which we want to know the players
+     * @return ArrayList<Player> the players from the Team t
+     */
     public ArrayList<Player> getPlayersOnTeam(ArrayList<Player> players, Team t) {
         ArrayList<Player> res=new ArrayList<>();
         for (Player p: players) {
@@ -69,6 +91,13 @@ public class PlayerController {
         }
         return res;
     }
+
+    /**
+     * This method is used to calculate the combined disks present owned by a team in its players dining rooms
+     * @param t the team we want to calculate the disks from
+     * @param players all the players of the current game
+     * @return ArrayList<Colour> all the disks owned by the team
+     */
     public ArrayList<Colour> getTeamColours(Team t, ArrayList<Player> players) {
         ArrayList<Colour> colours=new ArrayList<>();
         for (Player p: players) {
@@ -82,6 +111,17 @@ public class PlayerController {
         }
         return colours;
     }
+
+    /**
+     * This method is used from a player to move the students from the entrance to his dining room
+     * @param  p the player who wants to move the students
+     * @param players all the players of the current game
+     * @param c the Colour of the disk the player wants to move to his dining room
+     * @param expertMode true if the game is in expertMode, false otherwise
+     * @exception InsufficientResourceException when player p doesn't have a student of the specified colour to move from their entrance
+     * @exception DiningRoomFullException when player p is trying to fill a row of the dining room that is already full
+     */
+
     public void moveStudentToDiningRoom(Player p, ArrayList<Player> players, Colour c, boolean expertMode) throws InsufficientResourceException,DiningRoomFullException {
         if (p.getSchoolBoard().getContents().get(c)==0) {
             throw new InsufficientResourceException("Not enough "+c+" students in entrance");
@@ -109,6 +149,13 @@ public class PlayerController {
         }
     }
 
+    /**
+     * This method is used to increment/decrement the number of towers owned by a player or by a Team (case of 4-players game)
+     * @param players all the players of the current game
+     * @param winningTeam the team that won towers
+     * @param losingTeam the team that lost towers
+     * @param towerNum the number of towers that got won/lost
+     */
     public void swapTeamTower(ArrayList<Player> players, Team winningTeam, Team losingTeam, int towerNum) {
         if (players.size()==4) {
             ArrayList<Player> winningPlayers=getPlayersOnTeam(players,winningTeam);

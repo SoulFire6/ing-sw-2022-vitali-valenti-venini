@@ -11,8 +11,17 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class AssistantCardController {
+
+    /**
+     * Controller class that handles the generation and the activation of assistant cards
+     */
+
     private static final String CARD_DATA_PATH="/CardData/AssistantCards.csv";
 
+    /**
+     * This method is used to generate a player's hand, composed of 10 assistant cards, by reading from a .csv file the values needed to generate them.
+     * @return ArrayList<AssistantCard> This does return an ArrayList composed of 10 assistant cards
+     */
     public ArrayList<AssistantCard> genHand() {
         ArrayList<AssistantCard> res=new ArrayList<>();
         String[] card;
@@ -33,6 +42,15 @@ public class AssistantCardController {
         return res;
     }
 
+
+    /**
+     * This method is invoked when Player p requests to play a AssistantCard with ID assistID
+     * @param assistID The ID of the AssistantCard the Player p wants to play
+     * @param p The Player object representing the player wanting to play the assistant card
+     * @param players The ArrayList<Player> containing all the players of the current match
+     * @exception AssistantCardNotFoundException when the assistant card with the specified ID isn't found
+     * @exception AssistantCardAlreadyPlayedException when the assistant card with the specified ID was already played in a previous turn
+     */
     public void playAssistantCard(Player p, String assistID, ArrayList<Player> players) throws AssistantCardNotFoundException, AssistantCardAlreadyPlayedException {
         AssistantCard playedCard=null;
         for (AssistantCard card: p.getSchoolBoard().getHand()) {

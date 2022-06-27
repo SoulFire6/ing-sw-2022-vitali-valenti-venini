@@ -13,6 +13,10 @@ import java.lang.Exception;
 import java.util.*;
 
 public class LobbyController {
+
+    /**
+     Controller class that handles player lobby
+     */
     private final Game game;
     private final String lobbyName;
     private final TurnManager turnManager;
@@ -23,6 +27,14 @@ public class LobbyController {
     private final ObjectOutputStream saveFileStream;
 
     //Constructor for new game
+    /**
+     * This method is the constructor of the LobbyController class.
+     * @param playerNames ArrayList<String> names of the players of a certain game
+     * @param expertMode boolean set to false if the game isn't in expert mode, set to true if the game is in expert mode
+     * @param lobbyName String used to identify the lobby when creating/joining a game
+     * @param saveFile File where to save the state of the game
+     * @exception InvalidPlayerNumException when the number of players is greater than 4 or smaller than 2
+     */
     public LobbyController(ArrayList<String> playerNames, boolean expertMode, String lobbyName, File saveFile) throws InvalidPlayerNumException {
         this.lobbyName=lobbyName;
         this.saveFileStream=setupFileStream(saveFile);
@@ -31,6 +43,13 @@ public class LobbyController {
         this.turnManager = new TurnManager(game.getPlayers(),game.getClouds().get(0).getMaxSlots());
         saveGame();
     }
+
+    /**
+     * This method is the constructor of the LobbyController class when it's requested to load an existing game
+     * @param lobbyName String used to identify the lobby
+     * @param saveFile File from which the state of the game is loaded
+     * @exception GameLoadException when there is any error with the loading of the state of the game from the file where it was saved
+     */
     //Constructor for loading a game
     public LobbyController(String lobbyName, File saveFile) throws GameLoadException {
         this.lobbyName=lobbyName;
@@ -42,6 +61,10 @@ public class LobbyController {
         this.turnManager=game!=null?new TurnManager(game.getPlayers(),game.getClouds().get(0).getMaxSlots(),reducedGame):null;
     }
 
+    /**
+     * This method initializes the output stream to save the game
+     * @param saveFile File where the state of the game is saved
+     */
     private ObjectOutputStream setupFileStream(File saveFile) {
         if (saveFile==null) {
             return null;
@@ -60,6 +83,9 @@ public class LobbyController {
         return objectOutputStream;
     }
 
+    /**
+     * This method is used to close the Stream with the file where the state of the game is saved
+     */
     public void closeFileStream() {
         if (saveFileStream!=null) {
             try {
@@ -72,6 +98,13 @@ public class LobbyController {
 
         }
     }
+    /**
+     * This method creates a new Game object representing the actual Game
+     * @param playerNames ArrayList<String> containing the names of the players
+     * @param expertMode boolean set to 0 if the game isn't in expert mode, set to 1 if it is
+     * @exception InvalidPlayerNumException when the number of players is greater than 4 or smaller than 2
+     * @return Game returns the new Game object
+     */
     private Game createGame(ArrayList<String> playerNames,boolean expertMode) throws InvalidPlayerNumException {
         Bag_Tile bag=new Bag_Tile(24);
         ArrayList<Player> players=playerController.genPlayers(playerNames);
@@ -84,6 +117,10 @@ public class LobbyController {
         ArrayList<Cloud_Tile> clouds = tileController.genClouds(playerNames.size(),3+playerNames.size()%2,bag);
         return new Game("Game",players,teams,bag,clouds,islands,expertMode,expertMode?20:0,expertMode?charCardController.genNewCharacterCards(3,bag):null);
     }
+
+    /**
+     * This method is used to save the state of the Game to the File represented by saveFileStream
+     */
     public void saveGame() {
         if (saveFileStream!=null) {
             System.out.println("SAVING GAME...");
@@ -96,6 +133,12 @@ public class LobbyController {
             }
         }
     }
+    /**
+     * This method is used to load an existing game saved on a File
+     * @param saveFile File from which the state of the game is loaded
+     * @exception GameLoadException when there's any exception regarding the load of the game
+     * @return ReducedGame an incomplete representation of the Game, needed to the client
+     * */
     private ReducedGame loadGame(File saveFile) throws GameLoadException {
         try {
             ObjectInputStream objectInputStream=new ObjectInputStream(new FileInputStream(saveFile));
@@ -111,6 +154,13 @@ public class LobbyController {
             throw new GameLoadException("Class not found");
         }
     }
+
+    /**
+     * This method converts a ReducedGame object to a Game object representing the same game
+     * @param reducedGame the ReducedGame to convert
+     * @exception GameLoadException when there's any exception regarding the load of the game from the file where it was saved
+     * @return Game the Game which represents the same game of the ReducedGame
+     */
     private Game convertSaveFile(ReducedGame reducedGame) throws GameLoadException {
         if (reducedGame==null) {
             return null;
@@ -198,6 +248,13 @@ public class LobbyController {
         return playerController;
     }
 
+    /**
+     * This method is used to analyze the Message received by a Player and, if it's legal, to fullfill the Player's requests
+     * @param inMessage the Message sent by the Player
+     * @exception LobbyClientDisconnectedException when a client does disconnect
+     * @exception GameIsOverException when the game is over
+     * @return ArrayList<Message> response the Messages of response to the Clients from the Server
+     */
     public ArrayList<Message> parseMessage(Message inMessage) throws LobbyClientDisconnectedException, GameIsOverException {
         Player currentPlayer=null;
         ArrayList<Message> response=new ArrayList<>();
@@ -347,6 +404,10 @@ public class LobbyController {
         }
         return response;
     }
+    /**
+     * This method is used to calculate the winner Team when a GameIsOverException is raised
+     * @return Team the winnng team
+     */
     public Team calculateWinningTeam() {
         EnumMap<Team,Integer> teamTowers=new EnumMap<>(Team.class);
         EnumMap<Team,Integer> teamProfessors=new EnumMap<>(Team.class);

@@ -1,10 +1,17 @@
 package it.polimi.softeng.controller;
 
+import it.polimi.softeng.exceptions.InsufficientResourceException;
+import it.polimi.softeng.exceptions.TileNotFoundException;
 import it.polimi.softeng.model.Player;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+
+
+/**
+ Controller class that handles players turn orders
+ */
 
 public class TurnManager {
     private final ArrayList<Player> playerOrder;
@@ -30,8 +37,11 @@ public class TurnManager {
 
     TurnState turnState;
 
-    TurnState[] turnStates = TurnState.values();
-
+    /**
+     * This method is TurnManager constructor without loading from saved file
+     * @param playerOrder list of all the players of the game
+     * @param maxMoves the maximum number of moves that's allowed in a turn
+     */
 
     public TurnManager(ArrayList<Player> playerOrder, int maxMoves) {
         this.playerOrder = playerOrder;
@@ -41,6 +51,14 @@ public class TurnManager {
         this.turnState = TurnState.ASSISTANT_CARDS_PHASE;
     }
 
+    TurnState[] turnStates = TurnState.values();
+
+    /**
+     * This method is TurnManager constructor loading from saved file
+     * @param playerOrder list of all the players of the game
+     * @param maxMoves the maximum number of moves that's allowed in a turn
+     * @param save contains the state of the game saved
+     */
     public TurnManager(ArrayList<Player> playerOrder, int maxMoves, ReducedGame save) {
         this.playerOrder=playerOrder;
         this.maxMoves=maxMoves;
@@ -53,6 +71,10 @@ public class TurnManager {
         }
         this.turnState=save.getCurrentPhase();
     }
+
+    /**
+     * This method is responsible for changing the turnState attribute based on the current player and the previous turnState value
+     */
 
     public void nextAction() {
         switch (turnState) {
@@ -95,6 +117,9 @@ public class TurnManager {
         }
     }
 
+    /**
+     * This method is called after whole round is finished, and sort the playerOrder list for the next round
+     */
     //This method is called after the whole round is finished
     public void refreshTurnOrder() {
         //Order the list based on the last played card by each Player

@@ -1,9 +1,6 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.exceptions.CharacterCardNotFoundException;
-import it.polimi.softeng.exceptions.GameIsOverException;
-import it.polimi.softeng.exceptions.InsufficientResourceException;
-import it.polimi.softeng.exceptions.MoveNotAllowedException;
+import it.polimi.softeng.exceptions.*;
 import it.polimi.softeng.model.*;
 
 import java.io.BufferedReader;
@@ -14,8 +11,24 @@ import java.util.EnumMap;
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * Controller class that handles the generation and the activation of character cards
+ */
+
 public class CharCardController {
     private static final String CARD_DATA_PATH="/CardData/CharacterCards.csv";
+
+    /**
+     * This method is used to check (if present) if the character card can be activated by a player
+     * @param p the player who want to perform the operation
+     * @param cardID the ID of the character card that needs to be found
+     * @param cards the list of all the usable cards of the current Game
+     * @exception CharacterCardNotFoundException when the character card is not present in the current game
+     * @exception InsufficientResourceException when the player doesn't have enough resources to activate the card
+     * @exception MoveNotAllowedException when the action is requested in a not allowed state of the game
+     * @exception GameIsOverException when the game is already over
+     * @return boolean true if the operation succeeded, false otherwise
+     */
     public CharacterCard findAndCheckCard(Player p,String cardID, ArrayList<CharacterCard> cards) throws CharacterCardNotFoundException, InsufficientResourceException, MoveNotAllowedException, GameIsOverException {
         CharacterCard playedCard = null;
         for (CharacterCard card : cards) {
@@ -36,6 +49,15 @@ public class CharCardController {
         return playedCard;
     }
 
+    /**
+     * This method is used to play one CharacterCard
+     * @param card the CharacterCard that needs to be played
+     * @param player the Player who wants to activate the card
+     * @param charArgs any parameter needed for the activation of a specific CharacterCard
+     * @param controller the LobbyController object of the current game
+     * @exception GameIsOverException when the game is already over
+     * @exception MoveNotAllowedException when the action is requested in a not allowed state of the game
+     */
     public void playCharacterCard(CharacterCard card, Player player, String[] charArgs, LobbyController controller) throws GameIsOverException,MoveNotAllowedException {
         card.getCharacter().activateCard(player,charArgs,controller);
         player.getSchoolBoard().setCoins(player.getSchoolBoard().getCoins()-card.getCost());
@@ -43,6 +65,11 @@ public class CharCardController {
         card.incrementCost();
     }
     //Deactivates all cards (to be used at end of turn when effect for all cards ends)
+    /**
+     * This method set all CharacterCards active attribute to false
+     * @param cards all the character cards that are in the current game
+     * @param players players of the current game
+     */
     public void deactivateAllCards(ArrayList<CharacterCard> cards, ArrayList<Player> players) {
         for (CharacterCard card : cards) {
             card.setActive(false);
@@ -70,6 +97,12 @@ public class CharCardController {
         }
     }
 
+    /**
+     * This method is the constructor of the LobbyController class when it's requested to load an existing game
+     * @param num number of character cards to be generated
+     * @param bag the bag of the current game
+     * @return res the generated character cards
+     */
     public ArrayList<CharacterCard> genNewCharacterCards(int num, Bag_Tile bag) {
         Random rand=new Random();
         ArrayList<CharacterCard> res=new ArrayList<>();
@@ -104,6 +137,11 @@ public class CharCardController {
         }
         return res;
     }
+    /**
+     * This method initialize the character cards based on their type
+     * @param b the Bag of the current game
+     * @param cards the character cards that need to be initialized
+     */
     public void setUpCards(Bag_Tile b, ArrayList<CharacterCard> cards) {
         for (CharacterCard card: cards) {
             switch (card.getCharacter().getMemType()) {
@@ -119,6 +157,13 @@ public class CharCardController {
         }
     }
 
+    /**
+     * This method is the constructor of the LobbyController class when it's requested to load an existing game
+     * @param id the ID of the Character card
+     * @param cards the ArrayList containing all the character cards of the current game
+     * return true if the card with the specified id is active, false otherwise
+
+     */
     public boolean getActiveStatus(CharID id, ArrayList<CharacterCard> cards) {
         for (CharacterCard card : cards) {
             if (card.getCharacter().equals(id)) {
