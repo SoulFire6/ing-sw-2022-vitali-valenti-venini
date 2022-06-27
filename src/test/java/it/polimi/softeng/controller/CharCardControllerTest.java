@@ -37,33 +37,30 @@ public class CharCardControllerTest {
         ArrayList<String> playerNames=new ArrayList<>();
         playerNames.add(player.getName());
         playerNames.add("test 2");
+        CharacterCard validCard=null;
+        ArrayList<CharID> validIDs=new ArrayList<>(Arrays.asList(CharID.CENTAUR,CharID.KNIGHT,CharID.MAGIC_POSTMAN));
         LobbyController testController;
         try {
             do {
                 testController=new LobbyController(playerNames,true,null,null);
                 ArrayList<CharacterCard> cards=new ArrayList<> (testController.getGame().getCharacterCards());
                 for (CharacterCard card : cards) {
-                    switch (card.getCharacter()) {
-                        case CENTAUR:
-                        case KNIGHT:
-                        case FARMER:
-                        case MAGIC_POSTMAN:
-                            break;
-                        default:
-                            testController.getGame().getCharacterCards().remove(card);
-                            break;
+                    if (validIDs.contains(card.getCharacter())) {
+                        validCard = card;
+                        break;
                     }
                 }
-            }while(testController.getGame().getCharacterCards().size()==0);
+            }while(validCard==null);
             final LobbyController controller=testController;
-            CharacterCard card=controller.getGame().getCharacterCards().get(0);
-            int initialCost=card.getCost();
+            final CharacterCard card=validCard;
+            int initialCost=validCard.getCost();
             player.setSchoolBoard(new SchoolBoard_Tile("test",0,0,0,null,0));
             assertThrows(InsufficientResourceException.class,()->charController.findAndCheckCard(player,card.getCardID(),controller.getGame().getCharacterCards()));
             player.getSchoolBoard().setCoins(initialCost);
             assertDoesNotThrow(()->charController.findAndCheckCard(player,card.getCardID(),controller.getGame().getCharacterCards()));
-            final CharacterCard playedCard=charController.findAndCheckCard(player,card.getCardID(),controller.getGame().getCharacterCards());
-            assertDoesNotThrow(()->charController.playCharacterCard(playedCard,player,"".split(""),controller));
+            assertEquals(card,charController.findAndCheckCard(player,card.getCardID(),controller.getGame().getCharacterCards()));
+            player.getSchoolBoard().setLastUsedCard(new AssistantCard("test",0,0));
+            assertDoesNotThrow(()->charController.playCharacterCard(card,player,"".split(""),controller));
             assertEquals(0,player.getSchoolBoard().getCoins());
             assertEquals(initialCost+1,card.getCost());
             assertThrows(CharacterCardNotFoundException.class,()->charController.findAndCheckCard(player,"illegal card id",controller.getGame().getCharacterCards()).getCharacter().activateCard(player,"".split(""),controller));
