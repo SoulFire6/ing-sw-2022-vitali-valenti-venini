@@ -11,10 +11,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import jdk.jfr.Name;
 
 
@@ -25,7 +22,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class IslandPane extends GridPane {
+public class IslandPane extends AnchorPane {
     @FXML
     ButtonWithLabel yellow, blue, green, red, purple;
 

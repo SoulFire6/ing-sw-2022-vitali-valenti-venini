@@ -5,15 +5,17 @@
 
 <?import it.polimi.softeng.network.client.view.FXML_Controllers.*?>
 <?import javafx.scene.image.Image?>
-<fx:root type="javafx.scene.layout.GridPane" minWidth="100" maxWidth="-Infinity" minHeight="100" maxHeight="-Infinity" xmlns:fx="http://javafx.com/fxml" gridLinesVisible="true">
-    <ImageView fx:id="motherNature" visible="false" fitHeight="20" fitWidth="20" GridPane.rowIndex="2"  GridPane.columnIndex="2">
+<?import javafx.scene.control.Label?>
+<fx:root type="javafx.scene.layout.AnchorPane" minWidth="100" maxWidth="-Infinity" minHeight="100" maxHeight="-Infinity" xmlns:fx="http://javafx.com/fxml">
+    <ImageView fx:id="motherNature" visible="false" fitWidth="20" fitHeight="20" AnchorPane.topAnchor="40" AnchorPane.bottomAnchor="40" AnchorPane.leftAnchor="40" AnchorPane.rightAnchor="40">
         <image>
             <Image url="/Assets/GUI/Icons/Mother_Nature.png"/>
         </image>
     </ImageView>
-    <ButtonWithLabel fx:id="yellow" prefWidth="20" prefHeight="20"  GridPane.rowIndex="0" GridPane.columnIndex="2" button-style="-fx-background-image: url('/Assets/GUI/Icons/Yellow_Disk.png');-fx-background-size: contain" />
-    <ButtonWithLabel fx:id="blue" prefWidth="20" prefHeight="20" GridPane.rowIndex="2" GridPane.columnIndex="0" button-style="-fx-background-image: url('/Assets/GUI/Icons/Blue_Disk.png');-fx-background-size: contain" />
-    <ButtonWithLabel fx:id="green" prefWidth="20" prefHeight="20" GridPane.rowIndex="2" GridPane.columnIndex="4" button-style="-fx-background-image: url('/Assets/GUI/Icons/Green_Disk.png');-fx-background-size: contain" />
-    <ButtonWithLabel fx:id="red" prefWidth="20" prefHeight="20" GridPane.rowIndex="4" GridPane.columnIndex="1" button-style="-fx-background-image: url('/Assets/GUI/Icons/Red_Disk.png');-fx-background-size: contain" />
-    <ButtonWithLabel fx:id="purple" prefWidth="20" prefHeight="20" GridPane.rowIndex="4" GridPane.columnIndex="3" button-style="-fx-background-image: url('/Assets/GUI/Icons/Purple_Disk.png');-fx-background-size: contain" />
+    <ButtonWithLabel fx:id="yellow" prefWidth="20" prefHeight="20" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="40" AnchorPane.rightAnchor="40" button-style="-fx-background-image: url('/Assets/GUI/Icons/Yellow_Disk.png');-fx-background-size: contain" />
+    <ButtonWithLabel fx:id="blue" prefWidth="20" prefHeight="20" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="20" AnchorPane.bottomAnchor="60"  button-style="-fx-background-image: url('/Assets/GUI/Icons/Blue_Disk.png');-fx-background-size: contain" />
+    <ButtonWithLabel fx:id="green" prefWidth="20" prefHeight="20" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="20" AnchorPane.bottomAnchor="60" GridPane.rowIndex="2" button-style="-fx-background-image: url('/Assets/GUI/Icons/Green_Disk.png');-fx-background-size: contain" />
+    <ButtonWithLabel fx:id="red" prefWidth="20" prefHeight="20" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="60" AnchorPane.bottomAnchor="20" button-style="-fx-background-image: url('/Assets/GUI/Icons/Red_Disk.png');-fx-background-size: contain" />
+    <ButtonWithLabel fx:id="purple" prefWidth="20" prefHeight="20" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="60" AnchorPane.bottomAnchor="20" button-style="-fx-background-image: url('/Assets/GUI/Icons/Purple_Disk.png');-fx-background-size: contain" />
+    <Label fx:id="tower" prefHeight="20" prefWidth="20" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="40" AnchorPane.leftAnchor="40" text="0"/>
 </fx:root>
