@@ -2,15 +2,12 @@ package it.polimi.softeng.network.client.view.FXML_Controllers;
 
 import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.ReducedModel.ReducedIsland;
-import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.beans.NamedArg;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -18,10 +15,7 @@ import javafx.scene.layout.*;
 
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.URL;
-import java.util.EnumMap;
-import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class IslandPane extends AnchorPane implements Initializable {

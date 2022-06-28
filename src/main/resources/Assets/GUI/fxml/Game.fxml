@@ -7,7 +7,7 @@
     <VBox fx:id="oppositePlayer" AnchorPane.topAnchor="0"/>
     <VBox fx:id="leftPlayer" AnchorPane.leftAnchor="0"/>
     <VBox fx:id="rightPlayer" AnchorPane.rightAnchor="0"/>
-    <GridPane fx:id="tiles" prefHeight="400" prefWidth="400" gridLinesVisible="true" BorderPane.alignment="CENTER" AnchorPane.topAnchor="200" AnchorPane.bottomAnchor="200" AnchorPane.rightAnchor="200" AnchorPane.leftAnchor="200">
+    <GridPane fx:id="tiles" minWidth="400" minHeight="400" prefHeight="400" prefWidth="400" gridLinesVisible="true" BorderPane.alignment="CENTER" AnchorPane.topAnchor="100" AnchorPane.bottomAnchor="100" AnchorPane.rightAnchor="100" AnchorPane.leftAnchor="100">
         <IslandPane fx:id="Island_1" img-src="Island_1.png" GridPane.columnIndex="0" GridPane.rowIndex="0" prefHeight="100" prefWidth="100"/>
         <IslandPane fx:id="Island_2" img-src="Island_2.png" GridPane.columnIndex="0" GridPane.rowIndex="1" prefHeight="100" prefWidth="100"/>
         <IslandPane fx:id="Island_3" img-src="Island_3.png" GridPane.columnIndex="0" GridPane.rowIndex="2" prefHeight="100" prefWidth="100"/>
@@ -35,5 +35,5 @@
     <ScrollPane prefWidth="200" prefHeight="200" AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="0">
         <VBox fx:id="gameChat"/>
     </ScrollPane>
-    <AnchorPane fx:id="characterCards"/>
+    <VBox fx:id="characterCards"/>
 </fx:root>

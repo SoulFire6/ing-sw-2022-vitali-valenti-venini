@@ -2,11 +2,12 @@ package it.polimi.softeng.network.client.view.FXML_Controllers;
 
 import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.exceptions.UpdateGUIException;
+import it.polimi.softeng.model.CharID;
 import it.polimi.softeng.model.ReducedModel.*;
-import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -17,19 +18,16 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
+import java.net.URL;
+import java.util.*;
 
-public class GamePane extends AnchorPane {
+public class GamePane extends AnchorPane implements Initializable {
     @FXML
     VBox you, oppositePlayer, leftPlayer, rightPlayer;
     @FXML
     GridPane tiles;
     @FXML
-    AnchorPane characterCards,turnState;
-
+    VBox characterCards;
     @FXML
     VBox gameChat;
     @FXML
@@ -41,36 +39,49 @@ public class GamePane extends AnchorPane {
     private final ArrayList<VBox> otherPlayers=new ArrayList<>();
     private final ArrayList<IslandPane> visibleIslands=new ArrayList<>();
     private final ArrayList<CloudPane> visibleClouds=new ArrayList<>();
+    private MessageSender messageSender;
+
+    private final Properties characterInfo=new Properties();
     public GamePane() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Game.fxml"));
             loader.setRoot(this);
             loader.setController(this);
             loader.load();
-            for (Node node : tiles.getChildren()) {
-                if (node.getId()!=null) {
-                    if (node.getId().contains("Island")) {
-                        visibleIslands.add((IslandPane) node);
-                    }
-                    if (node.getId().contains("Cloud")) {
-                        visibleClouds.add((CloudPane) node);
-                    }
-                }
-            }
-            for (IslandPane island : visibleIslands) {
-                island.prefHeightProperty().bind(tiles.heightProperty().subtract(100).divide(4));
-                island.prefWidthProperty().bind(tiles.widthProperty().subtract(100).divide(4));
-            }
-            for (CloudPane cloud : visibleClouds) {
-                cloud.prefHeightProperty().bind(tiles.heightProperty().subtract(100).divide(4));
-                cloud.prefWidthProperty().bind(tiles.widthProperty().subtract(100).divide(4));
-            }
-            toggleHandButton.setOnAction(event->assistantCards.setVisible(!assistantCards.isVisible()));
-            otherPlayers.addAll(Arrays.asList(oppositePlayer,rightPlayer,leftPlayer));
         }
         catch (IOException io) {
             io.printStackTrace();
             throw new RuntimeException(io);
+        }
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        for (Node node : tiles.getChildren()) {
+            if (node.getId()!=null) {
+                if (node.getId().contains("Island")) {
+                    visibleIslands.add((IslandPane) node);
+                }
+                if (node.getId().contains("Cloud")) {
+                    visibleClouds.add((CloudPane) node);
+                }
+            }
+        }
+        for (IslandPane island : visibleIslands) {
+            island.prefHeightProperty().bind(tiles.heightProperty().subtract(100).divide(4));
+            island.prefWidthProperty().bind(tiles.widthProperty().subtract(100).divide(4));
+        }
+        for (CloudPane cloud : visibleClouds) {
+            cloud.prefHeightProperty().bind(tiles.heightProperty().subtract(100).divide(4));
+            cloud.prefWidthProperty().bind(tiles.widthProperty().subtract(100).divide(4));
+        }
+        toggleHandButton.setOnAction(event->assistantCards.setVisible(!assistantCards.isVisible()));
+        otherPlayers.addAll(Arrays.asList(oppositePlayer,rightPlayer,leftPlayer));
+        try {
+            characterInfo.load(getClass().getResourceAsStream("/CardData/CharacterCards.properties"));
+        }
+        catch (IOException ignored) {
+
         }
     }
 
@@ -84,25 +95,23 @@ public class GamePane extends AnchorPane {
                 chatLabel.setStyle("-fx-text-fill: blue");
                 break;
             default:
-                chatLabel.setStyle("-fx-text-fill: orange");
+                chatLabel.setStyle("-fx-text-fill: black");
                 break;
         }
         this.gameChat.getChildren().add(chatLabel);
     }
 
-    public void setupGame(MessageSender messageSender, ReducedGame model) throws UpdateGUIException {
-        /*
-        updateIslands(toServer,sender,model.getIslands());
-        setupClouds(toServer,sender);
+    public void setupGame(ReducedGame model) throws UpdateGUIException {
+        updateIslands(model.getIslands());
         updateClouds(model.getClouds());
         for (ReducedPlayer player : model.getPlayers()) {
-            updatePlayer(toServer,sender,player);
+            updatePlayer(player);
         }
-         */
         updateTurnState(model);
     }
 
-    public void setupTiles(MessageSender messageSender) {
+    public void setMessageSender(MessageSender messageSender) {
+        this.messageSender=messageSender;
         for (IslandPane island : visibleIslands) {
             island.setMessageSender(messageSender);
         }
@@ -110,30 +119,20 @@ public class GamePane extends AnchorPane {
             cloud.setMessageSender(messageSender);
         }
     }
-    public void updateIslands(ObjectOutputStream toServer, String sender, ArrayList<ReducedIsland> reducedIslands) throws UpdateGUIException {
+    public void updateIslands(ArrayList<ReducedIsland> reducedIslands) throws UpdateGUIException {
+        Optional<ReducedIsland> motherNatureIsland=reducedIslands.stream().filter(ReducedIsland::hasMotherNature).findFirst();
+        if (motherNatureIsland.isEmpty()) {
+            throw new UpdateGUIException("Could not find mother nature island");
+        }
         int distance;
-        boolean found;
-        ReducedIsland motherNatureIsland = null;
-        for (ReducedIsland reducedIsland : reducedIslands) {
-            if (reducedIsland.hasMotherNature()) {
-                motherNatureIsland = reducedIsland;
-                break;
+        for (IslandPane islandPane : visibleIslands) {
+            Optional<ReducedIsland> reducedIsland=reducedIslands.stream().filter(island -> island.getID().equals(islandPane.getId())).findFirst();
+            if (reducedIsland.isPresent()) {
+                distance=reducedIslands.indexOf(motherNatureIsland.get()) - reducedIslands.indexOf(reducedIsland.get());
+                islandPane.update(reducedIsland.get(), distance < 0 ? reducedIslands.size() + distance : distance);
+            } else {
+                islandPane.setVisible(false);
             }
-        }
-        if (motherNatureIsland == null) {
-            throw new UpdateGUIException("Error updating islands");
-        }
-        for (IslandPane island : visibleIslands) {
-            found=false;
-            for (ReducedIsland reducedIsland : reducedIslands) {
-                if (island.getId().equals(reducedIsland.getID())) {
-                    distance = reducedIslands.indexOf(motherNatureIsland) - reducedIslands.indexOf(reducedIsland);
-                    island.update(reducedIsland, distance < 0 ? reducedIslands.size() + distance : distance);
-                    found=true;
-                    break;
-                }
-            }
-            island.setVisible(found);
         }
         visibleIslands.removeIf(islandPane -> !islandPane.isVisible());
     }
@@ -155,57 +154,65 @@ public class GamePane extends AnchorPane {
         visibleClouds.removeIf(cloudPane -> !cloudPane.isVisible());
     }
 
-    public void updatePlayer(ObjectOutputStream toServer, String sender, ReducedPlayer player) {
-        if (player.getName().equals(sender)) {
+    public void updatePlayer(ReducedPlayer player) {
+        if (player.getName().equals(messageSender.getSender())) {
             //Update interactive elements
-            updateHand(toServer, sender, player.getSchoolBoard().getHand());
-            updateSchoolBoard(toServer, sender, player.getSchoolBoard());
+            updateHand(player.getSchoolBoard().getHand());
+            updateSchoolBoard(player.getSchoolBoard(),true);
         } else {
             //Update passive elements
-            for (VBox playerVBox : otherPlayers) {
-                if (playerVBox.getId().equals(player.getName())) {
-                    updateSchoolBoard(player.getSchoolBoard());
-                }
-            }
+            updateSchoolBoard(player.getSchoolBoard(),false);
         }
     }
 
-    public void updateHand(ObjectOutputStream toServer, String sender, ArrayList<ReducedAssistantCard> cards) {
+    public void updateHand(ArrayList<ReducedAssistantCard> cards) {
         assistantCards.getItems().clear();
         if (assistantCards.getContextMenu()!=null) {
             assistantCards.getContextMenu().getItems().clear();
         }
         for (ReducedAssistantCard card : cards) {
-            System.out.println("SETTING CARD");
+            //TODO add zoom when mouse is hovered over it so it can be seen better
             ImageView assistantCard=new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Cards/Assistants/" + card.getId() + "_LQ.png")).toExternalForm()));
             assistantCard.fitHeightProperty().bind(assistantCards.heightProperty());
             assistantCard.fitWidthProperty().bind(assistantCard.fitHeightProperty().divide(3).multiply(2));
-            assistantCard.addEventHandler(MouseEvent.MOUSE_PRESSED,event->{
-                try {
-                    toServer.writeObject(MessageCenter.genMessage(MsgType.PLAYASSISTCARD,sender,card.getId(),card.getId()));
-                }
-                catch (IOException io) {
-                    Alert alert=new Alert(Alert.AlertType.ERROR);
-                    alert.setContentText("Error sending message to server");
-                    alert.showAndWait();
-                }
-            });
+            assistantCard.addEventHandler(MouseEvent.MOUSE_PRESSED,event-> messageSender.sendMessage(MsgType.PLAYASSISTCARD,card.getId(),card.getId()));
+            assistantCard.setAccessibleText("Card id: "+card.getId()+"\nTurn value: "+card.getTurnValue()+"\nMother nature value: "+card.getMotherNatureValue());
             assistantCards.getItems().add(assistantCard);
         }
     }
 
-    public void updateSchoolBoard(ObjectOutputStream toServer, String sender, ReducedSchoolBoard schoolBoard) {
-        //TODO implement
-    }
-
-    public void updateSchoolBoard(ReducedSchoolBoard schoolBoard) {
-        //TODO implement
+    public void updateSchoolBoard(ReducedSchoolBoard schoolBoard, boolean personalBoard) {
+        //TODO implement (if not personalBoard do not send message to server when clicked)
     }
     public void updateTurnState(ReducedGame model) {
         currentPhase.setText("Current phase: "+model.getCurrentPhase().getDescription()+(model.getCurrentPhase().equals(TurnManager.TurnState.MOVE_STUDENTS_PHASE)?"(Remaining moves: "+model.getRemainingMoves()+")":""));
         currentPlayer.setText("Current player:"+model.getCurrentPlayer());
     }
-    public void updateCharacterCards(ObjectOutputStream toServer, String sender, ArrayList<ReducedCharacterCard> cards) {
-
+    public void updateCharacterCards(ArrayList<ReducedCharacterCard> cards) {
+        characterCards.getChildren().clear();
+        for (ReducedCharacterCard card : cards) {
+            System.out.println(card.getId()+" : "+card.getCharID());
+            Node charCard;
+            switch (CharID.MemType.valueOf(card.getMemoryType())) {
+                //TODO implement different visuals for cards
+                case PLAYER_COLOUR_MAP:
+                case INTEGER:
+                case INTEGER_COLOUR_MAP:
+                case BOOLEAN_COLOUR_MAP:
+                case NONE:
+                default:
+                    charCard=new Button();
+                    charCard.setStyle("-fx-background-image: url('/Assets/GUI/Cards/Characters/"+card.getCharID()+"')");
+                    charCard.addEventHandler(MouseEvent.MOUSE_PRESSED,event->messageSender.sendMessage(MsgType.PLAYCHARCARD,"",card.getCharID()));
+                    break;
+            }
+            characterCards.getChildren().add(charCard);
+        }
+    }
+    public void updateCoins(int coins) {
+        //TODO implement
+    }
+    public void updateBag(ReducedBag bag) {
+        //TODO implement
     }
 }

@@ -86,7 +86,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT, username, null, null));
                 System.out.println("SENT");
                 messageSender=new MessageSender(username,toServer);
-                gameAnchorPane.setupTiles(messageSender);
+                gameAnchorPane.setMessageSender(messageSender);
                 loginVBox.setVisible(false);
                 inputVBox.setVisible(true);
             }
@@ -178,7 +178,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                     case PLAYERS:
                         for (ReducedPlayer player : (ArrayList<ReducedPlayer>) evt.getNewValue()) {
                             System.out.println("Updating "+player.getName());
-                            //gameAnchorPane.updatePlayer(toServer,username,player);
+                            gameAnchorPane.updatePlayer(player);
                         }
                         System.out.println("UPDATE PLAYERS");
                         break;
@@ -190,24 +190,24 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                         gameAnchorPane.updateTurnState((ReducedGame)evt.getNewValue());
                         break;
                     case ISLANDS:
-                        //gameAnchorPane.updateIslands(toServer,username,(ArrayList<ReducedIsland>)evt.getNewValue());
+                        gameAnchorPane.updateIslands((ArrayList<ReducedIsland>)evt.getNewValue());
                         break;
                     case CLOUDS:
                         gameAnchorPane.updateClouds((ArrayList<ReducedCloud>) evt.getNewValue());
                         break;
                     case COINS:
-                        //TODO implement
+                        gameAnchorPane.updateCoins((Integer)evt.getNewValue());
                         break;
                     case BAG:
-                        //TODO implement
+                        gameAnchorPane.updateBag((ReducedBag)evt.getNewValue());
                         break;
                     case CHARACTER_CARDS:
-                        //gameAnchorPane.updateCharacterCards(toServer,username,(ArrayList<ReducedCharacterCard>) evt.getNewValue());
+                        gameAnchorPane.updateCharacterCards((ArrayList<ReducedCharacterCard>) evt.getNewValue());
                         break;
                     case LOADED_GAME:
                         inputVBox.setVisible(false);
                         gameAnchorPane.setVisible(true);
-                        //gameAnchorPane.setupGame(toServer,username,(ReducedGame) evt.getNewValue());
+                        gameAnchorPane.setupGame((ReducedGame) evt.getNewValue());
                         break;
                     default:
                         Alert alert=new Alert(Alert.AlertType.WARNING);
@@ -216,7 +216,6 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                         break;
                 }
             }
-            /*
             catch (UpdateGUIException uge) {
                 Alert alert=new Alert(Alert.AlertType.ERROR);
                 alert.setContentText(uge.getMessage());
@@ -226,8 +225,6 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                     System.exit(-1);
                 });
             }
-
-             */
             catch (ClassCastException cce) {
                 Alert alert=new Alert(Alert.AlertType.ERROR);
                 alert.setContentText(cce.getMessage());

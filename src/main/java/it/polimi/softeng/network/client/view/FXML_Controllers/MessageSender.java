@@ -34,6 +34,10 @@ public class MessageSender {
             alert.showAndWait();
         }
     }
+
+    public String getSender() {
+        return this.sender;
+    }
     public void closeConnection() throws IOException {
             this.toServer.close();
     }
