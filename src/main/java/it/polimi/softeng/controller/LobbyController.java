@@ -40,6 +40,7 @@ public class LobbyController {
         this.saveFileStream=setupFileStream(saveFile);
         this.charCardController=expertMode?new CharCardController():null;
         this.game=createGame(playerNames,expertMode);
+        saveGame();
         this.turnManager = new TurnManager(game.getPlayers(),game.getClouds().get(0).getMaxSlots());
         saveGame();
     }
@@ -144,6 +145,9 @@ public class LobbyController {
             ObjectInputStream objectInputStream=new ObjectInputStream(new FileInputStream(saveFile));
             ReducedGame reducedGame=(ReducedGame) objectInputStream.readObject();
             objectInputStream.close();
+            ObjectOutputStream objectOutputStream=new ObjectOutputStream(new FileOutputStream(saveFile));
+            objectOutputStream.writeObject(reducedGame);
+            objectOutputStream.close();
             return reducedGame;
         }
         catch (IOException io) {
