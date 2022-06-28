@@ -13,7 +13,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.Arrays;
@@ -97,7 +96,7 @@ public class LoginVBox extends VBox implements Initializable {
             alert.showAndWait();
         }
         catch (IOException io) {
-            new Thread(()->{
+            Thread serverThread=new Thread(()->{
                 try {
                     Server server=new Server();
                     server.main(new String[]{portField.getText()});
@@ -108,7 +107,9 @@ public class LoginVBox extends VBox implements Initializable {
                         alert.showAndWait();
                     });
                 }
-            }).start();
+            });
+            serverThread.setDaemon(true);
+            serverThread.start();
             connectToServer(actionEvent);
         }
     }

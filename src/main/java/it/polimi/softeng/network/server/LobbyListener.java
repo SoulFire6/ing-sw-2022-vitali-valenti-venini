@@ -38,7 +38,7 @@ public class LobbyListener implements Runnable {
         }
         synchronized (clients) {
             clients.remove(client.getUsername());
-            Message message=MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Disconnect", client.getUsername()+" has disconnected, current players: [" + clients.size() + "/" + maxPlayers + "]");
+            Message message=MessageCenter.genMessage(MsgType.CLIENT_NUM,lobbyName,clients.keySet().toString(), client.getUsername()+" has disconnected, current players: [" + clients.size() + "/" + maxPlayers + "]");
             for (String clientName : clients.keySet()) {
                 try {
                     clients.get(clientName).sendMessage(message);

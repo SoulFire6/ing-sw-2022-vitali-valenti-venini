@@ -15,7 +15,7 @@ import java.util.*;
 public class LobbyController {
 
     /**
-     Controller class that handles player lobby
+     Controller class that handles a game lobby
      */
     private final Game game;
     private final String lobbyName;
@@ -29,11 +29,11 @@ public class LobbyController {
     //Constructor for new game
     /**
      * This method is the constructor of the LobbyController class.
-     * @param playerNames ArrayList<String> names of the players of a certain game
-     * @param expertMode boolean set to false if the game isn't in expert mode, set to true if the game is in expert mode
-     * @param lobbyName String used to identify the lobby when creating/joining a game
-     * @param saveFile File where to save the state of the game
-     * @exception InvalidPlayerNumException when the number of players is greater than 4 or smaller than 2
+     * @param playerNames ArrayList<String> names of the players of current game
+     * @param expertMode boolean set to false if the game is in normal mode, set to true if the game is in expert mode
+     * @param lobbyName String used to identify the lobby when creating messages to send to clients
+     * @param saveFile File where the game state is saved
+     * @exception InvalidPlayerNumException when player number is outside the valid range (2-4)
      */
     public LobbyController(ArrayList<String> playerNames, boolean expertMode, String lobbyName, File saveFile) throws InvalidPlayerNumException {
         this.lobbyName=lobbyName;
@@ -102,7 +102,7 @@ public class LobbyController {
      * This method creates a new Game object representing the actual Game
      * @param playerNames ArrayList<String> containing the names of the players
      * @param expertMode boolean set to 0 if the game isn't in expert mode, set to 1 if it is
-     * @exception InvalidPlayerNumException when the number of players is greater than 4 or smaller than 2
+     * @exception InvalidPlayerNumException when player number is outside the valid range (2-4)
      * @return Game returns the new Game object
      */
     private Game createGame(ArrayList<String> playerNames,boolean expertMode) throws InvalidPlayerNumException {
@@ -137,7 +137,7 @@ public class LobbyController {
      * This method is used to load an existing game saved on a File
      * @param saveFile File from which the state of the game is loaded
      * @exception GameLoadException when there's any exception regarding the load of the game
-     * @return ReducedGame an incomplete representation of the Game, needed to the client
+     * @return ReducedGame a reduced Game model typically used by the clients
      * */
     private ReducedGame loadGame(File saveFile) throws GameLoadException {
         try {
@@ -211,7 +211,7 @@ public class LobbyController {
         }
         islands.get(0).setPrev(islands.get(islands.size()-1));
         islands.get(0).getPrev().setNext(islands.get(0));
-        //LOAD CHARACTERCARDS
+        //LOAD CHARACTER CARDS
         if (charCardController!=null) {
             characterCards=new ArrayList<>();
             CharacterCard card;
@@ -229,21 +229,46 @@ public class LobbyController {
         }
         return new Game("Game",players,playerController.getTeams(players),bag,clouds,islands, reducedGame.isExpertMode(), reducedGame.getCoins(),characterCards);
     }
+
+    /**
+     * Simple getter for the attribute game
+     * @return Game
+     */
     public Game getGame() {
         return this.game;
     }
+    /**
+     * Simple getter for the attribute turnManager
+     * @return TurnManager
+     */
     public TurnManager getTurnManager() {
         return this.turnManager;
     }
+    /**
+     * Simple getter for the attribute assistantCardController
+     * @return AssistantCardController
+     */
     public AssistantCardController getAssistantCardController() {
         return this.assistantCardController;
     }
+    /**
+     * Simple getter for the attribute characterCardController
+     * @return CharCardController
+     */
     public CharCardController getCharCardController() {
         return this.charCardController;
     }
+    /**
+     * Simple getter for the attribute tileController
+     * @return TileController
+     */
     public TileController getTileController() {
         return this.tileController;
     }
+    /**
+     * Simple getter for the attribute playerController
+     * @return PlayerController
+     */
     public PlayerController getPlayerController() {
         return playerController;
     }
@@ -251,7 +276,7 @@ public class LobbyController {
     /**
      * This method is used to analyze the Message received by a Player and, if it's legal, to fullfill the Player's requests
      * @param inMessage the Message sent by the Player
-     * @exception LobbyClientDisconnectedException when a client does disconnect
+     * @exception LobbyClientDisconnectedException when a client disconnects
      * @exception GameIsOverException when the game is over
      * @return ArrayList<Message> response the Messages of response to the Clients from the Server
      */
@@ -406,7 +431,7 @@ public class LobbyController {
     }
     /**
      * This method is used to calculate the winner Team when a GameIsOverException is raised
-     * @return Team the winnng team
+     * @return Team the winning team
      */
     public Team calculateWinningTeam() {
         EnumMap<Team,Integer> teamTowers=new EnumMap<>(Team.class);

@@ -5,6 +5,8 @@ import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.network.client.view.FXML_Controllers.GamePane;
 import it.polimi.softeng.network.client.view.FXML_Controllers.LoginVBox;
 import it.polimi.softeng.network.client.view.FXML_Controllers.MessageSender;
+import it.polimi.softeng.network.message.Info_Message;
+import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.application.Platform;
@@ -16,7 +18,9 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -102,18 +106,16 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
         return socket;
     }
 
-    public void display(String message, String context, MsgType type) {
-        String sender=message.contains("]:")?message.substring(message.indexOf("["),message.indexOf("]:")-2):null;
-        message=message.substring(message.indexOf("]:")+2);
-        switch (type) {
+    public void display(Message message) {
+        switch (message.getSubType()) {
             case INPUT:
                 inputVBox.setVisible(true);
                 inputVBox.getChildren().clear();
                 ArrayList<Button> buttonOptions=new ArrayList<>();
-                Label inputLabel=new Label(message);
+                Label inputLabel=new Label(((Info_Message)message).getInfo());
                 inputLabel.setStyle("-fx-background-color: white");
                 inputVBox.getChildren().add(inputLabel);
-                if (!context.contains(">")) {
+                if (!message.getContext().contains(">")) {
                     TextField optionField=new TextField();
                     optionField.setPrefWidth(200);
                     optionField.setOnAction(event->{
@@ -123,7 +125,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                     inputVBox.getChildren().add(optionField);
                     break;
                 }
-                for (String option : context.split("-")) {
+                for (String option : message.getContext().split("-")) {
                     Button optionButton=new Button(option.contains(" > ")?option.substring(option.indexOf(" > ")+2):option);
                     optionButton.setPrefWidth(200);
                     optionButton.setWrapText(true);
@@ -136,19 +138,31 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 }
                 inputVBox.getChildren().addAll(buttonOptions);
                 break;
-            case DISPLAY:
+            case CLIENT_NUM:
+                gameAnchorPane.addChatMessage(message.getSender(),((Info_Message)message).getInfo(),message.getSubType());
+                if (inputVBox.isVisible()) {
+                    inputVBox.getChildren().clear();
+                    for (String username : message.getContext().substring(message.getContext().indexOf("[")+1, message.getContext().indexOf("]")).split(",")) {
+                        Label userLabel=new Label(username);
+                        userLabel.prefHeightProperty().bind(root.getScene().heightProperty().divide(4));
+                        userLabel.prefWidthProperty().bind(root.getScene().widthProperty().divide(3));
+                        userLabel.setStyle("-fx-background-color: white;-fx-font-size: "+userLabel.prefHeightProperty());
+                        inputVBox.getChildren().add(userLabel);
+                    }
+                }
+                break;
             case ERROR:
-                Alert alert=new Alert(type.equals(MsgType.ERROR)?Alert.AlertType.ERROR:Alert.AlertType.INFORMATION);
-                alert.setContentText(message);
+                Alert alert=new Alert(message.getSubType().equals(MsgType.ERROR)?Alert.AlertType.ERROR:Alert.AlertType.INFORMATION);
+                alert.setContentText(((Info_Message)message).getInfo());
                 alert.showAndWait();
                 break;
             case TURNSTATE:
             case WHISPER:
-                gameAnchorPane.addChatMessage(sender,message,type);
+                gameAnchorPane.addChatMessage(message.getSender(),((Info_Message)message).getInfo(),message.getSubType());
                 break;
             case CONNECT:
             case TEXT:
-                System.out.println(message);
+                System.out.println(((Info_Message)message).getInfo());
                 break;
             default:
                 Alert warning=new Alert(Alert.AlertType.WARNING);

@@ -6,6 +6,7 @@ import it.polimi.softeng.network.client.view.GUI;
 import it.polimi.softeng.network.client.view.View;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
+import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import it.polimi.softeng.network.message.load.*;
 
@@ -55,7 +56,7 @@ public class Client {
     public void parseMessageFromServer(Message message) {
         switch (message.getType()) {
             case INFO:
-                view.display("["+message.getSender()+"]: "+((Info_Message)message).getInfo(),message.getContext(),message.getSubType());
+                view.display((Info_Message)message);
                 break;
             case LOAD:
                 switch (message.getSubType()) {
@@ -86,12 +87,12 @@ public class Client {
                         this.model.setCoins(((Coin_Load_Msg)message).getLoad());
                     case TURNSTATE:
                         this.model.setTurnState(((TurnState_Load_Msg)message).getLoad());
-                        view.display("["+message.getSender()+"]: "+message.getContext(), message.getContext(), message.getSubType());
+                        view.display(message);
                         break;
                 }
                 break;
             default:
-                view.display("Unexpected message received","Error",MsgType.ERROR);
+                view.display(MessageCenter.genMessage(MsgType.ERROR,"ERROR: ","Error","Could not read server message"));
                 break;
         }
     }

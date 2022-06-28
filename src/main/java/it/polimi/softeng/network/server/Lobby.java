@@ -166,7 +166,7 @@ public class Lobby implements Runnable {
                     }
                 }
             }
-            client.sendMessage(MsgType.TEXT, "Game setup params", "Game parameters\nPlayer num: " + maxPlayers + "\nExpert mode: " + expertMode);
+            client.sendMessage(MsgType.CLIENT_NUM, "["+client.getUsername()+"]","Game parameters\nPlayer num: " + maxPlayers + "\nExpert mode: " + expertMode);
         }
         catch (NullPointerException npe) {
             //Delete incomplete save file
@@ -196,7 +196,7 @@ public class Lobby implements Runnable {
                         }
                     }
                     if (newPlayer!=null) {
-                        sendToAll(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Connect",newPlayer+" has joined, current players: [" + clients.size() + "/" + maxPlayers + "]"));
+                        sendToAll(MessageCenter.genMessage(MsgType.CLIENT_NUM,lobbyName,clients.keySet().toString(),newPlayer+" has joined, current players: [" + clients.size() + "/" + maxPlayers + "]"));
                     }
                 } catch (LobbyClientDisconnectedException lcde) {
                     if (clients.size()==0) {
@@ -231,7 +231,7 @@ public class Lobby implements Runnable {
                 catch (LobbyClientDisconnectedException lcde) {
                     clients.remove(clientName);
                     clientDisconnected=true;
-                    sendToAll(MessageCenter.genMessage(MsgType.TEXT,lobbyName,"Client disconnect",clientName+" has disconnected, current players: ["+ clients.size()+"/"+maxPlayers+"]"));
+                    sendToAll(MessageCenter.genMessage(MsgType.CLIENT_NUM,lobbyName,clients.keySet().toString(),clientName+" has disconnected, current players: ["+ clients.size()+"/"+maxPlayers+"]"));
                 }
             }
         }

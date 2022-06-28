@@ -88,11 +88,9 @@ public class GamePane extends AnchorPane implements Initializable {
     public void addChatMessage(String sender, String message, MsgType type) {
         Label chatLabel=new Label(sender+": "+message);
         switch (type) {
+            case CLIENT_NUM:
             case ERROR:
                 chatLabel.setStyle("-fx-text-fill: red");
-                break;
-            case DISPLAY:
-                chatLabel.setStyle("-fx-text-fill: blue");
                 break;
             default:
                 chatLabel.setStyle("-fx-text-fill: black");

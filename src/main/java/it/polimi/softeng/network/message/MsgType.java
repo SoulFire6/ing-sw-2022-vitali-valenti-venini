@@ -4,7 +4,7 @@ public enum MsgType {
     //Info messages
     TEXT(MainType.INFO),
     INPUT(MainType.INFO),
-    DISPLAY(MainType.INFO),
+    CLIENT_NUM(MainType.INFO),
     WHISPER(MainType.INFO),
     CONNECT(MainType.INFO),
     DISCONNECT(MainType.INFO),
