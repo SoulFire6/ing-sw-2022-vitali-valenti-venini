@@ -67,20 +67,28 @@ The final version will include:
     
 To get info on command line arguments
 
-    java Eriantys --help
+    java -jar Eriantys.jar --help
 
 To run client
 
-    java Eriantys -client -u <username> [-cli | -gui ] -ip <server-ip> -p <server-port>
+    java -jar Eriantys.jar -client -u <username> [-cli | -gui ] -ip <server-ip> -p <server-port>
 
 To run server
 
-    java Eriantys -server -p <server-port>
+    java -jar Eriantys -server -p <server-port>
 
 ### Linux / MacOsX
+   
+Same as terminal, replacing
 
-bash scripts not yet implemented
+    java jar Eriantys.jar
+
+with
+
+    ./Eriantys.bash
+
+For a more permanent solution you can directly add the arguments to the bash file, then just run the bash file
 
 ### Windows
 
-batch files not yet implemented
+Same as with Linux and MacOsX, but with .bat instead of .bash
