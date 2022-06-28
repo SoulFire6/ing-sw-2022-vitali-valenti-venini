@@ -4,6 +4,7 @@ import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.network.client.view.FXML_Controllers.GamePane;
 import it.polimi.softeng.network.client.view.FXML_Controllers.LoginVBox;
+import it.polimi.softeng.network.client.view.FXML_Controllers.MessageSender;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.application.Platform;
@@ -15,7 +16,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
 import java.beans.PropertyChangeEvent;
@@ -31,9 +31,9 @@ import java.util.ResourceBundle;
 public class GUI_ActionHandler implements Initializable, PropertyChangeListener {
 
     private Parent root;
-    private String username;
     private Socket socket;
-    private ObjectOutputStream toServer;
+
+    private MessageSender messageSender;
     @FXML
     private LoginVBox loginVBox;
     @FXML
@@ -79,12 +79,14 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     public void tryConnection() {
         if (this.loginVBox!=null && this.loginVBox.getValidLogin()) {
             try {
-                username=loginVBox.getUsernameField().getText();
+                String username=loginVBox.getUsernameField().getText();
                 socket=new Socket(loginVBox.getIpField().getText(),Integer.parseInt(loginVBox.getPortField().getText()));
-                toServer=new ObjectOutputStream(socket.getOutputStream());
+                ObjectOutputStream toServer=new ObjectOutputStream(socket.getOutputStream());
                 System.out.println("SENDING");
                 toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT, username, null, null));
                 System.out.println("SENT");
+                messageSender=new MessageSender(username,toServer);
+                gameAnchorPane.setupTiles(messageSender);
                 loginVBox.setVisible(false);
                 inputVBox.setVisible(true);
             }
@@ -115,14 +117,8 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                     TextField optionField=new TextField();
                     optionField.setPrefWidth(200);
                     optionField.setOnAction(event->{
-                        try {
-                            toServer.writeObject(MessageCenter.genMessage(MsgType.TEXT,username, optionField.getText(),optionField.getText()));
-                            inputVBox.getChildren().clear();
-                        } catch (IOException e) {
-                            Alert alert=new Alert(Alert.AlertType.ERROR);
-                            alert.setContentText("Error sending message to server");
-                            alert.showAndWait();
-                        }
+                        messageSender.sendMessage(MsgType.TEXT,optionField.getText(),optionField.getText());
+                        inputVBox.getChildren().clear();
                     });
                     inputVBox.getChildren().add(optionField);
                     break;
@@ -132,14 +128,8 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                     optionButton.setPrefWidth(200);
                     optionButton.setWrapText(true);
                     optionButton.setOnAction(event-> {
-                        try {
-                            toServer.writeObject(MessageCenter.genMessage(MsgType.TEXT,username, optionButton.getText(),option.contains(" > ")?option.substring(0,option.indexOf(" >")):option));
-                            inputVBox.getChildren().clear();
-                        } catch (IOException e) {
-                            Alert alert=new Alert(Alert.AlertType.ERROR);
-                            alert.setContentText("Error sending message to server");
-                            alert.showAndWait();
-                        }
+                        messageSender.sendMessage(MsgType.TEXT,optionButton.getText(),option.contains(" > ")?option.substring(0,option.indexOf(" >")):option);
+                        inputVBox.getChildren().clear();
                     });
                     buttonOptions.add(optionButton);
                     VBox.setMargin(optionButton,new Insets(10));
@@ -170,7 +160,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
 
     public void closeConnection() {
         try {
-            toServer.close();
+            messageSender.closeConnection();
             socket.close();
         }
         catch (IOException ignored) {
@@ -180,25 +170,27 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         //TODO implement various GUI updates
+
+        //TODO update methods must use message sender
         Platform.runLater(()->{
             try {
                 switch (ReducedGame.UpdateType.valueOf(evt.getPropertyName())) {
                     case PLAYERS:
                         for (ReducedPlayer player : (ArrayList<ReducedPlayer>) evt.getNewValue()) {
                             System.out.println("Updating "+player.getName());
-                            gameAnchorPane.updatePlayer(toServer,username,player);
+                            //gameAnchorPane.updatePlayer(toServer,username,player);
                         }
                         System.out.println("UPDATE PLAYERS");
                         break;
                     case PLAYER:
-                        gameAnchorPane.updatePlayer(toServer,username,(ReducedPlayer) evt.getNewValue());
+                        //gameAnchorPane.updatePlayer(toServer,username,(ReducedPlayer) evt.getNewValue());
                         System.out.println("FIND AND UPDATE SINGLE PLAYER");
                         break;
                     case TURN_STATE:
                         gameAnchorPane.updateTurnState((ReducedGame)evt.getNewValue());
                         break;
                     case ISLANDS:
-                        gameAnchorPane.updateIslands(toServer,username,(ArrayList<ReducedIsland>)evt.getNewValue());
+                        //gameAnchorPane.updateIslands(toServer,username,(ArrayList<ReducedIsland>)evt.getNewValue());
                         break;
                     case CLOUDS:
                         gameAnchorPane.updateClouds((ArrayList<ReducedCloud>) evt.getNewValue());
@@ -210,12 +202,12 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                         //TODO implement
                         break;
                     case CHARACTER_CARDS:
-                        gameAnchorPane.updateCharacterCards(toServer,username,(ArrayList<ReducedCharacterCard>) evt.getNewValue());
+                        //gameAnchorPane.updateCharacterCards(toServer,username,(ArrayList<ReducedCharacterCard>) evt.getNewValue());
                         break;
                     case LOADED_GAME:
                         inputVBox.setVisible(false);
                         gameAnchorPane.setVisible(true);
-                        gameAnchorPane.setupGame(toServer,username,(ReducedGame) evt.getNewValue());
+                        //gameAnchorPane.setupGame(toServer,username,(ReducedGame) evt.getNewValue());
                         break;
                     default:
                         Alert alert=new Alert(Alert.AlertType.WARNING);
@@ -224,6 +216,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                         break;
                 }
             }
+            /*
             catch (UpdateGUIException uge) {
                 Alert alert=new Alert(Alert.AlertType.ERROR);
                 alert.setContentText(uge.getMessage());
@@ -233,6 +226,8 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                     System.exit(-1);
                 });
             }
+
+             */
             catch (ClassCastException cce) {
                 Alert alert=new Alert(Alert.AlertType.ERROR);
                 alert.setContentText(cce.getMessage());

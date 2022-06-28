@@ -5,31 +5,34 @@ import it.polimi.softeng.model.ReducedModel.ReducedIsland;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.beans.NamedArg;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import jdk.jfr.Name;
 
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URL;
 import java.util.EnumMap;
-import java.util.Map;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
-public class IslandPane extends AnchorPane {
+public class IslandPane extends AnchorPane implements Initializable {
     @FXML
     ButtonWithLabel yellow, blue, green, red, purple;
 
     @FXML
     ImageView motherNature;
 
-    private final EnumMap<Colour,ButtonWithLabel> colourButtons=new EnumMap<>(Colour.class);
+    private Integer distance=0;
+    private MessageSender messageSender;
 
     public IslandPane(@NamedArg("img-src") String imgSrc) {
         try {
@@ -37,14 +40,10 @@ public class IslandPane extends AnchorPane {
             loader.setRoot(this);
             loader.setController(this);
             loader.load();
-            Image islandImage=new Image((Objects.requireNonNull(getClass().getResource("/Assets/GUI/Tiles/" + imgSrc)).toExternalForm()));
+            URL src=getClass().getResource("/Assets/GUI/Tiles/" + (imgSrc==null?"/Island_1.png":imgSrc));
+            Image islandImage=new Image(src==null?"":src.toExternalForm());
             BackgroundSize imageSize=new BackgroundSize(1.0,1.0,true,true,false,false);
             this.setBackground(new Background(new BackgroundImage(islandImage,null,null,null, imageSize)));
-            colourButtons.put(Colour.YELLOW,yellow);
-            colourButtons.put(Colour.BLUE,blue);
-            colourButtons.put(Colour.GREEN,green);
-            colourButtons.put(Colour.RED,red);
-            colourButtons.put(Colour.PURPLE,purple);
         }
         catch (IOException io) {
             io.printStackTrace();
@@ -54,35 +53,34 @@ public class IslandPane extends AnchorPane {
             e.printStackTrace();
         }
     }
-    public void setupButtons(ObjectOutputStream toServer, String sender) {
-        for (Colour c : Colour.values()) {
-            colourButtons.get(c).setOnAction(event->{
-                try {
-                    toServer.writeObject(MessageCenter.genMessage(MsgType.DISKTOISLAND,sender,getId(), c));
-                }
-                catch (IOException io) {
-                    Alert alert=new Alert(Alert.AlertType.ERROR);
-                    alert.setContentText("Error sending message to server");
-                    alert.showAndWait();
-                }
-            });
-            colourButtons.get(c).setLabelText("0");
-        }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        yellow.setOnAction(event->sendDiskToIsland(Colour.YELLOW));
+        blue.setOnAction(event->sendDiskToIsland(Colour.BLUE));
+        green.setOnAction(event->sendDiskToIsland(Colour.GREEN));
+        red.setOnAction(event->sendDiskToIsland(Colour.RED));
+        purple.setOnAction(event->sendDiskToIsland(Colour.PURPLE));
+        motherNature.visibleProperty().bind(new SimpleBooleanProperty(distance==0));
+        this.addEventHandler(MouseEvent.MOUSE_PRESSED,event->moveMN());
     }
-    public void update(ObjectOutputStream toServer, String sender, ReducedIsland island, int distance) {
-        motherNature.setVisible(distance==0);
-        this.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_PRESSED,event->{
-            try {
-                toServer.writeObject(MessageCenter.genMessage(MsgType.MOVEMN,sender,getId(), distance));
-            }
-            catch (IOException io) {
-                Alert alert=new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("Error sending message to server");
-                alert.showAndWait();
-            }
-        });
-        for (Colour c : Colour.values()) {
-            colourButtons.get(c).setLabelText(island.getContents().get(c).toString());
-        }
+
+    public void setMessageSender(MessageSender messageSender) {
+        this.messageSender=messageSender;
+    }
+
+    private void sendDiskToIsland(Colour c) {
+        messageSender.sendMessage(MsgType.DISKTOISLAND,getId(),c);
+    }
+    private void moveMN() {
+        messageSender.sendMessage(MsgType.MOVEMN,"Move mn to "+getId(),distance);
+    }
+    public void update(ReducedIsland island, int distance) {
+        yellow.setLabelText(island.getContents().get(Colour.YELLOW).toString());
+        blue.setLabelText(island.getContents().get(Colour.BLUE).toString());
+        green.setLabelText(island.getContents().get(Colour.GREEN).toString());
+        red.setLabelText(island.getContents().get(Colour.RED).toString());
+        purple.setLabelText(island.getContents().get(Colour.PURPLE).toString());
+        this.distance=distance;
     }
 }

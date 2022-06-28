@@ -90,24 +90,29 @@ public class GamePane extends AnchorPane {
         this.gameChat.getChildren().add(chatLabel);
     }
 
-    public void setupGame(ObjectOutputStream toServer, String sender, ReducedGame model) throws UpdateGUIException {
-        setupIslands(toServer,sender);
+    public void setupGame(MessageSender messageSender, ReducedGame model) throws UpdateGUIException {
+        /*
         updateIslands(toServer,sender,model.getIslands());
         setupClouds(toServer,sender);
         updateClouds(model.getClouds());
         for (ReducedPlayer player : model.getPlayers()) {
             updatePlayer(toServer,sender,player);
         }
+         */
         updateTurnState(model);
     }
 
-    public void setupIslands(ObjectOutputStream toServer, String sender) {
+    public void setupTiles(MessageSender messageSender) {
         for (IslandPane island : visibleIslands) {
-            island.setupButtons(toServer,sender);
+            island.setMessageSender(messageSender);
+        }
+        for (CloudPane cloud : visibleClouds) {
+            cloud.setMessageSender(messageSender);
         }
     }
     public void updateIslands(ObjectOutputStream toServer, String sender, ArrayList<ReducedIsland> reducedIslands) throws UpdateGUIException {
         int distance;
+        boolean found;
         ReducedIsland motherNatureIsland = null;
         for (ReducedIsland reducedIsland : reducedIslands) {
             if (reducedIsland.hasMotherNature()) {
@@ -119,49 +124,35 @@ public class GamePane extends AnchorPane {
             throw new UpdateGUIException("Error updating islands");
         }
         for (IslandPane island : visibleIslands) {
+            found=false;
             for (ReducedIsland reducedIsland : reducedIslands) {
                 if (island.getId().equals(reducedIsland.getID())) {
                     distance = reducedIslands.indexOf(motherNatureIsland) - reducedIslands.indexOf(reducedIsland);
-                    island.update(toServer, sender, reducedIsland, distance < 0 ? reducedIslands.size() + distance : distance);
+                    island.update(reducedIsland, distance < 0 ? reducedIslands.size() + distance : distance);
+                    found=true;
                     break;
                 }
-                //hides merged islands
-                island.setVisible(false);
             }
+            island.setVisible(found);
         }
         visibleIslands.removeIf(islandPane -> !islandPane.isVisible());
     }
 
-    public void setupClouds(ObjectOutputStream toServer, String sender) {
-        for (CloudPane cloud : visibleClouds) {
-            cloud.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_PRESSED, mouseEvent -> {
-                try {
-                    toServer.writeObject(MessageCenter.genMessage(MsgType.CHOOSECLOUD,sender,cloud.getId(),cloud.getId()));
-                } catch (IOException io) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setContentText("Error sending message to server");
-                    alert.showAndWait();
-                }
-            });
-        }
-    }
     public void updateClouds(ArrayList<ReducedCloud> reducedClouds) {
-        boolean foundCloud;
+        boolean found;
         for (CloudPane cloud : visibleClouds) {
-            foundCloud=false;
+            found=false;
             for (ReducedCloud reducedCloud : reducedClouds) {
                 if (cloud.getId().equals(reducedCloud.getId())) {
-                    foundCloud=true;
+                    found=true;
                     cloud.update(reducedCloud);
                     break;
                 }
             }
             //hides unused clouds
-            if (!foundCloud) {
-                cloud.setVisible(false);
-                visibleClouds.remove(cloud);
-            }
+            cloud.setVisible(found);
         }
+        visibleClouds.removeIf(cloudPane -> !cloudPane.isVisible());
     }
 
     public void updatePlayer(ObjectOutputStream toServer, String sender, ReducedPlayer player) {
