@@ -1,5 +1,6 @@
 package it.polimi.softeng;
 
+import it.polimi.softeng.exceptions.ServerCreationException;
 import it.polimi.softeng.network.client.Client;
 import it.polimi.softeng.network.server.Server;
 
@@ -97,7 +98,12 @@ public class Eriantys {
                     client.start();
                 } else if (isServer) {
                     Server server = new Server();
-                    server.main(serverArgs);
+                    try {
+                        server.main(serverArgs);
+                    }
+                    catch (ServerCreationException sce) {
+                        System.out.println(sce.getMessage());
+                    }
                 } else {
                     throw new IllegalArgumentException("Did not specify client or server");
                 }

@@ -1,5 +1,6 @@
 package it.polimi.softeng.network.server;
 
+import it.polimi.softeng.exceptions.ServerCreationException;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
@@ -14,56 +15,29 @@ import java.util.HashMap;
 public class Server {
     private static final HashMap<String,Lobby> lobbies=new HashMap<>();
     private static final Integer SERVER_PORT=50033;
-    public void main(String[] args) {
+    public void main(String[] args) throws ServerCreationException {
         try {
             File saveDirectory=new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath()+"save");
             if (!saveDirectory.exists()) {
                 if (!saveDirectory.mkdir()) {
-                    System.out.println("Error creating save file directory");
-                    System.exit(-1);
+                    throw new ServerCreationException("Error creating save file directory");
                 }
             }
         }
         catch (URISyntaxException syntaxException) {
-            syntaxException.printStackTrace();
-            System.exit(-1);
+            throw new ServerCreationException(syntaxException.getMessage());
         }
         ServerSocket serverSocket;
-        Integer port=SERVER_PORT;
+        int port=SERVER_PORT;
         if (args.length!=0 && args[0]!=null) {
             try {
                 port=Integer.parseInt(args[0]);
                 if (port<49152 || port>65535) {
-                    System.out.println("Out of range");
+                    throw new ServerCreationException("Out of range");
                 }
             }
             catch (NumberFormatException nfe) {
-                System.out.println("Not a valid number");
-                port=null;
-            }
-            BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
-            String portNumber;
-            try {
-                while (port==null || port<49152 || port>65535) {
-                    System.out.print("Server port (default 50033, range 49152-65535): ");
-                    try {
-                        if ((portNumber=in.readLine()).length()!=0 && !portNumber.equals("local")) {
-                            port=Integer.parseInt(portNumber);
-                        } else {
-                            port=SERVER_PORT;
-                        }
-                    }
-                    catch (IOException io) {
-                        System.out.println("Error reading port number");
-                    }
-                    catch (NumberFormatException nfe) {
-                        System.out.println("Not a valid number");
-                    }
-                }
-                in.close();
-            }
-            catch (IOException io) {
-                System.out.println("Error closing server input stream");
+                throw new ServerCreationException("Not a valid number");
             }
         }
         try {
@@ -81,7 +55,7 @@ public class Server {
             }
         }
         catch (IOException io) {
-            System.out.println("Port busy");
+            throw new ServerCreationException("Port busy");
         }
     }
 
