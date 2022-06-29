@@ -5,7 +5,6 @@ import it.polimi.softeng.model.ReducedModel.ReducedIsland;
 import it.polimi.softeng.model.Team;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.beans.NamedArg;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -58,7 +57,6 @@ public class IslandPane extends AnchorPane implements Initializable {
         green.setOnAction(event->sendDiskToIsland(Colour.GREEN));
         red.setOnAction(event->sendDiskToIsland(Colour.RED));
         purple.setOnAction(event->sendDiskToIsland(Colour.PURPLE));
-        motherNature.visibleProperty().bind(new SimpleBooleanProperty(distance==0));
         teamTowers.put(Team.WHITE,new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Icons/White_Tower.png")).toExternalForm()));
         teamTowers.put(Team.BLACK,new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Icons/Black_Tower.png")).toExternalForm()));
         teamTowers.put(Team.GREY,new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Icons/Grey_Tower.png")).toExternalForm()));
@@ -86,5 +84,6 @@ public class IslandPane extends AnchorPane implements Initializable {
             towerImage.setImage(teamTowers.get(island.getTeam()));
         }
         this.distance=distance;
+        motherNature.setVisible(this.distance==0);
     }
 }

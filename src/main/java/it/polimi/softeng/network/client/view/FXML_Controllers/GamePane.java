@@ -124,7 +124,7 @@ public class GamePane extends BorderPane implements Initializable {
         for (IslandPane islandPane : visibleIslands) {
             Optional<ReducedIsland> reducedIsland=reducedIslands.stream().filter(island -> island.getID().equals(islandPane.getId())).findFirst();
             if (reducedIsland.isPresent()) {
-                distance=reducedIslands.indexOf(motherNatureIsland.get()) - reducedIslands.indexOf(reducedIsland.get());
+                distance=reducedIslands.indexOf(reducedIsland.get())-reducedIslands.indexOf(motherNatureIsland.get());
                 islandPane.update(reducedIsland.get(), distance < 0 ? reducedIslands.size() + distance : distance);
             } else {
                 islandPane.setVisible(false);
