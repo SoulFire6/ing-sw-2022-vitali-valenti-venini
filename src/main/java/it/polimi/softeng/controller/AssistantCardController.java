@@ -57,7 +57,6 @@ public class AssistantCardController {
         if (playedCard.isEmpty()) {
             throw new AssistantCardNotFoundException("Could not find assistant card with id "+ assistID);
         }
-        System.out.println("TEST: "+playedCard.get().getCardID());
         ArrayList<String> previousPlayedCards= new ArrayList<>();
         if (p!=players.get(0)) {
             for (Player player : players) {

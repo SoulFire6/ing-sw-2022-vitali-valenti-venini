@@ -88,8 +88,8 @@ public class Lobby implements Runnable {
                 for (int i=0; i<saveList.length; i++) {
                     saveListOptions.append(i + 1).append(" > ").append(saveList[i].getName().replace(".bin", "")).append("-");
                 }
-                client.sendMessage(MsgType.INPUT,saveListOptions.substring(0,saveListOptions.length()-1),"Select save file or create new game");
                 while (fileChoice<0 || fileChoice>saveList.length) {
+                    client.sendMessage(MsgType.INPUT,saveListOptions.substring(0,saveListOptions.length()-1),"Select save file or create new game");
                     try {
                         fileChoice=Integer.parseInt(((Info_Message) client.getMessage()).getInfo());
                     }
@@ -137,6 +137,7 @@ public class Lobby implements Runnable {
                         }
                         catch (IOException io) {
                             client.sendMessage(MsgType.ERROR,"File system error: could not create save file","Error creating save file");
+                            saveList=saveDirectory.listFiles(file -> file.getName().endsWith(".bin"));
                         }
                     }
                     whiteList=new ArrayList<>();

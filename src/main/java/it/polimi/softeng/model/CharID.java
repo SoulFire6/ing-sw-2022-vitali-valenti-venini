@@ -5,6 +5,8 @@ import it.polimi.softeng.exceptions.GameIsOverException;
 import it.polimi.softeng.exceptions.MoveNotAllowedException;
 
 import java.util.EnumMap;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public enum CharID {
     MONK(MemType.INTEGER_COLOUR_MAP, 4) {
@@ -28,14 +30,13 @@ public enum CharID {
             if (mem.get(c)==0) {
                 throw new MoveNotAllowedException("No "+c.name().toLowerCase()+" students on card");
             }
-            for (Island_Tile island : controller.getGame().getIslands()) {
-                if (island.getTileID().equalsIgnoreCase(charArgs[1]) || island.getTileID().equalsIgnoreCase("Island_"+charArgs[1])) {
-                    island.getContents().put(c,island.getContents().get(c)+1);
-                    mem.put(c,mem.get(c)-1);
-                    return;
-                }
+            Optional<Island_Tile> island=controller.getGame().getIslands().stream().filter(island_tile -> island_tile.getTileID().equalsIgnoreCase(charArgs[0]) || island_tile.getTileID().equalsIgnoreCase("Island_"+charArgs[0])).findFirst();
+            if (island.isEmpty()) {
+                throw new MoveNotAllowedException("Could not find island with id "+charArgs[1]);
             }
-            throw new MoveNotAllowedException("Could not find island with id "+charArgs[1]);
+            island.get().getContents().put(c,island.get().getContents().get(c)+1);
+            mem.put(c,mem.get(c)-1);
+            getMemType().refillFromBag(controller.getGame().getBag());
         }
     },
     HERALD(MemType.NONE, null) {
@@ -44,13 +45,11 @@ public enum CharID {
             if (charArgs.length==0) {
                 throw new MoveNotAllowedException("Did not specify island tile");
             }
-            for (Island_Tile island : controller.getGame().getIslands()) {
-                if (island.getTileID().equalsIgnoreCase(charArgs[1]) || island.getTileID().equalsIgnoreCase("Island_"+charArgs[1])) {
-                    controller.getTileController().calculateInfluence(p,island,controller.getGame().getPlayers(),controller.getCharCardController(),controller.getGame().getCharacterCards(), controller.getPlayerController());
-                    return;
-                }
+            Optional<Island_Tile> island=controller.getGame().getIslands().stream().filter(island_tile -> island_tile.getTileID().equalsIgnoreCase(charArgs[0]) || island_tile.getTileID().equalsIgnoreCase("Island_"+charArgs[0])).findFirst();
+            if (island.isEmpty()) {
+                throw new MoveNotAllowedException("Could not find island with id "+charArgs[0]);
             }
-            throw new MoveNotAllowedException("Could not find island tile with id "+charArgs[0]);
+            controller.getTileController().calculateInfluence(p,island.get(),controller.getGame().getPlayers(),controller.getCharCardController(),controller.getGame().getCharacterCards(), controller.getPlayerController());
         }
     },
     MAGIC_POSTMAN(MemType.NONE, null) {
@@ -72,17 +71,15 @@ public enum CharID {
             if (getMemory().equals(0)) {
                 throw new MoveNotAllowedException("No more no entry tiles on card");
             }
-            for (Island_Tile island : controller.getGame().getIslands()) {
-                if (island.getTileID().equalsIgnoreCase(charArgs[0]) || island.getTileID().equalsIgnoreCase("Island_"+charArgs[0])) {
-                    if (island.getNoEntry()) {
-                        throw new MoveNotAllowedException("Island "+charArgs[0]+" already has a no entry tile");
-                    }
-                    island.setNoEntry(true);
-                    setMemory(getMemory()-1);
-                    return;
-                }
+            Optional<Island_Tile> island=controller.getGame().getIslands().stream().filter(island_tile -> island_tile.getTileID().equalsIgnoreCase(charArgs[0]) || island_tile.getTileID().equalsIgnoreCase("Island_"+charArgs[0])).findFirst();
+            if (island.isEmpty()) {
+                throw new MoveNotAllowedException("Could not find island tile with id "+charArgs[0]);
             }
-            throw new MoveNotAllowedException("Could not find island tile with id "+charArgs[0]);
+            if (island.get().getNoEntry()) {
+                throw new MoveNotAllowedException("Island "+charArgs[0]+" already has a no entry tile");
+            }
+            island.get().setNoEntry(true);
+            setMemory(getMemory()-1);
         }
     },
     CENTAUR(MemType.NONE, null) {
@@ -200,6 +197,7 @@ public enum CharID {
             }
             cardMem.put(c,cardMem.get(c)-1);
             diningMem.put(c,diningMem.get(c)+1);
+            getMemType().refillFromBag(controller.getGame().getBag());
         }
     },
     THIEF(MemType.NONE, null) {
@@ -212,8 +210,11 @@ public enum CharID {
             if (c==null) {
                 throw new MoveNotAllowedException(charArgs[0]+" is not a colour");
             }
+            Bag_Tile bag=controller.getGame().getBag();
             for (Player player : controller.getGame().getPlayers()) {
-                player.getSchoolBoard().getDiningRoom().put(c,Math.max(0,player.getSchoolBoard().getDiningRoom().get(c)-3));
+                int removedAmount=Math.min(3,player.getSchoolBoard().getDiningRoomAmount(c));
+                bag.getContents().put(c,bag.getContents().get(c)+removedAmount);
+                player.getSchoolBoard().getDiningRoom().put(c,player.getSchoolBoard().getDiningRoom().get(c)-removedAmount);
             }
         }
     },
@@ -225,13 +226,12 @@ public enum CharID {
                 throw new MoveNotAllowedException("Error reading memory, card cannot be played");
             }
             for (Colour c : Colour.values()) {
-                for (Player player : controller.getGame().getPlayers()) {
-                    if (player.getSchoolBoard().getProfessor(c)) {
-                        if (mem.get(c)!=null) {
-                            throw new MoveNotAllowedException("Error: multiple players have the professor of colour "+c.name().toLowerCase());
-                        }
-                        mem.put(c,player);
-                    }
+                Stream<Player> professorPlayers=controller.getGame().getPlayers().stream().filter(player -> player.getSchoolBoard().getProfessor(c));
+                if (professorPlayers.count()>1) {
+                    throw new MoveNotAllowedException("Error: multiple players have the professor of colour "+c.name().toLowerCase());
+                }
+                if (professorPlayers.findFirst().isPresent()) {
+                    mem.put(c,professorPlayers.findFirst().get());
                 }
             }
         }
@@ -239,17 +239,20 @@ public enum CharID {
 
     CharID(MemType memType, Integer limit) {
         this.memType = memType;
+        if (memType.equals(MemType.INTEGER)) {
+            memType.memory=limit;
+        }
         this.memType.limit = limit;
     }
 
     public enum MemType {
         NONE(),
-        INTEGER(),
+        INTEGER(0),
         INTEGER_COLOUR_MAP(Colour.genIntegerMap()),
         BOOLEAN_COLOUR_MAP(Colour.genBooleanMap()),
         PLAYER_COLOUR_MAP(Colour.genStringMap());
 
-        MemType(EnumMap<Colour, ?> memory) {
+        MemType(Object memory) {
             this.memory = memory;
         }
 
@@ -259,6 +262,21 @@ public enum CharID {
 
         private Object memory;
         private Integer limit;
+
+        public void refillFromBag(Bag_Tile bag) {
+            int fillAmount=0;
+            if (this.equals(MemType.INTEGER_COLOUR_MAP)) {
+                @SuppressWarnings("unchecked")
+                EnumMap<Colour,Integer> memory=(EnumMap<Colour, Integer>) this.memory;
+                for (Colour c : Colour.values()) {
+                    fillAmount+=memory.get(c);
+                }
+                EnumMap<Colour,Integer> drawnStudents=bag.drawStudents(limit-fillAmount);
+                for (Colour c : Colour.values()) {
+                    memory.put(c,memory.get(c)+drawnStudents.get(c));
+                }
+            }
+        }
     }
 
     public abstract void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException, GameIsOverException;

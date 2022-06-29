@@ -6,10 +6,7 @@ import it.polimi.softeng.model.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Controller class that handles the generation and the activation of character cards
@@ -19,8 +16,8 @@ public class CharCardController {
     private static final String CARD_DATA_PATH="/CardData/CharacterCards.csv";
 
     /**
-     * This method is used to check (if present) if the character card can be activated by a player
-     * @param p the player who want to perform the operation
+     * This method is used to check if the character card is present and can be activated by a player
+     * @param p the player who wants to perform the operation
      * @param cardID the ID of the character card that needs to be found
      * @param cards the list of all the usable cards of the current Game
      * @exception CharacterCardNotFoundException when the character card is not present in the current game
@@ -30,23 +27,17 @@ public class CharCardController {
      * @return boolean true if the operation succeeded, false otherwise
      */
     public CharacterCard findAndCheckCard(Player p,String cardID, ArrayList<CharacterCard> cards) throws CharacterCardNotFoundException, InsufficientResourceException, MoveNotAllowedException, GameIsOverException {
-        CharacterCard playedCard = null;
-        for (CharacterCard card : cards) {
-            if (card.getCardID().equals(cardID)) {
-                playedCard = card;
-                break;
-            }
-        }
-        if (playedCard == null) {
+        Optional<CharacterCard> playedCard = cards.stream().filter(characterCard -> characterCard.getCardID().equalsIgnoreCase(cardID.replace("_"," "))).findFirst();
+        if (playedCard.isEmpty()) {
             throw new CharacterCardNotFoundException("Character with id " + cardID + " is not in play");
         }
-        if (p.getSchoolBoard().getCoins() < playedCard.getCost()) {
-            throw new InsufficientResourceException("Not enough coins (" + p.getSchoolBoard().getCoins() + "/" + playedCard.getCost() + ")");
+        if (p.getSchoolBoard().getCoins() < playedCard.get().getCost()) {
+            throw new InsufficientResourceException("Not enough coins (" + p.getSchoolBoard().getCoins() + "/" + playedCard.get().getCost() + ")");
         }
-        if (playedCard.isActive()) {
+        if (playedCard.get().isActive()) {
             throw new MoveNotAllowedException("Card is already active");
         }
-        return playedCard;
+        return playedCard.get();
     }
 
     /**
@@ -66,7 +57,7 @@ public class CharCardController {
     }
     //Deactivates all cards (to be used at end of turn when effect for all cards ends)
     /**
-     * This method set all CharacterCards active attribute to false
+     * This method set all CharacterCards active attribute to false and resets memory of certain cards
      * @param cards all the character cards that are in the current game
      * @param players players of the current game
      */
@@ -98,10 +89,10 @@ public class CharCardController {
     }
 
     /**
-     * This method is the constructor of the LobbyController class when it's requested to load an existing game
-     * @param num number of character cards to be generated
-     * @param bag the bag of the current game
-     * @return res the generated character cards
+     * This method generates <b>num</b> random character cards
+     * @param num the amount of character card to generate
+     * @param bag the current game's Bag
+     * @return Arraylist of CharacterCards
      */
     public ArrayList<CharacterCard> genNewCharacterCards(int num, Bag_Tile bag) {
         Random rand=new Random();
@@ -158,11 +149,10 @@ public class CharCardController {
     }
 
     /**
-     * This method is the constructor of the LobbyController class when it's requested to load an existing game
-     * @param id the ID of the Character card
-     * @param cards the ArrayList containing all the character cards of the current game
-     * return true if the card with the specified id is active, false otherwise
-
+     * This method returns active status of requested card
+     * @param id the card id that is requested
+     * @param cards the character cards in the game
+     * @return boolean true if card is active and in gamew
      */
     public boolean getActiveStatus(CharID id, ArrayList<CharacterCard> cards) {
         for (CharacterCard card : cards) {

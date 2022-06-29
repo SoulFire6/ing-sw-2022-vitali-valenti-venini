@@ -496,7 +496,7 @@ public class CLI implements View {
                 for (int i=2; i<input.length; i++) {
                     arguments.append(input[i]).append(" ");
                 }
-                return MessageCenter.genMessage(MsgType.PLAYCHARCARD,username,arguments.toString(),input[1]);
+                return MessageCenter.genMessage(MsgType.PLAYCHARCARD,username,input[1],arguments.toString());
             case "ASSIST":
             case "ASSISTANT":
                 if (input.length<2) {
