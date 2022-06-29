@@ -42,16 +42,16 @@ public class Server {
         }
         try {
             serverSocket=new ServerSocket(port);
-            Socket clientSocket;
             while (true) {
-                try {
-                    clientSocket=serverSocket.accept();
-                    serveClient(clientSocket);
-                } catch (NullPointerException npe) {
-                    System.out.println("Client disconnected abruptly");
-                    npe.printStackTrace();
-                    break;
-                }
+                Socket clientSocket = serverSocket.accept();
+                new Thread(() -> {
+                    try {
+                        serveClient(clientSocket);
+                    } catch (NullPointerException npe) {
+                        System.out.println("Client disconnected abruptly");
+                        npe.printStackTrace();
+                    }
+                }).start();
             }
         }
         catch (IOException io) {
@@ -92,41 +92,42 @@ public class Server {
             switch (response.getInfo().toUpperCase()) {
                 case "C":
                 case "CREATE":
-                    for (String lobby : lobbies.keySet()) {
-                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Listing lobbies",lobbies.get(lobby).getLobbyStats()));
-                    }
                     out.writeObject(MessageCenter.genMessage(MsgType.INPUT, "SERVER", "Lobby id", "Enter lobby id: "));
                     response=(Info_Message)in.readObject();
                     lobbyName=response.getInfo();
-                    if (lobbies.get(lobbyName) == null) {
-                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Creating lobby","Lobby ["+lobbyName+"] created, entering now"));
-                        LobbyClient lobbyMaster=new LobbyClient(username, lobbyName, clientSocket, in, out);
-                        Lobby newLobby=new Lobby(lobbyName,username,lobbyMaster);
-                        lobbies.put(lobbyName,newLobby);
-                        new Thread(lobbies.get(lobbyName)).start();
-                        return true;
-                    } else {
-                        out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","Error: lobby already exists","Lobby already exists, try joining instead"));
-                        return false;
+                    synchronized (lobbies) {
+                        if (lobbies.get(lobbyName) == null) {
+                            out.writeObject(MessageCenter.genMessage(MsgType.TEXT,"SERVER","Creating lobby","Lobby ["+lobbyName+"] created, entering now"));
+                            LobbyClient lobbyMaster=new LobbyClient(username, lobbyName, clientSocket, in, out);
+                            Lobby newLobby=new Lobby(lobbyName,username,lobbyMaster);
+                            lobbies.put(lobbyName,newLobby);
+                            new Thread(lobbies.get(lobbyName)).start();
+                            return true;
+                        } else {
+                            out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","Error: lobby already exists","Lobby already exists, try joining instead"));
+                            return false;
+                        }
                     }
                 case "J":
                 case "JOIN":
-                    if (lobbies.size()==0) {
-                        out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","No lobbies","There are no lobbies to join, try creating one instead"));
-                        return false;
-                    }
-                    StringBuilder lobbyStats=new StringBuilder();
-                    for (String lobby : lobbies.keySet()) {
-                        lobbyStats.append(lobbies.get(lobby).getLobbyStats()).append("-");
-                    }
-                    out.writeObject(MessageCenter.genMessage(MsgType.INPUT,"SERVER", lobbyStats.substring(0,lobbyStats.length()-1),"Select a lobby:"));
-                    response=(Info_Message) in.readObject();
-                    lobbyName=response.getInfo();
-                    if (lobbies.get(lobbyName) == null) {
-                        out.writeObject(MessageCenter.genMessage(MsgType.TEXT, "SERVER", "Error: lobby does not exist", "Lobby not found"));
-                        return false;
-                    } else {
-                        return joinLobby(lobbies.get(lobbyName), lobbyName, username, clientSocket, in, out);
+                    synchronized (lobbies) {
+                        if (lobbies.size()==0) {
+                            out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","No lobbies","There are no lobbies to join, try creating one instead"));
+                            return false;
+                        }
+                        StringBuilder lobbyStats=new StringBuilder();
+                        for (String lobby : lobbies.keySet()) {
+                            lobbyStats.append(lobbies.get(lobby).getLobbyStats()).append("-");
+                        }
+                        out.writeObject(MessageCenter.genMessage(MsgType.INPUT,"SERVER", lobbyStats.substring(0,lobbyStats.length()-1),"Select a lobby:"));
+                        response=(Info_Message) in.readObject();
+                        lobbyName=response.getInfo();
+                        if (lobbies.get(lobbyName) == null) {
+                            out.writeObject(MessageCenter.genMessage(MsgType.TEXT, "SERVER", "Error: lobby does not exist", "Lobby not found"));
+                            return false;
+                        } else {
+                            return joinLobby(lobbies.get(lobbyName), lobbyName, username, clientSocket, in, out);
+                        }
                     }
                 case "D":
                 case "DISCONNECT":

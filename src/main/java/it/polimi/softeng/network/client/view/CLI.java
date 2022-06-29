@@ -74,6 +74,10 @@ public class CLI implements View {
                 outMessage=parseMessage(in.readLine().split(" "));
                 if (outMessage!=null) {
                     sendMessage(outMessage);
+                    if (outMessage.getSubType().equals(MsgType.DISCONNECT)) {
+                        System.out.println("Disconnected");
+                        System.exit(0);
+                    }
                 }
             }
             catch (IOException io) {
@@ -530,6 +534,7 @@ public class CLI implements View {
                     throw new MoveNotAllowedException("Character id not found");
                 }
                 return null;
+            case "D":
             case "DISCONNECT":
                 return MessageCenter.genMessage(MsgType.DISCONNECT,username,"Disconnecting",null);
             case "QUIT":

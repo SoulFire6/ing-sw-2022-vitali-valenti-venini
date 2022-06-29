@@ -29,6 +29,8 @@ public class Lobby implements Runnable {
 
     private File saveFile=null;
 
+    private boolean gameStarted=false;
+
     public Lobby(String lobbyName,String username, LobbyClient lobbyMaster) {
         this.lobbyName=lobbyName;
         this.clients.put(username,lobbyMaster);
@@ -42,6 +44,7 @@ public class Lobby implements Runnable {
             setupLobby(clients.get(lobbyMaster));
             System.out.println("Creating listener for lobbymaster: "+lobbyMaster);
             listeners.put(lobbyMaster,new LobbyListener(clients.get(lobbyMaster),lobbyName,maxPlayers,lobbyMessageQueue,clients,listeners));
+            checkIfLobbyMasterIsConnected();
             waitForOtherPlayers();
             setupGame();
             processMessageQueue();
@@ -94,6 +97,9 @@ public class Lobby implements Runnable {
                         nfe.printStackTrace();
                         client.sendMessage(MsgType.ERROR,"Incorrect format","Not a number : "+((Info_Message) client.getMessage()).getInfo());
                     }
+                    catch (NullPointerException npe) {
+                        throw new LobbyClientDisconnectedException("Lobby master");
+                    }
                 }
                 if (fileChoice==0) {
                     client.sendMessage(MsgType.TEXT,"New game","Creating new game");
@@ -133,7 +139,7 @@ public class Lobby implements Runnable {
                             client.sendMessage(MsgType.ERROR,"File system error: could not create save file","Error creating save file");
                         }
                     }
-                    this.whiteList=new ArrayList<>();
+                    whiteList=new ArrayList<>();
                 } else {
                     saveFile=saveList[fileChoice-1];
                     try {
@@ -153,7 +159,6 @@ public class Lobby implements Runnable {
                     catch (GameLoadException gle) {
                         client.sendMessage(MsgType.ERROR,"Game load error","Error loading game save");
                         saveFile.delete();
-                        //saveFile.renameTo(new File(saveFile.getPath()+"_corrupted"));
                         fileChoice=-1;
                     }
                 }
@@ -179,7 +184,6 @@ public class Lobby implements Runnable {
                 newPlayer=null;
                 try {
                     clients.wait();
-                    checkIfLobbyMasterIsConnected();
                     for (String clientName : clients.keySet()) {
                         if (listeners.get(clientName)==null) {
                             System.out.println("Creating listener for: "+clientName);
@@ -207,6 +211,9 @@ public class Lobby implements Runnable {
                     }
                 }
             }
+            if (whiteList==null) {
+                whiteList=new ArrayList<>();
+            }
             if (whiteList.size()==0) {
                 whiteList.addAll(clients.keySet());
             }
@@ -214,12 +221,25 @@ public class Lobby implements Runnable {
     }
 
     private void checkIfLobbyMasterIsConnected() {
-        if (!clients.containsKey(lobbyMaster)) {
-            Random rand=new Random();
-            Object[] values=clients.keySet().toArray();
-            lobbyMaster=(String)values[rand.nextInt(values.length)];
-            sendToAll(MessageCenter.genMessage(MsgType.CLIENT_NUM,lobbyName,"Lobby master disconnected","Lobby master is now :"+lobbyMaster));
-        }
+        Thread thread=new Thread(()->{
+            synchronized (clients) {
+                while (clients.size()>0) {
+                    if (!clients.containsKey(lobbyMaster)) {
+                        Random rand=new Random();
+                        Object[] values=clients.keySet().toArray();
+                        lobbyMaster=(String)values[rand.nextInt(values.length)];
+                        sendToAll(MessageCenter.genMessage(MsgType.CLIENT_NUM,lobbyName,"Lobby master disconnected","Lobby master is now "+lobbyMaster));
+                    }
+                    try {
+                        clients.wait();
+                    }
+                    catch (InterruptedException ignored) {
+                    }
+                }
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private void sendToAll(Message msg) {
@@ -260,13 +280,14 @@ public class Lobby implements Runnable {
     }
     public String getLobbyStats() {
         if (maxPlayers==0) {
-            return this.lobbyName+ ">"+this.lobbyName+" is not ready";
+            return this.lobbyName+ " > "+this.lobbyName+" is not ready";
         }
         ArrayList<String> waitingFor = new ArrayList<>(whiteList);
         waitingFor.removeAll(clients.keySet());
         return this.lobbyName+" > "+(this.expertMode?"expert":"normal")+" game ["+this.clients.size()+"/"+this.maxPlayers+"]\n Currently connected: "+this.clients.keySet()+(waitingFor.size()>0?"\nWaiting for: "+waitingFor:"");
     }
     public void processMessageQueue() throws LobbyClientDisconnectedException,GameIsOverException,LobbyEmptyException {
+        gameStarted=true;
         Message msg;
         synchronized (lobbyMessageQueue) {
             while(controller.checkConnectedTeams(clients.keySet())) {
@@ -279,7 +300,6 @@ public class Lobby implements Runnable {
                             clients.get(msg.getSender()).sendMessage(MsgType.ERROR,"Not lobby master","Only the current lobby master ("+lobbyMaster+") can decide to save and quit the game");
                         }
                     }
-                    checkIfLobbyMasterIsConnected();
                     //Skip disconnected players
                     if (!clients.containsKey(controller.getTurnManager().getCurrentPlayer().getName())) {
                         Player skippedPlayer=controller.getTurnManager().getCurrentPlayer();
@@ -316,7 +336,7 @@ public class Lobby implements Runnable {
         synchronized (clients) {
             clients.put(client.getUsername(), client);
             //Sends game to client if they have rejoined
-            if (controller!=null && controller.getGame()!=null) {
+            if (gameStarted) {
                 try {
                     client.sendMessage(MsgType.GAME,"Rejoined game",new ReducedGame(controller.getGame(),controller.getTurnManager()));
                 }
