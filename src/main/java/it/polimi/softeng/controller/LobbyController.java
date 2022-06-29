@@ -442,7 +442,6 @@ public class LobbyController {
                     throw new ClassNotFoundException("Invalid message type");
             }
             response.add(MessageCenter.genMessage(MsgType.TURNSTATE,lobbyName,actionMessage,new ReducedTurnState(turnManager)));
-
         }
         catch (LobbyClientDisconnectedException lcde) {
             throw new LobbyClientDisconnectedException(lcde.getMessage());

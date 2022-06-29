@@ -1,6 +1,5 @@
 package it.polimi.softeng.network.client.view.FXML_Controllers;
 
-import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.scene.control.Alert;

@@ -24,10 +24,11 @@ import java.util.regex.Pattern;
 public class CLI implements View {
     private String username=null;
     private final BufferedReader in;
-
     private Socket socket;
     private ObjectOutputStream toServer=null;
-    private final boolean windowsTerminal, loadedProperties;
+    private final boolean supportsAnsiCodes;
+
+    private boolean loadedGame=false;
     private final Properties properties=new Properties();
     private final Properties characterInfo=new Properties();
     private static final String DEFAULT_IP="127.0.0.1";
@@ -45,8 +46,7 @@ public class CLI implements View {
             System.out.println(getDisplayStyle(Colour.RED.name())+"Could not find properties file, defaulting to basic CLI"+getDisplayStyle("RESET"));
             loadStatus=false;
         }
-        this.windowsTerminal=System.getProperty("os.name").contains("Windows") && !System.getProperty("java.class.path").contains("idea_rt.jar");
-        this.loadedProperties=loadStatus;
+        this.supportsAnsiCodes=loadStatus && (System.getProperty("os.name").contains("Mac") || System.getProperty("os.name").contains("Linux") || System.getProperty("java.class.path").contains("idea_rt.jar"));
     }
     @Override
     public void run() {
@@ -61,13 +61,15 @@ public class CLI implements View {
                 "      ███    ███   ███    ███ ███    ███    ███ ███   ███     ███     ███   ███    ▄█    ███\n" +
                 "      ██████████   ███    ███ █▀     ███    █▀   ▀█   █▀     ▄████▀    ▀█████▀   ▄████████▀" +
                 getDisplayStyle("RESET"));
-        while (toServer==null) {
+        while (toServer==null || !loadedGame) {
             try {
                 Thread.sleep(1000);
             }
             catch (InterruptedException ignored) {
             }
         }
+        //before game is loaded client only sends responses to server as input messages
+        //after game is loaded other message types are enabled, along with the help menu
         Message outMessage=null;
         while (outMessage==null || outMessage.getSubType()!=MsgType.DISCONNECT) {
             try {
@@ -250,6 +252,12 @@ public class CLI implements View {
                 if (message.getContext().contains(">")) {
                     System.out.println(message.getContext().replace("-","\n"));
                 }
+                try {
+                    toServer.writeObject(MessageCenter.genMessage(MsgType.INPUT,username,"Response",in.readLine()));
+                }
+                catch (IOException io) {
+                    System.out.println("Error sending message to server");
+                }
                 break;
             case ERROR:
                 System.out.println(getDisplayStyle(Colour.RED.name())+"ERROR: "+((Info_Message)message).getInfo()+getDisplayStyle("RESET"));
@@ -257,6 +265,9 @@ public class CLI implements View {
             case TURNSTATE:
                 System.out.println(message.getContext());
                 break;
+            case DISCONNECT:
+                System.out.println(((Info_Message)message).getInfo());
+                System.exit(0);
             default:
                 System.out.println(((Info_Message)message).getInfo());
                 break;
@@ -275,23 +286,22 @@ public class CLI implements View {
     }
 
     public String getDisplayStyle(String styleName) {
-        if (windowsTerminal) {
+        if (!supportsAnsiCodes) {
             return "";
         }
         String displayStyle=properties.getProperty("ANSI_"+styleName);
-        if (!loadedProperties || displayStyle==null) {
+        if (displayStyle==null) {
             return "";
         }
         return (char)27+displayStyle;
     }
 
     private void printModel(ReducedGame model) {
-        String dash="▬",wall="▌";
+        String dash=supportsAnsiCodes?"▬":"-",wall=supportsAnsiCodes?"▌":"|";
         ReducedPlayer firstPlayer,secondPlayer;
         int schoolBoardLength=35;
-        String schoolBoardDelimiter=String.format("%-"+schoolBoardLength+"s",dash.repeat(windowsTerminal?23:schoolBoardLength));
-        int cardDelimiter=windowsTerminal?5:8;
-        clearScreen();
+        String schoolBoardDelimiter=String.format("%-"+schoolBoardLength+"s",dash.repeat(supportsAnsiCodes?schoolBoardLength:23));
+        int cardDelimiter=supportsAnsiCodes?8:5;
         StringBuilder modelUI=new StringBuilder();
         for (int i=0; i<2; i++) {
             firstPlayer=model.getPlayers().size()>i*2?model.getPlayers().get(i*2):null;
@@ -365,33 +375,36 @@ public class CLI implements View {
             modelUI.append("ERROR LOADING HAND");
         }
         modelUI.append("CURRENT PLAYER: ").append(model.getCurrentPlayer()).append("\nCURRENT PHASE: ").append(model.getCurrentPhase().getDescription()).append(model.getCurrentPhase() == TurnManager.TurnState.MOVE_STUDENTS_PHASE ? " (Remaining moves: " + model.getRemainingMoves() + ")" : "");
+        clearScreen();
         System.out.println(modelUI);
     }
 
     private String getSchoolBoardRow(Colour c, Team t, ReducedSchoolBoard board) {
-        String wall="▌";
-        String tower=windowsTerminal?"▲ ":getDisplayStyle(t.name())+"▲"+getDisplayStyle("RESET")+" ";
+        String wall=supportsAnsiCodes?"▌":"|";
+        String tower=supportsAnsiCodes?getDisplayStyle(t.name())+"▲"+getDisplayStyle("RESET")+" ":"▲ ";
         String fontColour=getDisplayStyle(c.name());
         String resetColour=getDisplayStyle ("RESET");
         StringBuilder schoolBoardRow=new StringBuilder();
-        schoolBoardRow.append(wall).append(windowsTerminal?c.name().charAt(0)+"_":fontColour+"♦ ").append(board.getEntrance().get(c)).append(windowsTerminal?"":resetColour).append(wall);
-        schoolBoardRow.append(windowsTerminal?(" "+c.name().charAt(0)).repeat(board.getDiningRoom().get(c)):fontColour+" ♦".repeat(board.getDiningRoom().get(c))+resetColour);
+        schoolBoardRow.append(wall).append(supportsAnsiCodes?fontColour+"♦ ":c.name().charAt(0)+"_").append(board.getEntrance().get(c)).append(resetColour).append(wall);
+        schoolBoardRow.append(fontColour).append((supportsAnsiCodes?" ♦":" "+c.name().charAt(0)).repeat(board.getDiningRoom().get(c))).append(resetColour);
         schoolBoardRow.append(" ♦".repeat(10-board.getDiningRoom().get(c))).append(" ").append(wall);
-        schoolBoardRow.append(board.getProfessorTable().get(c)?(windowsTerminal?c.name().charAt(0):fontColour+"◘"+resetColour):"◘").append(" ").append(wall);
+        schoolBoardRow.append(board.getProfessorTable().get(c)?(fontColour+(supportsAnsiCodes?"◘":c.name().charAt(0))):"◘").append(resetColour).append(" ").append(wall);
         schoolBoardRow.append(board.getTowers()>=((2*c.ordinal()+1))?tower:"  ").append((board.getTowers()>=(c.ordinal()+1)*2)?tower:"  ").append(wall).append("  ");
         return schoolBoardRow.toString();
     }
 
     private String getTileStats(String id, EnumMap<Colour,Integer> contents, boolean motherNature, Team team, int towerNum) {
         StringBuilder tileStats=new StringBuilder();
-        tileStats.append(!windowsTerminal && motherNature?getDisplayStyle("UNDERLINE")+getDisplayStyle(Colour.RED.name()):"");
-        tileStats.append(id).append(windowsTerminal && motherNature?"(X):":getDisplayStyle("RESET")+": ");
-        for (Colour c : Colour.values()) {
-            tileStats.append(windowsTerminal?" "+c.name().charAt(0)+"_":getDisplayStyle(c.name())).append(contents.get(c)).append(" ");
+        if (motherNature) {
+            tileStats.append(supportsAnsiCodes?getDisplayStyle("UNDERLINE")+getDisplayStyle(Colour.RED.name()):"(X):");
         }
-        tileStats.append(windowsTerminal?"":getDisplayStyle("RESET"));
+        tileStats.append(id).append(getDisplayStyle("RESET")).append(": ");
+        for (Colour c : Colour.values()) {
+            tileStats.append(supportsAnsiCodes?getDisplayStyle(c.name()):" "+c.name().charAt(0)+"_").append(contents.get(c)).append(" ");
+        }
+        tileStats.append(getDisplayStyle("RESET"));
         if (team!=null) {
-            tileStats.append(" (").append(windowsTerminal?team.name()+" ":getDisplayStyle(team.name())).append(towerNum).append(" ▲").append(windowsTerminal?"":getDisplayStyle("RESET")).append(")");
+            tileStats.append(" (").append(supportsAnsiCodes?getDisplayStyle(team.name()):team.name().charAt(0)+" ").append(towerNum).append(" ▲").append(getDisplayStyle("RESET")).append(")");
         }
         return tileStats.toString();
     }
@@ -422,9 +435,9 @@ public class CLI implements View {
                 return cardData.append(" Error reading data").toString();
             }
             for (Colour c : Colour.values()) {
-                cardData.append(windowsTerminal?c.name().toLowerCase().charAt(0)+": ":getDisplayStyle(c.name()));
+                cardData.append(supportsAnsiCodes?getDisplayStyle(c.name()):c.name().toLowerCase().charAt(0)+": ");
                 cardData.append(memType==CharID.MemType.BOOLEAN_COLOUR_MAP?((Boolean)cardMem.get(c)?"Y":"N"):cardMem.get(c));
-                cardData.append(windowsTerminal?"":getDisplayStyle("RESET")).append(" ");
+                cardData.append(getDisplayStyle("RESET")).append(" ");
             }
         }
         catch (IllegalArgumentException iae) {
@@ -434,16 +447,16 @@ public class CLI implements View {
     }
 
     private void clearScreen() {
-        try {
-            if (windowsTerminal) {
+        if (supportsAnsiCodes) {
+            System.out.println((char)27+properties.getProperty("ANSI_CLEAR"));
+            System.out.flush();
+        } else {
+            try {
                 Runtime.getRuntime().exec("cls");
-            } else {
-                System.out.println((char)27+properties.getProperty("ANSI_CLEAR"));
-                System.out.flush();
             }
-        }
-        catch (IOException io) {
-            System.out.println("Could not clear screen");
+            catch (IOException ignored) {
+
+            }
         }
     }
 
@@ -451,6 +464,7 @@ public class CLI implements View {
     public void propertyChange(PropertyChangeEvent evt) {
         //CLI only prints model after every update has been made, as otherwise there would be more prints than needed
         if (evt.getPropertyName().equals(ReducedGame.UpdateType.TURN_STATE.name()) || evt.getPropertyName().equals(ReducedGame.UpdateType.LOADED_GAME.name())) {
+            loadedGame=true;
             printModel((ReducedGame) evt.getNewValue());
         }
     }

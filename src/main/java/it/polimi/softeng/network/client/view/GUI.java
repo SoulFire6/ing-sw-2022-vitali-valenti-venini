@@ -27,6 +27,8 @@ public class GUI extends Application implements View {
         Parent root=controller.getRoot();
         stage.setTitle("Eriantys");
         stage.setScene(new Scene(root));
+        stage.setMinWidth(800);
+        stage.setMinHeight(600);
         stage.show();
         stage.setOnCloseRequest(event-> {
             Platform.exit();

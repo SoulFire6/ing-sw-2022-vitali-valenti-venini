@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
 
 public class AssistantCardController {
 
@@ -52,15 +53,11 @@ public class AssistantCardController {
      * @exception AssistantCardAlreadyPlayedException when the assistant card with the specified ID was already played in a previous turn
      */
     public void playAssistantCard(Player p, String assistID, ArrayList<Player> players) throws AssistantCardNotFoundException, AssistantCardAlreadyPlayedException {
-        AssistantCard playedCard=null;
-        for (AssistantCard card: p.getSchoolBoard().getHand()) {
-            if (card.getCardID().equalsIgnoreCase(assistID)) {
-                playedCard=card;
-            }
-        }
-        if (playedCard==null) {
+        Optional<AssistantCard> playedCard=p.getSchoolBoard().getHand().stream().filter(assistantCard -> assistantCard.getCardID().equalsIgnoreCase(assistID)).findFirst();
+        if (playedCard.isEmpty()) {
             throw new AssistantCardNotFoundException("Could not find assistant card with id "+ assistID);
         }
+        System.out.println("TEST: "+playedCard.get().getCardID());
         ArrayList<String> previousPlayedCards= new ArrayList<>();
         if (p!=players.get(0)) {
             for (Player player : players) {
@@ -74,7 +71,7 @@ public class AssistantCardController {
         if (p.getSchoolBoard().getHand().size()>1 && previousPlayedCards.contains(assistID.toLowerCase())) {
             throw new AssistantCardAlreadyPlayedException(assistID+" was already played this turn");
         }
-        p.getSchoolBoard().playAssistantCard(playedCard.getCardID());
+        p.getSchoolBoard().playAssistantCard(playedCard.get().getCardID());
     }
 
 }

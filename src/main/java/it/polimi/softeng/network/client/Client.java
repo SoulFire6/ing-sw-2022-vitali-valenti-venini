@@ -48,15 +48,15 @@ public class Client {
             System.out.println("Abrupt disconnection");
         }
         if (inMessage != null && inMessage.getSubType() == MsgType.DISCONNECT) {
+            view.display(inMessage);
             System.out.println(((Info_Message)inMessage).getInfo());
         }
-        System.exit(0);
     }
 
     public void parseMessageFromServer(Message message) {
         switch (message.getType()) {
             case INFO:
-                view.display((Info_Message)message);
+                view.display(message);
                 break;
             case LOAD:
                 switch (message.getSubType()) {

@@ -21,6 +21,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -143,12 +144,25 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 if (inputVBox.isVisible()) {
                     inputVBox.getChildren().clear();
                     for (String username : message.getContext().substring(message.getContext().indexOf("[")+1, message.getContext().indexOf("]")).split(",")) {
-                        Label userLabel=new Label(username);
-                        userLabel.prefHeightProperty().bind(root.getScene().heightProperty().divide(4));
-                        userLabel.prefWidthProperty().bind(root.getScene().widthProperty().divide(3));
-                        userLabel.setStyle("-fx-background-color: white;-fx-font-size: "+userLabel.prefHeightProperty());
-                        inputVBox.getChildren().add(userLabel);
+                        Button clientButton=new Button(username);
+                        clientButton.setTextAlignment(TextAlignment.CENTER);
+                        clientButton.prefHeightProperty().bind(root.getScene().heightProperty().divide(4));
+                        clientButton.prefWidthProperty().bind(clientButton.heightProperty().multiply(10));
+                        clientButton.setStyle("-fx-background-color: white;-fx-font-size: "+clientButton.prefHeightProperty());
+                        VBox.setMargin(clientButton,new Insets(10));
+                        inputVBox.getChildren().add(clientButton);
                     }
+                    Button disconnectButton=new Button("Disconnect");
+                    disconnectButton.setTextAlignment(TextAlignment.CENTER);
+                    disconnectButton.prefHeightProperty().bind(root.getScene().heightProperty().divide(4));
+                    disconnectButton.prefWidthProperty().bind(disconnectButton.heightProperty().multiply(10));
+                    disconnectButton.setOnAction(event-> {
+                        messageSender.sendMessage(MsgType.DISCONNECT,"Disconnecting",null);
+                        closeConnection();
+                        Platform.exit();
+                    });
+                    VBox.setMargin(disconnectButton,new Insets(10));
+                    inputVBox.getChildren().add(disconnectButton);
                 }
                 break;
             case ERROR:
@@ -157,12 +171,20 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 alert.showAndWait();
                 break;
             case TURNSTATE:
+                gameAnchorPane.addChatMessage(messageSender.getSender(),message.getContext(),message.getSubType());
+                break;
             case WHISPER:
                 gameAnchorPane.addChatMessage(message.getSender(),((Info_Message)message).getInfo(),message.getSubType());
                 break;
             case CONNECT:
             case TEXT:
                 System.out.println(((Info_Message)message).getInfo());
+                break;
+            case DISCONNECT:
+                Alert info=new Alert(Alert.AlertType.INFORMATION);
+                info.setContentText(((Info_Message)message).getInfo());
+                info.setOnCloseRequest(event->Platform.exit());
+                info.showAndWait();
                 break;
             default:
                 Alert warning=new Alert(Alert.AlertType.WARNING);
