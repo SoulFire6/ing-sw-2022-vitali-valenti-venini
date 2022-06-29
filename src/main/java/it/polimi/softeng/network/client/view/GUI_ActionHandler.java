@@ -3,11 +3,10 @@ package it.polimi.softeng.network.client.view;
 import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.network.client.view.FXML_Controllers.GamePane;
-import it.polimi.softeng.network.client.view.FXML_Controllers.LoginVBox;
+import it.polimi.softeng.network.client.view.FXML_Controllers.LoginPane;
 import it.polimi.softeng.network.client.view.FXML_Controllers.MessageSender;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
-import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -18,9 +17,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
 import java.beans.PropertyChangeEvent;
@@ -39,12 +37,15 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     private Socket socket;
 
     private MessageSender messageSender;
+
     @FXML
-    private LoginVBox loginVBox;
+    BorderPane mainPane;
     @FXML
-    private VBox inputVBox;
+    private LoginPane loginPane;
     @FXML
-    private GamePane gameAnchorPane;
+    private VBox inputPane;
+    @FXML
+    private GamePane gamePane;
     public GUI_ActionHandler() {
         try {
             FXMLLoader loader=new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Eriantys.fxml"));
@@ -57,9 +58,14 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.loginVBox.setVisible(true);
-        this.inputVBox.setVisible(false);
-        this.gameAnchorPane.setVisible(false);
+        this.loginPane.setVisible(true);
+        this.inputPane.setVisible(false);
+        this.inputPane.setManaged(false);
+        this.gamePane.setVisible(false);
+        this.gamePane.setManaged(false);
+        this.mainPane.getCenter().minHeight(600);
+        this.mainPane.getCenter().minWidth(800);
+
     }
 
     public Parent getRoot() {
@@ -67,36 +73,34 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     }
 
     public void setupLoginParams(String[] args) {
-        TextField textField=this.loginVBox.getUsernameField();
+        TextField textField=this.loginPane.getUsernameField();
         if (textField!=null && textField.getText().isEmpty()) {
             textField.setText(args[0]);
         }
-        textField=loginVBox.getIpField();
+        textField=loginPane.getIpField();
         if (textField!=null && textField.getText().isEmpty()) {
             textField.setText(args[1]);
         }
-        textField=loginVBox.getPortField();
+        textField=loginPane.getPortField();
         if (textField!=null && textField.getText().isEmpty()) {
             textField.setText(args[2]);
         }
     }
 
     public void tryConnection() {
-        if (this.loginVBox!=null && this.loginVBox.getValidLogin()) {
+        if (this.loginPane!=null && this.loginPane.getValidLogin()) {
             try {
-                String username=loginVBox.getUsernameField().getText();
-                socket=new Socket(loginVBox.getIpField().getText(),Integer.parseInt(loginVBox.getPortField().getText()));
-                ObjectOutputStream toServer=new ObjectOutputStream(socket.getOutputStream());
-                System.out.println("SENDING");
-                toServer.writeObject(MessageCenter.genMessage(MsgType.CONNECT, username, null, null));
-                System.out.println("SENT");
-                messageSender=new MessageSender(username,toServer);
-                gameAnchorPane.setMessageSender(messageSender);
-                loginVBox.setVisible(false);
-                inputVBox.setVisible(true);
+                String username=loginPane.getUsernameField().getText();
+                socket=new Socket(loginPane.getIpField().getText(),Integer.parseInt(loginPane.getPortField().getText()));
+                messageSender=new MessageSender(username,new ObjectOutputStream(socket.getOutputStream()));
+                gamePane.setMessageSender(messageSender);
+                loginPane.setVisible(false);
+                loginPane.setManaged(false);
+                inputPane.setVisible(true);
+                inputPane.setManaged(true);
             }
             catch (IOException io) {
-                loginVBox.invalidateLogin();
+                loginPane.invalidateLogin();
                 Alert alert=new Alert(Alert.AlertType.ERROR);
                 alert.setContentText("Error connecting to server");
                 alert.showAndWait();
@@ -110,20 +114,21 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     public void display(Message message) {
         switch (message.getSubType()) {
             case INPUT:
-                inputVBox.setVisible(true);
-                inputVBox.getChildren().clear();
+                inputPane.getChildren().clear();
                 ArrayList<Button> buttonOptions=new ArrayList<>();
                 Label inputLabel=new Label(((Info_Message)message).getInfo());
                 inputLabel.setStyle("-fx-background-color: white");
-                inputVBox.getChildren().add(inputLabel);
+                inputPane.getChildren().add(inputLabel);
                 if (!message.getContext().contains(">")) {
                     TextField optionField=new TextField();
                     optionField.setPrefWidth(200);
                     optionField.setOnAction(event->{
                         messageSender.sendMessage(MsgType.TEXT,optionField.getText(),optionField.getText());
-                        inputVBox.getChildren().clear();
+                        inputPane.getChildren().clear();
                     });
-                    inputVBox.getChildren().add(optionField);
+                    inputPane.getChildren().add(optionField);
+                    inputPane.setVisible(true);
+                    inputPane.setManaged(true);
                     break;
                 }
                 for (String option : message.getContext().split("-")) {
@@ -132,17 +137,17 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                     optionButton.setWrapText(true);
                     optionButton.setOnAction(event-> {
                         messageSender.sendMessage(MsgType.TEXT,optionButton.getText(),option.contains(" > ")?option.substring(0,option.indexOf(" >")):option);
-                        inputVBox.getChildren().clear();
+                        inputPane.getChildren().clear();
                     });
                     buttonOptions.add(optionButton);
                     VBox.setMargin(optionButton,new Insets(10));
                 }
-                inputVBox.getChildren().addAll(buttonOptions);
+                inputPane.getChildren().addAll(buttonOptions);
                 break;
             case CLIENT_NUM:
-                gameAnchorPane.addChatMessage(message.getSender(),((Info_Message)message).getInfo(),message.getSubType());
-                if (inputVBox.isVisible()) {
-                    inputVBox.getChildren().clear();
+                gamePane.addChatMessage(message.getSender(),((Info_Message)message).getInfo(),message.getSubType());
+                if (inputPane.isVisible()) {
+                    inputPane.getChildren().clear();
                     for (String username : message.getContext().substring(message.getContext().indexOf("[")+1, message.getContext().indexOf("]")).split(",")) {
                         Button clientButton=new Button(username);
                         clientButton.setTextAlignment(TextAlignment.CENTER);
@@ -150,7 +155,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                         clientButton.prefWidthProperty().bind(clientButton.heightProperty().multiply(10));
                         clientButton.setStyle("-fx-background-color: white;-fx-font-size: "+clientButton.prefHeightProperty());
                         VBox.setMargin(clientButton,new Insets(10));
-                        inputVBox.getChildren().add(clientButton);
+                        inputPane.getChildren().add(clientButton);
                     }
                     Button disconnectButton=new Button("Disconnect");
                     disconnectButton.setTextAlignment(TextAlignment.CENTER);
@@ -162,7 +167,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                         Platform.exit();
                     });
                     VBox.setMargin(disconnectButton,new Insets(10));
-                    inputVBox.getChildren().add(disconnectButton);
+                    inputPane.getChildren().add(disconnectButton);
                 }
                 break;
             case ERROR:
@@ -171,10 +176,10 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 alert.showAndWait();
                 break;
             case TURNSTATE:
-                gameAnchorPane.addChatMessage(messageSender.getSender(),message.getContext(),message.getSubType());
+                gamePane.addChatMessage(messageSender.getSender(),message.getContext(),message.getSubType());
                 break;
             case WHISPER:
-                gameAnchorPane.addChatMessage(message.getSender(),((Info_Message)message).getInfo(),message.getSubType());
+                gamePane.addChatMessage(message.getSender(),((Info_Message)message).getInfo(),message.getSubType());
                 break;
             case CONNECT:
             case TEXT:
@@ -214,36 +219,34 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                     case PLAYERS:
                         for (ReducedPlayer player : (ArrayList<ReducedPlayer>) evt.getNewValue()) {
                             System.out.println("Updating "+player.getName());
-                            gameAnchorPane.updatePlayer(player);
+                            gamePane.updatePlayer(player);
                         }
-                        System.out.println("UPDATE PLAYERS");
                         break;
                     case PLAYER:
-                        //gameAnchorPane.updatePlayer(toServer,username,(ReducedPlayer) evt.getNewValue());
-                        System.out.println("FIND AND UPDATE SINGLE PLAYER");
+                        gamePane.updatePlayer((ReducedPlayer) evt.getNewValue());
                         break;
                     case TURN_STATE:
-                        gameAnchorPane.updateTurnState((ReducedGame)evt.getNewValue());
+                        gamePane.updateTurnState((ReducedGame)evt.getNewValue());
                         break;
                     case ISLANDS:
-                        gameAnchorPane.updateIslands((ArrayList<ReducedIsland>)evt.getNewValue());
+                        gamePane.updateIslands((ArrayList<ReducedIsland>)evt.getNewValue());
                         break;
                     case CLOUDS:
-                        gameAnchorPane.updateClouds((ArrayList<ReducedCloud>) evt.getNewValue());
+                        gamePane.updateClouds((ArrayList<ReducedCloud>) evt.getNewValue());
                         break;
                     case COINS:
-                        gameAnchorPane.updateCoins((Integer)evt.getNewValue());
+                        gamePane.updateCoins((Integer)evt.getNewValue());
                         break;
                     case BAG:
-                        gameAnchorPane.updateBag((ReducedBag)evt.getNewValue());
+                        gamePane.updateBag((ReducedBag)evt.getNewValue());
                         break;
                     case CHARACTER_CARDS:
-                        gameAnchorPane.updateCharacterCards((ArrayList<ReducedCharacterCard>) evt.getNewValue());
+                        gamePane.updateCharacterCards((ArrayList<ReducedCharacterCard>) evt.getNewValue());
                         break;
                     case LOADED_GAME:
-                        inputVBox.setVisible(false);
-                        gameAnchorPane.setVisible(true);
-                        gameAnchorPane.setupGame((ReducedGame) evt.getNewValue());
+                        inputPane.setVisible(false);
+                        gamePane.setVisible(true);
+                        gamePane.setupGame((ReducedGame) evt.getNewValue());
                         break;
                     default:
                         Alert alert=new Alert(Alert.AlertType.WARNING);

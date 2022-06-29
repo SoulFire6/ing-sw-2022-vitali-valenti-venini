@@ -49,7 +49,6 @@ public class Client {
         }
         if (inMessage != null && inMessage.getSubType() == MsgType.DISCONNECT) {
             view.display(inMessage);
-            System.out.println(((Info_Message)inMessage).getInfo());
         }
     }
 

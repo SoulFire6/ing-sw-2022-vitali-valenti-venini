@@ -5,6 +5,7 @@ import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.CharID;
 import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.network.message.MsgType;
+import javafx.beans.property.DoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -14,14 +15,16 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Stream;
 
-public class GamePane extends AnchorPane implements Initializable {
+public class GamePane extends BorderPane implements Initializable {
     @FXML
     VBox you, oppositePlayer, leftPlayer, rightPlayer;
     @FXML
@@ -53,6 +56,9 @@ public class GamePane extends AnchorPane implements Initializable {
             io.printStackTrace();
             throw new RuntimeException(io);
         }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -65,15 +71,8 @@ public class GamePane extends AnchorPane implements Initializable {
                 if (node.getId().contains("Cloud")) {
                     visibleClouds.add((CloudPane) node);
                 }
+                bindTileSizes((AnchorPane) node);
             }
-        }
-        for (IslandPane island : visibleIslands) {
-            island.prefHeightProperty().bind(tiles.heightProperty().subtract(100).divide(4));
-            island.prefWidthProperty().bind(tiles.widthProperty().subtract(100).divide(4));
-        }
-        for (CloudPane cloud : visibleClouds) {
-            cloud.prefHeightProperty().bind(tiles.heightProperty().subtract(100).divide(4));
-            cloud.prefWidthProperty().bind(tiles.widthProperty().subtract(100).divide(4));
         }
         toggleHandButton.setOnAction(event->assistantCards.setVisible(!assistantCards.isVisible()));
         otherPlayers.addAll(Arrays.asList(oppositePlayer,rightPlayer,leftPlayer));
@@ -82,6 +81,15 @@ public class GamePane extends AnchorPane implements Initializable {
         }
         catch (IOException ignored) {
 
+        }
+    }
+
+    private void bindTileSizes(AnchorPane anchorPane) {
+        for (DoubleProperty heightProperty : Arrays.asList(anchorPane.minHeightProperty(),anchorPane.prefHeightProperty(),anchorPane.maxHeightProperty())) {
+            heightProperty.bind(tiles.heightProperty().divide(4));
+        }
+        for (DoubleProperty widthProperty : Arrays.asList(anchorPane.minWidthProperty(),anchorPane.prefWidthProperty(),anchorPane.maxWidthProperty())) {
+            widthProperty.bind(tiles.widthProperty().divide(4));
         }
     }
 

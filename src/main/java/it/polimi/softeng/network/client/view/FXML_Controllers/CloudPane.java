@@ -47,8 +47,6 @@ public class CloudPane extends AnchorPane implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        cloudImage.fitHeightProperty().bind(this.prefHeightProperty());
-        cloudImage.fitWidthProperty().bind(this.prefWidthProperty());
         for (Colour c : Colour.values()) {
             backgrounds.put(c,new Background(new BackgroundImage(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Icons/" + c.getName() + "_Disk.png")).toExternalForm()),null,null, BackgroundPosition.CENTER,null)));
         }

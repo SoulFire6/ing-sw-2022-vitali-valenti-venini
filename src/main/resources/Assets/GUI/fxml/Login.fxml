@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.geometry.Insets?>
+<fx:root type="javafx.scene.layout.BorderPane" xmlns:fx="http://javafx.com/fxml" prefHeight="400.0" prefWidth="600.0">
+    <top>
+        <ImageView BorderPane.alignment="CENTER" fitHeight="300" preserveRatio="true">
+            <image>
+                <Image url="/Assets/GUI/Icons/Logo.png"/>
+            </image>
+        </ImageView>
+    </top>
+    <center>
+        <VBox prefWidth="300" prefHeight="600" alignment="CENTER">
+            <Label fx:id="usernameLabel" text="Username: " style="-fx-background-color: white" BorderPane.alignment="CENTER"/>
+            <TextField fx:id="usernameField" prefWidth="128.0" promptText="Waiting for username" BorderPane.alignment="CENTER"/>
+            <Label fx:id="ipLabel" text="Ip: " style="-fx-background-color: white" />
+            <TextField fx:id="ipField" prefWidth="128.0" promptText="Server ip (local or empty for default localhost)">
+                <VBox.margin>
+                    <Insets bottom="5.0" top="5.0" />
+                </VBox.margin>
+            </TextField>
+            <Label fx:id="portLabel" text="Port: " style="-fx-background-color: white" />
+            <TextField fx:id="portField" prefWidth="128.0" promptText="Server port (local or empty for default 50033)">
+                <VBox.margin>
+                    <Insets bottom="5.0" top="5.0" />
+                </VBox.margin>
+            </TextField>
+            <AnchorPane>
+                <Button fx:id="joinButton" AnchorPane.leftAnchor="30" text="Join" />
+                <Button fx:id="hostButton" AnchorPane.rightAnchor="30" text="Host" />
+            </AnchorPane>
+        </VBox>
+    </center>
+</fx:root>

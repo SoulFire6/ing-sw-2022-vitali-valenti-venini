@@ -9,7 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.text.TextAlignment;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 
-public class LoginVBox extends VBox implements Initializable {
+public class LoginPane extends BorderPane implements Initializable {
     @FXML
     TextField usernameField, ipField, portField;
     @FXML
@@ -32,9 +32,9 @@ public class LoginVBox extends VBox implements Initializable {
     private static final Integer DEFAULT_PORT=50033;
     private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$";
 
-    public LoginVBox() {
+    public LoginPane() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/LoginVBox.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Login.fxml"));
             loader.setRoot(this);
             loader.setController(this);
             loader.load();
@@ -51,13 +51,13 @@ public class LoginVBox extends VBox implements Initializable {
         this.joinButton.setOnAction(this::connectToServer);
         this.hostButton.setOnAction(this::hostServer);
         for (TextField textField : Arrays.asList(usernameField,ipField,portField)) {
-            textField.prefHeightProperty().bind(this.heightProperty().divide(20));
-            textField.prefWidthProperty().bind(this.widthProperty().divide(10));
+            textField.prefHeightProperty().bind(heightProperty().divide(20));
+            textField.prefWidthProperty().bind(widthProperty().divide(10));
             textField.setAlignment(Pos.CENTER);
         }
         for (Label label : Arrays.asList(usernameLabel,ipLabel,portLabel)) {
-            label.prefHeightProperty().bind(this.heightProperty().divide(20));
-            label.prefWidthProperty().bind(this.widthProperty().divide(5));
+            label.prefHeightProperty().bind(heightProperty().divide(20));
+            label.prefWidthProperty().bind(widthProperty().divide(5));
             label.setAlignment(Pos.CENTER_LEFT);
             label.setTextAlignment(TextAlignment.LEFT);
         }
@@ -88,7 +88,6 @@ public class LoginVBox extends VBox implements Initializable {
             alert.showAndWait();
             return;
         }
-
         try {
             //tests if server with that port already exists and can be connected to
             new Socket(DEFAULT_IP,Integer.parseInt(portField.getText()));

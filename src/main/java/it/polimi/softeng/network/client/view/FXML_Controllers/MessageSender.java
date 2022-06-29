@@ -19,6 +19,7 @@ public class MessageSender {
     public MessageSender(String sender, ObjectOutputStream toServer) {
         this.sender=sender;
         this.toServer=toServer;
+        sendMessage(MsgType.CONNECT,null,null);
     }
     public void sendMessage(MsgType type, String context, Object load) {
         try {

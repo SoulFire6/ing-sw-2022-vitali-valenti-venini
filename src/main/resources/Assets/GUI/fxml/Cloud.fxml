@@ -7,8 +7,8 @@
 
 <fx:root minHeight="100" minWidth="100" prefHeight="100" prefWidth="100" maxHeight="-Infinity" maxWidth="-Infinity" type="javafx.scene.layout.AnchorPane" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <ImageView fx:id="cloudImage">
-            <Image url="/Assets/GUI/Tiles/Cloud.png" />
+        <ImageView fx:id="cloudImage" preserveRatio="true" fitWidth="100" fitHeight="100">
+            <Image url="/Assets/GUI/Tiles/Cloud.png" preserveRatio="true"/>
         </ImageView>
         <Label fx:id="first" style="-fx-background-size: contain" />
         <Label fx:id="second" style="-fx-background-size: contain" />
