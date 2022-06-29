@@ -532,6 +532,8 @@ public class CLI implements View {
                 return null;
             case "DISCONNECT":
                 return MessageCenter.genMessage(MsgType.DISCONNECT,username,"Disconnecting",null);
+            case "QUIT":
+               return MessageCenter.genMessage(MsgType.SAVE_AND_QUIT,username,"Save and quit",null);
             case "HELP":
                 System.out.println("Possible commands:\n" +
                         "- char | character [char id] - play character card\n" +
@@ -542,7 +544,8 @@ public class CLI implements View {
                         "- refill [cloud id] - choose cloud to refill entrance from\n" +
                         "- msg | whisper [username] - send a message to another player\n" +
                         "- charinfo [char name] - prints character card info\n" +
-                        "- disconnect - quit game, triggers game over for other players");
+                        "- quit - save and quit game, therefore closing lobby (can only be performed by lobby master)"+
+                        "- disconnect - quit game, triggers game over for other players if there is one team left");
                 return null;
             default:
                 return MessageCenter.genMessage(MsgType.TEXT,username,"Basic response",input[0]);

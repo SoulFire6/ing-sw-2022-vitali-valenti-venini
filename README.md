@@ -49,7 +49,7 @@ The final version will include:
 | 4 Player mode            | :white_check_mark: | Allows 4 players to participate in teams of 2 |
 | Multiple games           | :white_check_mark: | Allows simultaneous games on the same server  |
 | Persistence              | :white_check_mark: | Save and load game state to disk              |
-| Disconnection Resilience |        :x:         | Allows players to reconnect                   |
+| Disconnection Resilience | :white_check_mark: | Allows players to reconnect                   |
 
 **Table Legend:**
 

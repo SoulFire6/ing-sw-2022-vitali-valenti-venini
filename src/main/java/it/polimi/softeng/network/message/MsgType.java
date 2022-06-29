@@ -8,6 +8,7 @@ public enum MsgType {
     WHISPER(MainType.INFO),
     CONNECT(MainType.INFO),
     DISCONNECT(MainType.INFO),
+    SAVE_AND_QUIT(MainType.INFO),
     ERROR(MainType.INFO),
     //Load messages
     GAME(MainType.LOAD),

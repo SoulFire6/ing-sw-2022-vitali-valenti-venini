@@ -162,8 +162,7 @@ public class Server {
                                 out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","Not on whitelist","You are not on the whitelist: "+lobby.getWhiteList()));
                                 return false;
                             }
-                            lobby.getClients().put(username,new LobbyClient(username,lobbyName,socket,in,out));
-                            lobby.getClients().notify();
+                            lobby.connectClient(new LobbyClient(username,lobbyName,socket,in,out));
                             return true;
                         } else {
                             out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","Username already in use","Player with that username already exists"));

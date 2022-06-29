@@ -40,7 +40,6 @@ public class LobbyController {
         this.saveFileStream=setupFileStream(saveFile);
         this.charCardController=expertMode?new CharCardController():null;
         this.game=createGame(playerNames,expertMode);
-        saveGame();
         this.turnManager = new TurnManager(game.getPlayers(),game.getClouds().get(0).getMaxSlots());
         saveGame();
     }
@@ -56,7 +55,6 @@ public class LobbyController {
         this.lobbyName=lobbyName;
         ReducedGame reducedGame=loadGame(saveFile);
         this.game=convertSaveFile(reducedGame);
-        saveGame();
         this.saveFileStream=setupFileStream(saveFile);
         this.charCardController=game!=null && game.isExpertMode()?new CharCardController():null;
         this.turnManager=game!=null?new TurnManager(game.getPlayers(),game.getClouds().get(0).getMaxSlots(),reducedGame):null;
@@ -278,6 +276,33 @@ public class LobbyController {
     }
 
     /**
+     * Method that checks whether the amount of teams connects is more than one
+     * @param connectedPlayers the key-set of currently connected clients
+     * @return boolean that indicates the result of the check
+     */
+
+    public boolean checkConnectedTeams(Set<String> connectedPlayers) {
+        ArrayList<Team> connectedTeams=new ArrayList<>();
+        for (Player p : game.getPlayers()) {
+            if (connectedPlayers.contains(p.getName()) && !connectedTeams.contains(p.getTeam())) {
+                connectedTeams.add(p.getTeam());
+            }
+        }
+        return connectedTeams.size()>1;
+    }
+
+    /**
+     * Method that skips a player's turn in the event that they are not connected currently
+     * @param player the player to skip
+     */
+
+    public void skipPlayerTurn(Player player) {
+        while (turnManager.getCurrentPlayer().equals(player)) {
+            turnManager.nextAction();
+        }
+    }
+
+    /**
      * This method is used to analyze the Message received by a Player and, if it's legal, to fullfill the Player's requests
      * @param inMessage the Message sent by the Player
      * @exception LobbyClientDisconnectedException when a client disconnects
@@ -437,26 +462,31 @@ public class LobbyController {
      * This method is used to calculate the winner Team when a GameIsOverException is raised
      * @return Team the winning team
      */
-    public Team calculateWinningTeam() {
+    public Team calculateWinningTeam(Set<String> connectedPlayers) {
         EnumMap<Team,Integer> teamTowers=new EnumMap<>(Team.class);
         EnumMap<Team,Integer> teamProfessors=new EnumMap<>(Team.class);
-        for (Team t : game.getTeams()) {
+        Integer towerPoints= 8-2*(game.getPlayers().size()-2);
+        for (Team t : Team.values()) {
             teamTowers.put(t,0);
             teamProfessors.put(t,0);
         }
-        for (Player p: game.getPlayers()) {
-            teamTowers.put(p.getTeam(),teamTowers.get(p.getTeam())+p.getSchoolBoard().getTowers());
-            for (Colour c: Colour.values()) {
-                teamProfessors.put(p.getTeam(),teamProfessors.get(p.getTeam())+(p.getSchoolBoard().getProfessor(c)?1:0));
+        for (Player p : game.getPlayers()) {
+            //Disconnected players get points penalised by not contributing to team score
+            if (connectedPlayers.contains(p.getName())) {
+                teamTowers.put(p.getTeam(),teamTowers.get(p.getTeam())+towerPoints-p.getSchoolBoard().getTowers());
+                for (Colour c : Colour.values()) {
+                    teamProfessors.put(p.getTeam(),teamProfessors.get(p.getTeam())+(p.getSchoolBoard().getProfessor(c)?1:0));
+                }
             }
         }
-        Team winningTowers=Collections.min(teamTowers.entrySet(), Map.Entry.comparingByValue()).getKey();
-        Team winningProfessors=Collections.min(teamProfessors.entrySet(), Map.Entry.comparingByValue()).getKey();
+        Team winningTowers=Collections.max(teamTowers.entrySet(), Map.Entry.comparingByValue()).getKey();
         for (Team t : game.getTeams()) {
             if (t!=winningTowers && teamTowers.get(t).intValue()==teamTowers.get(winningTowers).intValue()) {
-                return winningProfessors;
+                //winning team is the one with the most professors
+                return Collections.max(teamProfessors.entrySet(), Map.Entry.comparingByValue()).getKey();
             }
         }
+        //winning team is the one with the most towers placed
        return winningTowers;
     }
 }

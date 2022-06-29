@@ -4,14 +4,14 @@ import it.polimi.softeng.controller.LobbyController;
 import it.polimi.softeng.exceptions.*;
 import it.polimi.softeng.model.Player;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
+import it.polimi.softeng.model.ReducedModel.ReducedTurnState;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Lobby implements Runnable {
@@ -20,7 +20,7 @@ public class Lobby implements Runnable {
     private final HashMap<String,LobbyClient> clients=new HashMap<>();
 
     private final HashMap<String,LobbyListener> listeners=new HashMap<>();
-    private final String lobbyMaster;
+    private String lobbyMaster;
     private int maxPlayers=0;
     private Boolean expertMode=null;
     private LobbyController controller=null;
@@ -38,7 +38,6 @@ public class Lobby implements Runnable {
     @Override
     public void run() {
         System.out.println("LOBBY CREATED: " + lobbyName);
-        Message message=null;
         try {
             setupLobby(clients.get(lobbyMaster));
             System.out.println("Creating listener for lobbymaster: "+lobbyMaster);
@@ -51,32 +50,25 @@ public class Lobby implements Runnable {
             System.out.println("Lobby "+lobbyName+" is empty");
         }
         catch (LobbyClientDisconnectedException lcde) {
-            message=MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Lobby closed due to disconnection",(lcde.getMessage().equals("")?"sudden disconnection":lcde.getMessage()+" has disconnected")+": save file to continue game "+saveFile.getName());
+            sendToAll(MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Lobby closed due to disconnection",lcde.getMessage()));
         }
         catch (GameIsOverException gioe) {
             String winningTeam="no team";
             if (controller!=null) {
-                winningTeam=controller.calculateWinningTeam().toString();
+                winningTeam=controller.calculateWinningTeam(clients.keySet()).toString();
             }
-            message=MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Game over: "+winningTeam,"Game over: "+winningTeam+" has won");
+            sendToAll(MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Game over: "+winningTeam,"Game over: "+winningTeam+" has won"));
+            saveFile.delete();
         }
         catch (InvalidPlayerNumException ipne) {
             System.out.println("Invalid player num, closing lobby");
         }
-        if (message!=null) {
-            System.out.println(message.getContext());
-            for (String client : clients.keySet()) {
-                try {
-                    clients.get(client).sendMessage(message);
-                }
-                catch (LobbyClientDisconnectedException ignored) {
-                }
+        finally {
+            if (controller!=null) {
+                controller.closeFileStream();
             }
+            clients.clear();
         }
-        if (controller!=null) {
-            controller.closeFileStream();
-        }
-        clients.clear();
     }
     private void setupLobby(LobbyClient client) throws LobbyClientDisconnectedException {
         try {
@@ -187,6 +179,7 @@ public class Lobby implements Runnable {
                 newPlayer=null;
                 try {
                     clients.wait();
+                    checkIfLobbyMasterIsConnected();
                     for (String clientName : clients.keySet()) {
                         if (listeners.get(clientName)==null) {
                             System.out.println("Creating listener for: "+clientName);
@@ -208,11 +201,9 @@ public class Lobby implements Runnable {
                 }
                 if (clients.size()==maxPlayers) {
                     System.out.println("[" + lobbyName + "] GOT MAX CLIENTS CONNECTED: " + clients.keySet());
-                    try {
-                        sendToAll(MessageCenter.genMessage(MsgType.TEXT, lobbyName, "Lobby full", "Lobby now full [" + clients.size() + "/" + maxPlayers + "], setting up game..."));
-                    }
-                    catch (LobbyClientDisconnectedException lcde) {
-                        throw new GameIsOverException(lcde.getMessage() + " disconnected before game could be setup");
+                    sendToAll(MessageCenter.genMessage(MsgType.TEXT, lobbyName, "Lobby full", "Lobby now full [" + clients.size() + "/" + maxPlayers + "], setting up game..."));
+                    if (clients.size()<maxPlayers) {
+                        throw new GameIsOverException("A client disconnected before game could be setup");
                     }
                 }
             }
@@ -221,8 +212,17 @@ public class Lobby implements Runnable {
             }
         }
     }
-    private void sendToAll(Message msg) throws LobbyClientDisconnectedException {
-        boolean clientDisconnected=false;
+
+    private void checkIfLobbyMasterIsConnected() {
+        if (!clients.containsKey(lobbyMaster)) {
+            Random rand=new Random();
+            Object[] values=clients.keySet().toArray();
+            lobbyMaster=(String)values[rand.nextInt(values.length)];
+            sendToAll(MessageCenter.genMessage(MsgType.CLIENT_NUM,lobbyName,"Lobby master disconnected","Lobby master is now :"+lobbyMaster));
+        }
+    }
+
+    private void sendToAll(Message msg) {
         synchronized (clients) {
             for (String clientName : clients.keySet()) {
                 try {
@@ -230,13 +230,9 @@ public class Lobby implements Runnable {
                 }
                 catch (LobbyClientDisconnectedException lcde) {
                     clients.remove(clientName);
-                    clientDisconnected=true;
                     sendToAll(MessageCenter.genMessage(MsgType.CLIENT_NUM,lobbyName,clients.keySet().toString(),clientName+" has disconnected, current players: ["+ clients.size()+"/"+maxPlayers+"]"));
                 }
             }
-        }
-        if (clientDisconnected) {
-            throw new LobbyClientDisconnectedException("");
         }
     }
     private void setupGame() throws InvalidPlayerNumException,LobbyClientDisconnectedException {
@@ -268,14 +264,31 @@ public class Lobby implements Runnable {
         }
         ArrayList<String> waitingFor = new ArrayList<>(whiteList);
         waitingFor.removeAll(clients.keySet());
-        return this.lobbyName+" > "+(this.expertMode?"expert":"normal")+" game ["+this.clients.size()+"/"+this.maxPlayers+"]\n Currently connected: "+this.clients.keySet()+(waitingFor.size()>0?", \nWaiting for: "+waitingFor:"");
+        return this.lobbyName+" > "+(this.expertMode?"expert":"normal")+" game ["+this.clients.size()+"/"+this.maxPlayers+"]\n Currently connected: "+this.clients.keySet()+(waitingFor.size()>0?"\nWaiting for: "+waitingFor:"");
     }
     public void processMessageQueue() throws LobbyClientDisconnectedException,GameIsOverException,LobbyEmptyException {
         Message msg;
         synchronized (lobbyMessageQueue) {
-            while(clients.size()==maxPlayers) {
+            while(controller.checkConnectedTeams(clients.keySet())) {
                 while (lobbyMessageQueue.size()>0) {
                     msg=lobbyMessageQueue.poll();
+                    if (msg.getSubType().equals(MsgType.SAVE_AND_QUIT)) {
+                        if (msg.getSender().equals(lobbyMaster)) {
+                            throw new LobbyClientDisconnectedException("Lobby master "+lobbyMaster+" has decided to save and quit the game, the save file to continue is: "+saveFile.getName().replace(".bin",""));
+                        } else {
+                            clients.get(msg.getSender()).sendMessage(MsgType.ERROR,"Not lobby master","Only the current lobby master ("+lobbyMaster+") can decide to save and quit the game");
+                        }
+                    }
+                    checkIfLobbyMasterIsConnected();
+                    //Skip disconnected players
+                    if (!clients.containsKey(controller.getTurnManager().getCurrentPlayer().getName())) {
+                        Player skippedPlayer=controller.getTurnManager().getCurrentPlayer();
+                        controller.skipPlayerTurn(skippedPlayer);
+                        Message skipTurnMessage=MessageCenter.genMessage(MsgType.TURNSTATE,"SERVER",skippedPlayer.getName()+" is not connected, skipping turn",new ReducedTurnState(controller.getTurnManager()));
+                        for (String client : clients.keySet()) {
+                            clients.get(client).sendMessage(skipTurnMessage);
+                        }
+                    }
                     for (Message message : controller.parseMessage(msg)) {
                         switch (message.getSubType()) {
                             case WHISPER:
@@ -295,7 +308,23 @@ public class Lobby implements Runnable {
                     System.out.println("["+lobbyName+"]: processed message ("+msg.getSender()+": "+msg.getClass().getSimpleName()+"), queue size: "+lobbyMessageQueue.size());
                 }
             }
-            throw new LobbyClientDisconnectedException("");
+            throw new GameIsOverException("Not enough players to continue game");
+        }
+    }
+
+    public void connectClient(LobbyClient client) {
+        synchronized (clients) {
+            clients.put(client.getUsername(), client);
+            //Sends game to client if they have rejoined
+            if (controller!=null && controller.getGame()!=null) {
+                try {
+                    client.sendMessage(MsgType.GAME,"Rejoined game",new ReducedGame(controller.getGame(),controller.getTurnManager()));
+                }
+                catch (LobbyClientDisconnectedException lcde) {
+                    clients.remove(client.getUsername());
+                }
+            }
+           clients.notifyAll();
         }
     }
 }
