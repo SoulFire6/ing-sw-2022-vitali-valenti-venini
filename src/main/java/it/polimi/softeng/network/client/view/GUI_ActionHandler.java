@@ -19,6 +19,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
 import java.beans.PropertyChangeEvent;
@@ -148,19 +149,24 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 gamePane.addChatMessage(message.getSender(),((Info_Message)message).getInfo(),message.getSubType());
                 if (inputPane.isVisible()) {
                     inputPane.getChildren().clear();
-                    for (String username : message.getContext().substring(message.getContext().indexOf("[")+1, message.getContext().indexOf("]")).split(",")) {
-                        Button clientButton=new Button(username);
-                        clientButton.setTextAlignment(TextAlignment.CENTER);
-                        clientButton.prefHeightProperty().bind(root.getScene().heightProperty().divide(4));
-                        clientButton.prefWidthProperty().bind(clientButton.heightProperty().multiply(10));
-                        clientButton.setStyle("-fx-background-color: white;-fx-font-size: "+clientButton.prefHeightProperty());
-                        VBox.setMargin(clientButton,new Insets(10));
-                        inputPane.getChildren().add(clientButton);
+                    if (message.getContext().contains("]")) {
+                        for (String username : message.getContext().substring(message.getContext().indexOf("[")+1, message.getContext().indexOf("]")).split(",")) {
+                            Button clientButton=new Button(username);
+                            clientButton.setTextAlignment(TextAlignment.CENTER);
+                            clientButton.prefHeightProperty().bind(root.getScene().heightProperty().divide(20));
+                            clientButton.prefWidthProperty().bind(clientButton.heightProperty().multiply(8));
+                            clientButton.setWrapText(true);
+                            clientButton.setStyle("-fx-background-color: white;-fx-font-size: "+clientButton.prefHeightProperty());
+                            VBox.setMargin(clientButton,new Insets(10));
+                            inputPane.getChildren().add(clientButton);
+                        }
+                    } else {
+                        new Alert(Alert.AlertType.INFORMATION,"Connected players: "+message.getContext()).showAndWait();
                     }
                     Button disconnectButton=new Button("Disconnect");
                     disconnectButton.setTextAlignment(TextAlignment.CENTER);
-                    disconnectButton.prefHeightProperty().bind(root.getScene().heightProperty().divide(4));
-                    disconnectButton.prefWidthProperty().bind(disconnectButton.heightProperty().multiply(10));
+                    disconnectButton.prefHeightProperty().bind(root.getScene().heightProperty().divide(20));
+                    disconnectButton.prefWidthProperty().bind(disconnectButton.heightProperty().multiply(8));
                     disconnectButton.setOnAction(event-> {
                         messageSender.sendMessage(MsgType.DISCONNECT,"Disconnecting",null);
                         closeConnection();
