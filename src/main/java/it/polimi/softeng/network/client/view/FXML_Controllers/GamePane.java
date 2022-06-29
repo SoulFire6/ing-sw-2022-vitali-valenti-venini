@@ -71,7 +71,6 @@ public class GamePane extends BorderPane implements Initializable {
                 if (node.getId().contains("Cloud")) {
                     visibleClouds.add((CloudPane) node);
                 }
-                bindTileSizes((AnchorPane) node);
             }
         }
         toggleHandButton.setOnAction(event->assistantCards.setVisible(!assistantCards.isVisible()));
@@ -81,15 +80,6 @@ public class GamePane extends BorderPane implements Initializable {
         }
         catch (IOException ignored) {
 
-        }
-    }
-
-    private void bindTileSizes(AnchorPane anchorPane) {
-        for (DoubleProperty heightProperty : Arrays.asList(anchorPane.minHeightProperty(),anchorPane.prefHeightProperty(),anchorPane.maxHeightProperty())) {
-            heightProperty.bind(tiles.heightProperty().divide(4));
-        }
-        for (DoubleProperty widthProperty : Arrays.asList(anchorPane.minWidthProperty(),anchorPane.prefWidthProperty(),anchorPane.maxWidthProperty())) {
-            widthProperty.bind(tiles.widthProperty().divide(4));
         }
     }
 

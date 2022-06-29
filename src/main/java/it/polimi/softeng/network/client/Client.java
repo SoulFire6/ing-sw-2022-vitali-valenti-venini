@@ -4,7 +4,6 @@ import it.polimi.softeng.model.ReducedModel.ReducedGame;
 import it.polimi.softeng.network.client.view.CLI;
 import it.polimi.softeng.network.client.view.GUI;
 import it.polimi.softeng.network.client.view.View;
-import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;
 import it.polimi.softeng.network.message.MsgType;
@@ -85,7 +84,9 @@ public class Client {
                     case COINS:
                         this.model.setCoins(((Coin_Load_Msg)message).getLoad());
                     case TURNSTATE:
-                        this.model.setTurnState(((TurnState_Load_Msg)message).getLoad());
+                        if (this.model!=null)  {
+                            this.model.setTurnState(((TurnState_Load_Msg)message).getLoad());
+                        }
                         view.display(message);
                         break;
                 }

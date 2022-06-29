@@ -6,14 +6,10 @@ import it.polimi.softeng.network.message.MsgType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -22,14 +18,12 @@ import java.util.*;
 public class CloudPane extends AnchorPane implements Initializable {
 
     @FXML
-    ImageView cloudImage;
+    ImageView first, second, third, fourth;
 
-    @FXML
-    Label first, second, third, fourth;
+    private final EnumMap<Colour, Image> disks=new EnumMap<>(Colour.class);
 
-    private final EnumMap<Colour, Background> backgrounds=new EnumMap<>(Colour.class);
+    private final ArrayList<ImageView> slots=new ArrayList<>();
 
-    private final ArrayList<Label> slots=new ArrayList<>();
 
     private MessageSender messageSender;
     public CloudPane() {
@@ -48,13 +42,9 @@ public class CloudPane extends AnchorPane implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         for (Colour c : Colour.values()) {
-            backgrounds.put(c,new Background(new BackgroundImage(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Icons/" + c.getName() + "_Disk.png")).toExternalForm()),null,null, BackgroundPosition.CENTER,null)));
+            disks.put(c,(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Icons/" + c.getName() + "_Disk.png")).toExternalForm())));
         }
         slots.addAll(Arrays.asList(first,second,third,fourth));
-        for (int i=0; i<slots.size(); i++) {
-            slots.get(i).prefHeightProperty().bind(this.heightProperty().divide(i%2==0?2:3).multiply(i%2==0?1:i/2.0));
-            slots.get(i).prefHeightProperty().bind(this.heightProperty().divide(i%2==0?3:2).multiply(i%2==0?i/2.0:1));
-        }
         this.addEventHandler(MouseEvent.MOUSE_PRESSED,event-> messageSender.sendMessage(MsgType.CHOOSECLOUD,getId(),getId()));
     }
 
@@ -67,7 +57,7 @@ public class CloudPane extends AnchorPane implements Initializable {
         for (Colour c : Colour.values()) {
             for (int j=0; j<cloud.getContents().get(c); j++) {
                 slots.get(idx).setVisible(true);
-                slots.get(idx).setBackground(backgrounds.get(c));
+                slots.get(idx).setImage(disks.get(c));
             }
         }
         for (int i=idx; i<slots.size(); i++) {

@@ -44,7 +44,7 @@ public class Lobby implements Runnable {
             setupLobby(clients.get(lobbyMaster));
             System.out.println("Creating listener for lobbymaster: "+lobbyMaster);
             listeners.put(lobbyMaster,new LobbyListener(clients.get(lobbyMaster),lobbyName,maxPlayers,lobbyMessageQueue,clients,listeners));
-            checkIfLobbyMasterIsConnected();
+            checkClientsThread();
             waitForOtherPlayers();
             setupGame();
             processMessageQueue();
@@ -221,15 +221,24 @@ public class Lobby implements Runnable {
         }
     }
 
-    private void checkIfLobbyMasterIsConnected() {
+    private void checkClientsThread() {
         Thread thread=new Thread(()->{
             synchronized (clients) {
                 while (clients.size()>0) {
+                    //Check if lobby master is still connected
                     if (!clients.containsKey(lobbyMaster)) {
                         Random rand=new Random();
                         Object[] values=clients.keySet().toArray();
                         lobbyMaster=(String)values[rand.nextInt(values.length)];
                         sendToAll(MessageCenter.genMessage(MsgType.CLIENT_NUM,lobbyName,"Lobby master disconnected","Lobby master is now "+lobbyMaster));
+                    }
+                    //Skip disconnected players
+                    if (controller!=null && controller.getTurnManager()!=null) {
+                        if (!clients.containsKey(controller.getTurnManager().getCurrentPlayer().getName())) {
+                            Player skippedPlayer=controller.getTurnManager().getCurrentPlayer();
+                            controller.skipPlayerTurn(skippedPlayer);
+                            sendToAll(MessageCenter.genMessage(MsgType.TURNSTATE,"SERVER",skippedPlayer.getName()+" is not connected, skipping turn",new ReducedTurnState(controller.getTurnManager())));
+                        }
                     }
                     try {
                         clients.wait();
@@ -299,15 +308,6 @@ public class Lobby implements Runnable {
                             throw new LobbyClientDisconnectedException("Lobby master "+lobbyMaster+" has decided to save and quit the game, the save file to continue is: "+saveFile.getName().replace(".bin",""));
                         } else {
                             clients.get(msg.getSender()).sendMessage(MsgType.ERROR,"Not lobby master","Only the current lobby master ("+lobbyMaster+") can decide to save and quit the game");
-                        }
-                    }
-                    //Skip disconnected players
-                    if (!clients.containsKey(controller.getTurnManager().getCurrentPlayer().getName())) {
-                        Player skippedPlayer=controller.getTurnManager().getCurrentPlayer();
-                        controller.skipPlayerTurn(skippedPlayer);
-                        Message skipTurnMessage=MessageCenter.genMessage(MsgType.TURNSTATE,"SERVER",skippedPlayer.getName()+" is not connected, skipping turn",new ReducedTurnState(controller.getTurnManager()));
-                        for (String client : clients.keySet()) {
-                            clients.get(client).sendMessage(skipTurnMessage);
                         }
                     }
                     for (Message message : controller.parseMessage(msg)) {
