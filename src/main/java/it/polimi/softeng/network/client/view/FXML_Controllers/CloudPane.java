@@ -15,6 +15,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * Controller class for custom fxml component CloudPane
+ */
+
 public class CloudPane extends AnchorPane implements Initializable {
 
     @FXML
@@ -26,6 +30,11 @@ public class CloudPane extends AnchorPane implements Initializable {
 
 
     private MessageSender messageSender;
+
+    /**
+     * Default constructor for CloudPanes
+     * @exception RuntimeException when fxml file is not loaded correctly
+     */
     public CloudPane() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Cloud.fxml"));
@@ -39,6 +48,12 @@ public class CloudPane extends AnchorPane implements Initializable {
         }
     }
 
+    /**
+     * Inherited method initialize to set up fxml components and other attributes
+     * @param url default unused value
+     * @param resourceBundle default unused value
+     */
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         for (Colour c : Colour.values()) {
@@ -48,9 +63,19 @@ public class CloudPane extends AnchorPane implements Initializable {
         this.addEventHandler(MouseEvent.MOUSE_PRESSED,event-> messageSender.sendMessage(MsgType.CHOOSECLOUD,getId(),getId()));
     }
 
+    /**
+     * Setter for MessageSender
+     * @param messageSender message sender to set
+     */
+
     public void setMessageSender(MessageSender messageSender) {
         this.messageSender=messageSender;
     }
+
+    /**
+     * This method updates CloudPane components
+     * @param cloud the ReducedCloud this CloudPane represents
+     */
 
     public void update(ReducedCloud cloud) {
         int idx=0;
