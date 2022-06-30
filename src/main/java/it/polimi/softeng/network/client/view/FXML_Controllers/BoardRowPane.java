@@ -48,7 +48,6 @@ public class BoardRowPane extends AnchorPane {
      */
     public void updateRow(int num, boolean prof) {
         for (Node node : getChildren()) {
-            System.out.println(node.getId());
             if (node.getId().contains("prof")) {
                 node.setVisible(prof);
             } else {

@@ -3,7 +3,6 @@ package it.polimi.softeng.network.client.view.FXML_Controllers;
 import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.CharID;
-import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
@@ -16,42 +15,37 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-public class GamePane extends BorderPane implements Initializable {
+public class GamePane extends AnchorPane implements Initializable {
     @FXML
-    VBox you, oppositePlayer, leftPlayer, rightPlayer, gameChat;
+    PlayerPane you, oppositePlayer, leftPlayer, rightPlayer;
     @FXML
-    GridPane tiles,characterCards;
-
-    @FXML
-    TextField chatField;
-
+    VBox gameChat;
     @FXML
     ChoiceBox<String> chatPartners;
-
     @FXML
-    BoardPane yourBoard, oppositeBoard, leftBoard, rightBoard;
+    TextField chatField;
     @FXML
-    Button toggleHandButton;
+    GridPane tiles,characterCards;
     @FXML
     ToolBar assistantCards;
     @FXML
     Label currentPhase,currentPlayer;
-    private final ArrayList<VBox> otherPlayers=new ArrayList<>();
+
+    @FXML
+    ImageView bag, coins;
     private final ArrayList<IslandPane> visibleIslands=new ArrayList<>();
     private final ArrayList<CloudPane> visibleClouds=new ArrayList<>();
 
-    private final HashMap<String,BoardPane> playerBoards=new HashMap<>();
+    private final HashMap<String,PlayerPane> playerPanes=new HashMap<>();
     private MessageSender messageSender;
-
     private final Properties characterInfo=new Properties();
     public GamePane() {
         try {
@@ -79,10 +73,9 @@ public class GamePane extends BorderPane implements Initializable {
                 if (node.getId().contains("Cloud")) {
                     visibleClouds.add((CloudPane) node);
                 }
+                Tooltip.install(node,new Tooltip(node.getId()));
             }
         }
-        toggleHandButton.setOnAction(event->assistantCards.setVisible(!assistantCards.isVisible()));
-        otherPlayers.addAll(Arrays.asList(oppositePlayer,rightPlayer,leftPlayer));
         try {
             characterInfo.load(getClass().getResourceAsStream("/CardData/CharacterCards.properties"));
         }
@@ -92,6 +85,7 @@ public class GamePane extends BorderPane implements Initializable {
             messageSender.sendMessage(MsgType.WHISPER,chatPartners.getValue(),chatField.getText());
             chatField.clear();
         });
+
     }
 
     public void addChatMessage(Message msg) {
@@ -125,28 +119,27 @@ public class GamePane extends BorderPane implements Initializable {
     public void setupGame(ReducedGame model) throws UpdateGUIException {
         updateIslands(model.getIslands());
         updateClouds(model.getClouds());
-        ArrayList<BoardPane> opponentBoards=new ArrayList<>();
+        ArrayList<PlayerPane> otherPlayers=new ArrayList<>();
         if (model.getPlayers().size()!=3) {
-            opponentBoards.add(oppositeBoard);
+            otherPlayers.add(oppositePlayer);
         }
         if (model.getPlayers().size()>2) {
-            opponentBoards.add(leftBoard);
-            opponentBoards.add(rightBoard);
-        }
-        for (BoardPane boardPane : opponentBoards) {
-            boardPane.getParent().addEventHandler(MouseEvent.MOUSE_PRESSED,event->{
-                //TODO show board in new window
-                Stage boardStage=new Stage();
-            });
+            otherPlayers.add(leftPlayer);
+            otherPlayers.add(rightPlayer);
         }
         for (ReducedPlayer player : model.getPlayers()) {
             if (player.getName().equals(messageSender.getSender())) {
-                playerBoards.put(player.getName(),yourBoard);
+                playerPanes.put(player.getName(),you);
+                updateHand(player.getSchoolBoard().getHand());
+                you.setupPlayer(player);
             } else {
-                playerBoards.put(player.getName(),opponentBoards.get(0));
-                opponentBoards.remove(0);
+                PlayerPane playerPane=otherPlayers.get(0);
+                otherPlayers.remove(playerPane);
+                playerPane.setVisible(true);
+                playerPane.setupPlayer(player);
+                playerPanes.put(player.getName(),playerPane);
+                otherPlayers.remove(0);
             }
-            updatePlayer(player);
         }
         updateTurnState(model);
     }
@@ -159,7 +152,9 @@ public class GamePane extends BorderPane implements Initializable {
         for (CloudPane cloud : visibleClouds) {
             cloud.setMessageSender(messageSender);
         }
-        yourBoard.setMessageSender(messageSender);
+        for (PlayerPane player : Arrays.asList(you,oppositePlayer,leftPlayer,rightPlayer)) {
+            player.setMessageSender(messageSender);
+        }
     }
     public void updateIslands(ArrayList<ReducedIsland> reducedIslands) throws UpdateGUIException {
         Optional<ReducedIsland> motherNatureIsland=reducedIslands.stream().filter(ReducedIsland::hasMotherNature).findFirst();
@@ -197,19 +192,9 @@ public class GamePane extends BorderPane implements Initializable {
     }
 
     public void updatePlayer(ReducedPlayer player) {
-        ReducedSchoolBoard schoolBoard=player.getSchoolBoard();
-        BoardPane boardPane=playerBoards.get(player.getName());
+        playerPanes.get(player.getName()).updatePlayer(player);
         if (player.getName().equals(messageSender.getSender())) {
-            //Update interactive elements
             updateHand(player.getSchoolBoard().getHand());
-            boardPane.updateEntrance(schoolBoard.getEntrance(),true);
-        } else {
-            boardPane.updateEntrance(schoolBoard.getEntrance(),false);
-        }
-        //Update passive elements
-        boardPane.updateTowers(schoolBoard.getTowers());
-        for (Colour c : Colour.values()) {
-            boardPane.updateRow(c,schoolBoard.getDiningRoom().get(c),schoolBoard.getProfessorTable().get(c));
         }
     }
 
@@ -223,9 +208,7 @@ public class GamePane extends BorderPane implements Initializable {
             assistantCard.fitHeightProperty().setValue(assistantCards.getHeight());
             assistantCard.fitWidthProperty().bind(assistantCard.fitHeightProperty().divide(4).multiply(3));
             assistantCard.addEventHandler(MouseEvent.MOUSE_PRESSED,event-> messageSender.sendMessage(MsgType.PLAYASSISTCARD,card.getId(),card.getId()));
-            assistantCard.addEventHandler(MouseEvent.MOUSE_ENTERED,event-> assistantCard.setFitHeight(assistantCard.getFitHeight()*2));
-            assistantCard.addEventHandler(MouseEvent.MOUSE_EXITED,event-> assistantCard.setFitHeight(assistantCard.getFitHeight()/2));
-            assistantCard.setAccessibleText("Card id: "+card.getId()+"\nTurn value: "+card.getTurnValue()+"\nMother nature value: "+card.getMotherNatureValue());
+            Tooltip.install(assistantCard,new Tooltip("Card id: "+card.getId()+"\nTurn value: "+card.getTurnValue()+"\nMother nature value: "+card.getMotherNatureValue()));
             assistantCards.getItems().add(assistantCard);
         }
     }
@@ -236,6 +219,7 @@ public class GamePane extends BorderPane implements Initializable {
     public void updateCharacterCards(ArrayList<ReducedCharacterCard> cards) {
         characterCards.getChildren().clear();
         for (ReducedCharacterCard card : cards) {
+            //TODO remove
             System.out.println(card.getId()+" : "+card.getCharID());
             Node charCard;
             switch (CharID.MemType.valueOf(card.getMemoryType())) {
@@ -254,8 +238,8 @@ public class GamePane extends BorderPane implements Initializable {
             characterCards.getChildren().add(charCard);
         }
     }
-    public void updateCoins(int coins) {
-        //TODO implement
+    public void updateCoins(int num) {
+        Tooltip.install(coins,new Tooltip("Game coins: "+num));
     }
     public void updateBag(ReducedBag bag) {
         //TODO implement

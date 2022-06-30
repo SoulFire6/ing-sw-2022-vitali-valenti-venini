@@ -39,7 +39,6 @@ public class Client {
                 parseMessageFromServer(inMessage);
             }
             fromServer.close();
-            view.closeConnection();
         } catch (ClassNotFoundException | ClassCastException ce) {
             ce.printStackTrace();
             view.display(MessageCenter.genMessage(MsgType.ERROR,"","","Error reading message from server"));
@@ -49,6 +48,7 @@ public class Client {
         if (inMessage != null && inMessage.getSubType() == MsgType.DISCONNECT) {
             view.display(inMessage);
         }
+        view.closeConnection();
     }
 
     public void parseMessageFromServer(Message message) {

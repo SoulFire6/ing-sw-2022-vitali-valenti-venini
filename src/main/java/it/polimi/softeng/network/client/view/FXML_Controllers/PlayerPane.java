@@ -24,6 +24,8 @@ public class PlayerPane extends VBox implements Initializable {
     private BoardPane board;
 
     private MessageSender messageSender;
+
+    private Stage stage;
     public PlayerPane() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Player.fxml"));
@@ -40,8 +42,7 @@ public class PlayerPane extends VBox implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         board=new BoardPane();
-        Stage stage=new Stage();
-        stage.setTitle(name.getText()+"'s school board");
+        stage=new Stage();
         stage.setScene(new Scene(board));
         stage.setMinHeight(200);
         stage.setMinWidth(460);
@@ -59,11 +60,12 @@ public class PlayerPane extends VBox implements Initializable {
 
     public void setupPlayer(ReducedPlayer player) {
         name.setText(player.getName());
+        stage.setTitle(name.getText()+"'s school board");
         board.setupTowers(player.getSchoolBoard().getTowers(),player.getTeam());
+        updatePlayer(player);
     }
 
     public void updatePlayer(ReducedPlayer player) {
-
         towers.setText(String.valueOf(player.getSchoolBoard().getTowers()));
         coins.setText(String.valueOf(player.getSchoolBoard().getCoins()));
         ReducedAssistantCard lastCard=player.getSchoolBoard().getLastUsedCard();

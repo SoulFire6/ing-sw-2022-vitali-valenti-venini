@@ -240,8 +240,10 @@ public class CLI implements View {
         try {
             toServer.close();
             socket.close();
+            System.exit(0);
         }
         catch (IOException ignored) {
+            System.exit(-1);
         }
     }
     @Override

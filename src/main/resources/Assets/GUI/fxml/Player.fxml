@@ -5,7 +5,7 @@
 
 <?import javafx.scene.text.Font?>
 
-<fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+<fx:root type="javafx.scene.layout.VBox" prefWidth="200" prefHeight="160" maxWidth="200" maxHeight="160" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" style="-fx-background-color: grey">
     <children>
         <Label fx:id="name" alignment="CENTER" prefHeight="40.0" prefWidth="200.0" style="-fx-text-alignment: CENTER;" textAlignment="CENTER">
             <font>
@@ -28,7 +28,7 @@
                 <Label fx:id="coins" alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="40.0" />
             </children>
         </HBox>
-        <HBox prefHeight="42.0" prefWidth="200.0">
+        <HBox prefHeight="40.0" prefWidth="200.0">
             <children>
                 <Label prefHeight="40.0" prefWidth="60.0" text="MN value ">
                     <font>
@@ -41,7 +41,7 @@
                         <Font size="12.0" />
                     </font>
                 </Label>
-                <Label fx:id="turnValue" alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="40.0" text="0" />
+                <Label fx:id="turnValue" alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="40.0" />
             </children>
         </HBox>
         <VBox alignment="CENTER" prefHeight="40.0" prefWidth="100.0">
