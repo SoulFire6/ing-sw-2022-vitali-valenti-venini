@@ -3,6 +3,8 @@ package it.polimi.softeng.network.client.view.FXML_Controllers;
 import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.CharID;
+import it.polimi.softeng.model.CharacterCard;
+import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
@@ -17,6 +19,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
@@ -33,7 +36,10 @@ public class GamePane extends AnchorPane implements Initializable {
     @FXML
     TextField chatField;
     @FXML
-    GridPane tiles,characterCards;
+    GridPane tiles;
+    @FXML
+    HBox characterCards;
+
     @FXML
     ToolBar assistantCards;
     @FXML
@@ -139,6 +145,9 @@ public class GamePane extends AnchorPane implements Initializable {
                 playerPanes.put(player.getName(),playerPane);
             }
         }
+        if (model.isExpertMode()) {
+            updateCharacterCards(model.getCharacterCards());
+        }
         updateTurnState(model);
     }
 
@@ -213,35 +222,42 @@ public class GamePane extends AnchorPane implements Initializable {
         assistantCards.setPrefWidth(assistantCards.getChildrenUnmodifiable().size()*62);
     }
     public void updateTurnState(ReducedGame model) {
+        updateBag(model.getBag());
+        updateCoins(model.getCoins());
         currentPhase.setText("Current phase: "+model.getCurrentPhase().getDescription()+(model.getCurrentPhase().equals(TurnManager.TurnState.MOVE_STUDENTS_PHASE)?"(Remaining moves: "+model.getRemainingMoves()+")":""));
         currentPlayer.setText("Current player:"+model.getCurrentPlayer());
     }
     public void updateCharacterCards(ArrayList<ReducedCharacterCard> cards) {
         characterCards.getChildren().clear();
+        Button characterCard;
         for (ReducedCharacterCard card : cards) {
-            //TODO remove
-            System.out.println(card.getId()+" : "+card.getCharID());
-            Node charCard;
-            switch (CharID.MemType.valueOf(card.getMemoryType())) {
-                //TODO implement different visuals for cards
-                case PLAYER_COLOUR_MAP:
-                case INTEGER:
-                case INTEGER_COLOUR_MAP:
-                case BOOLEAN_COLOUR_MAP:
-                case NONE:
-                default:
-                    charCard=new Button();
-                    charCard.setStyle("-fx-background-image: url('/Assets/GUI/Cards/Characters/"+card.getCharID()+"')");
-                    charCard.addEventHandler(MouseEvent.MOUSE_PRESSED,event->messageSender.sendMessage(MsgType.PLAYCHARCARD,"",card.getCharID()));
-                    break;
+            StringBuilder toolTip=new StringBuilder();
+            String string;
+            if ((string=characterInfo.getProperty(card.getCharID()+"_SETUP"))!=null) {
+                toolTip.append("SETUP: ").append(string).append("\n");
             }
-            characterCards.getChildren().add(charCard);
+            if ((string=characterInfo.getProperty(card.getCharID()+"_EFFECT"))!=null) {
+                toolTip.append("EFFECT: ").append(string).append("\n");
+            }
+            characterCard = new Button();
+            Tooltip.install(characterCard,new Tooltip(toolTip.toString()));
+            characterCard.setStyle("-fx-background-image: url('Assets/GUI/Cards/Characters/" + card.getId().replace(" ", "").concat(".png") + "');-fx-background-size: cover");
+            characterCard.setPrefWidth(50);
+            characterCard.setPrefHeight(80);
+            characterCards.getChildren().add(characterCard);
+            //TODO add other character cards with input
+            characterCard.setOnAction(event->messageSender.sendMessage(MsgType.PLAYCHARCARD,card.getId(),""));
         }
     }
     public void updateCoins(int num) {
         Tooltip.install(coins,new Tooltip("Game coins: "+num));
     }
     public void updateBag(ReducedBag bag) {
+        StringBuilder toolTip=new StringBuilder();
+        for (Colour c : Colour.values()) {
+            toolTip.append(c.name()).append(": ").append(bag.getContents().get(c)).append("-");
+        }
+        Tooltip.install(this.bag,new Tooltip(toolTip.substring(0,toolTip.length()-1).replace("-","\n")));
         //TODO implement
     }
 }
