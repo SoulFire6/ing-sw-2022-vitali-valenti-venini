@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Font?>
+
+<fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <children>
+        <Label fx:id="name" alignment="CENTER" prefHeight="40.0" prefWidth="200.0" style="-fx-text-alignment: CENTER;" textAlignment="CENTER">
+            <font>
+                <Font size="18.0" />
+            </font>
+        </Label>
+        <HBox prefHeight="40.0" prefWidth="200.0">
+            <children>
+                <Label prefHeight="40.0" prefWidth="60.0" text="Towers">
+                    <font>
+                        <Font size="12.0" />
+                    </font>
+                </Label>
+                <Label fx:id="towers" alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="40.0" />
+                <Label prefHeight="40.0" prefWidth="60.0" text="Coins">
+                    <font>
+                        <Font size="12.0" />
+                    </font>
+                </Label>
+                <Label fx:id="coins" alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="40.0" />
+            </children>
+        </HBox>
+        <HBox prefHeight="42.0" prefWidth="200.0">
+            <children>
+                <Label prefHeight="40.0" prefWidth="60.0" text="MN value ">
+                    <font>
+                        <Font size="12.0" />
+                    </font>
+                </Label>
+                <Label fx:id="mnValue" alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="40.0" />
+                <Label prefHeight="40.0" prefWidth="60.0" text="Turn value">
+                    <font>
+                        <Font size="12.0" />
+                    </font>
+                </Label>
+                <Label fx:id="turnValue" alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="40.0" text="0" />
+            </children>
+        </HBox>
+        <VBox alignment="CENTER" prefHeight="40.0" prefWidth="100.0">
+            <children>
+                <Button fx:id="showBoard" mnemonicParsing="false" text="Show board" />
+            </children>
+        </VBox>
+    </children>
+</fx:root>
