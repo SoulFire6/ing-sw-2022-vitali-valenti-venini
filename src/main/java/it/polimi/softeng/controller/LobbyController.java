@@ -359,13 +359,8 @@ public class LobbyController {
                                 throw new WrongPhaseException("Cannot use assistant card during "+turnManager.getTurnState().getDescription());
                             }
                             assistantCardController.playAssistantCard(currentPlayer,((AssistCard_Cmd_Msg)inMessage).getAssistID(),turnManager.getPlayerOrder());
-                            if (currentPlayer==turnManager.getLastPlayer()) {
-                                response.add(MessageCenter.genMessage(MsgType.PLAYERS,lobbyName,"Play assist card, phase over",game.getPlayers()));
-                            } else {
-                                response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,"Play assist card",currentPlayer));
-                            }
+                            response.add(MessageCenter.genMessage(MsgType.PLAYERS,lobbyName,"Play assist card",game.getPlayers()));
                             turnManager.nextAction();
-
                             actionMessage=currentPlayer.getName()+" has played "+currentPlayer.getSchoolBoard().getLastUsedCard().getCardID();
                             break;
                         case DISKTOISLAND:

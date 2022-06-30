@@ -205,15 +205,11 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        //TODO implement various GUI updates
-
-        //TODO update methods must use message sender
         Platform.runLater(()->{
             try {
                 switch (ReducedGame.UpdateType.valueOf(evt.getPropertyName())) {
                     case PLAYERS:
                         for (ReducedPlayer player : (ArrayList<ReducedPlayer>) evt.getNewValue()) {
-                            System.out.println("Updating "+player.getName());
                             gamePane.updatePlayer(player);
                         }
                         break;
