@@ -145,7 +145,7 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 inputPane.getChildren().addAll(buttonOptions);
                 break;
             case CLIENT_NUM:
-                gamePane.addChatMessage(message.getSender(),((Info_Message)message).getInfo(),message.getSubType());
+                gamePane.addChatMessage(message);
                 if (inputPane.isVisible()) {
                     inputPane.getChildren().clear();
                     if (message.getContext().contains("]")) {
@@ -181,10 +181,8 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
                 alert.showAndWait();
                 break;
             case TURNSTATE:
-                gamePane.addChatMessage(messageSender.getSender(),message.getContext(),message.getSubType());
-                break;
             case WHISPER:
-                gamePane.addChatMessage(message.getSender(),((Info_Message)message).getInfo(),message.getSubType());
+                gamePane.addChatMessage(message);
                 break;
             case CONNECT:
             case TEXT:

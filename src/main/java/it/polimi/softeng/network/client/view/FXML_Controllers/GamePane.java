@@ -5,6 +5,8 @@ import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.CharID;
 import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.ReducedModel.*;
+import it.polimi.softeng.network.message.Info_Message;
+import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,8 +18,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -28,6 +30,12 @@ public class GamePane extends BorderPane implements Initializable {
     VBox you, oppositePlayer, leftPlayer, rightPlayer, gameChat;
     @FXML
     GridPane tiles,characterCards;
+
+    @FXML
+    TextField chatField;
+
+    @FXML
+    ChoiceBox<String> chatPartners;
 
     @FXML
     BoardPane yourBoard, oppositeBoard, leftBoard, rightBoard;
@@ -80,25 +88,37 @@ public class GamePane extends BorderPane implements Initializable {
         }
         catch (IOException ignored) {
         }
-        oppositeBoard.setVisible(false);
-        oppositeBoard.setManaged(false);
-        rightBoard.setVisible(false);
-        rightBoard.setVisible(false);
-        leftBoard.setVisible(false);
-        leftBoard.setVisible(false);
+        chatField.setOnAction(event-> {
+            messageSender.sendMessage(MsgType.WHISPER,chatPartners.getValue(),chatField.getText());
+            chatField.clear();
+        });
     }
 
-    public void addChatMessage(String sender, String message, MsgType type) {
-        Label chatLabel=new Label(sender+": "+message);
-        switch (type) {
-            case CLIENT_NUM:
+    public void addChatMessage(Message msg) {
+        String labelText,labelStyle="-fx-text-fill: black";
+        switch (msg.getSubType()) {
             case ERROR:
-                chatLabel.setStyle("-fx-text-fill: red");
+                labelText=msg.getSender()+": "+((Info_Message)msg).getInfo();
+                labelStyle="-fx-text-fill: red";
                 break;
+            case TURNSTATE:
+                labelText=msg.getSender()+" :"+msg.getContext();
+                break;
+            case CLIENT_NUM:
+                //update chatPartners
+                chatPartners.getItems().clear();
+                for (String choice : Arrays.stream(msg.getContext().substring(1,msg.getContext().length()-1).replace(" ","").split(",")).filter(choice -> !choice.equals(messageSender.getSender())).toArray(String[]::new)) {
+                    chatPartners.getItems().add(choice);
+                }
+                if (chatPartners.getItems().size()>0) {
+                    chatPartners.setValue(chatPartners.getItems().get(0));
+                }
             default:
-                chatLabel.setStyle("-fx-text-fill: black");
+                labelText=msg.getSender()+": "+((Info_Message)msg).getInfo();
                 break;
         }
+        Label chatLabel=new Label(labelText);
+        chatLabel.setStyle(labelStyle);
         this.gameChat.getChildren().add(chatLabel);
     }
 
@@ -114,13 +134,9 @@ public class GamePane extends BorderPane implements Initializable {
             opponentBoards.add(rightBoard);
         }
         for (BoardPane boardPane : opponentBoards) {
-            boardPane.getParent().addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET,event->{
-                boardPane.setVisible(true);
-                boardPane.setManaged(true);
-            });
-            boardPane.getParent().addEventHandler(MouseEvent.MOUSE_EXITED_TARGET,event->{
-                boardPane.setVisible(false);
-                boardPane.setManaged(false);
+            boardPane.getParent().addEventHandler(MouseEvent.MOUSE_PRESSED,event->{
+                //TODO show board in new window
+                Stage boardStage=new Stage();
             });
         }
         for (ReducedPlayer player : model.getPlayers()) {

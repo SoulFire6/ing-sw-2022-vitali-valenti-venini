@@ -7,11 +7,11 @@
 <?import javafx.geometry.Insets?>
 
 <fx:root type="javafx.scene.layout.BorderPane" prefHeight="800.0" prefWidth="1200.0" maxWidth="-Infinity" maxHeight="-Infinity" style="-fx-background-color: #6161bd" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
-    <BorderPane.margin>
-        <Insets top="10.0" bottom="10" right="10" left="10"/>
-    </BorderPane.margin>
     <center>
         <GridPane fx:id="tiles" maxHeight="600.0" maxWidth="600.0" minHeight="200.0" minWidth="400.0" prefHeight="400.0" prefWidth="400.0" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets top="20.0" bottom="20" right="20" left="20"/>
+            </BorderPane.margin>
             <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" percentWidth="25.0" prefWidth="150.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" percentWidth="25.0" prefWidth="150.0" />
@@ -43,33 +43,39 @@
         </GridPane>
     </center>
     <left>
-        <VBox fx:id="leftPlayer" minWidth="200.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
-            <BoardPane fx:id="leftBoard"/>
+        <VBox fx:id="leftPlayer" alignment="CENTER_LEFT" maxWidth="200" prefHeight="300" style="-fx-background-color: grey">
+            <BoardPane fx:id="leftBoard" visible="false" managed="false"/>
         </VBox>
     </left>
     <right>
-        <VBox fx:id="rightPlayer" minWidth="200.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
-            <BoardPane fx:id="rightBoard"/>
+        <VBox fx:id="rightPlayer" alignment="CENTER_RIGHT" maxWidth="200.0" prefHeight="300" style="-fx-background-color: grey">
+            <BoardPane fx:id="rightBoard" visible="false" managed="false"/>
         </VBox>
     </right>
     <top>
         <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <center>
-                <VBox fx:id="oppositePlayer" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-                    <BoardPane fx:id="oppositeBoard"/>
+                <VBox fx:id="oppositePlayer" prefHeight="200.0" prefWidth="300.0" style="-fx-background-color: grey">
+                    <BoardPane fx:id="oppositeBoard" visible="false" managed="false"/>
                 </VBox>
             </center>
             <left>
-                <ScrollPane minWidth="200.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
-                    <content>
-                        <VBox fx:id="gameChat" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="300.0"/>
-                    </content>
-                </ScrollPane>
+                <VBox alignment="BOTTOM_CENTER" minWidth="200.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
+                    <ScrollPane minWidth="200.0" prefHeight="180.0" prefWidth="300.0">
+                        <content>
+                            <VBox fx:id="gameChat" minHeight="180.0" minWidth="180.0" prefHeight="200.0" prefWidth="300.0"/>
+                        </content>
+                    </ScrollPane>
+                    <HBox minWidth="200" minHeight="20" prefWidth="300" prefHeight="20">
+                        <ChoiceBox fx:id="chatPartners" prefWidth="20"/>
+                        <TextField fx:id="chatField" minWidth="180" prefWidth="280"/>
+                    </HBox>
+                </VBox>
             </left>
             <right>
                 <VBox fx:id="turnState" minWidth="200.0" prefHeight="200.0" prefWidth="400.0" BorderPane.alignment="CENTER">
-                    <Label fx:id="currentPhase"></Label>
-                    <Label fx:id="currentPlayer"></Label>
+                    <Label fx:id="currentPhase" text="Current phase:"/>
+                    <Label fx:id="currentPlayer" text="Current player:"/>
                 </VBox>
             </right>
         </BorderPane>
