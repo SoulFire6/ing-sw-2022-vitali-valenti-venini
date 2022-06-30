@@ -6,7 +6,7 @@
 <?import it.polimi.softeng.network.client.view.FXML_Controllers.*?>
 <?import javafx.geometry.Insets?>
 
-<fx:root type="javafx.scene.layout.BorderPane" minHeight="600.0" minWidth="800.0" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+<fx:root type="javafx.scene.layout.BorderPane" prefHeight="800.0" prefWidth="1200.0" maxWidth="-Infinity" maxHeight="-Infinity" style="-fx-background-color: #6161bd" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
     <BorderPane.margin>
         <Insets top="10.0" bottom="10" right="10" left="10"/>
     </BorderPane.margin>
@@ -43,15 +43,21 @@
         </GridPane>
     </center>
     <left>
-        <VBox fx:id="leftPlayer" minWidth="200.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER" />
+        <VBox fx:id="leftPlayer" minWidth="200.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
+            <BoardPane fx:id="leftBoard"/>
+        </VBox>
     </left>
     <right>
-        <VBox fx:id="rightPlayer" minWidth="200.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER" />
+        <VBox fx:id="rightPlayer" minWidth="200.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
+            <BoardPane fx:id="rightBoard"/>
+        </VBox>
     </right>
     <top>
         <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <center>
-                <VBox fx:id="oppositePlayer" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER" />
+                <VBox fx:id="oppositePlayer" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+                    <BoardPane fx:id="oppositeBoard"/>
+                </VBox>
             </center>
             <left>
                 <ScrollPane minWidth="200.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
@@ -61,40 +67,36 @@
                 </ScrollPane>
             </left>
             <right>
-                <VBox fx:id="turnState" minWidth="200.0" prefHeight="200.0" prefWidth="400.0" BorderPane.alignment="CENTER" />
+                <VBox fx:id="turnState" minWidth="200.0" prefHeight="200.0" prefWidth="400.0" BorderPane.alignment="CENTER">
+                    <Label fx:id="currentPhase"></Label>
+                    <Label fx:id="currentPlayer"></Label>
+                </VBox>
             </right>
         </BorderPane>
     </top>
     <bottom>
-        <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-            <center>
-                <VBox fx:id="you" minHeight="200.0" minWidth="200.0" prefHeight="400.0" prefWidth="400.0" BorderPane.alignment="CENTER" >
-                    <AnchorPane fx:id="schoolBoard"/>
-                    <Button fx:id="toggleHandButton" mnemonicParsing="false" text="Show/hide hand" />
-                    <ToolBar fx:id="assistantCards" minHeight="80" minWidth="60" maxHeight="80" maxWidth="600" nodeOrientation="LEFT_TO_RIGHT" style="-fx-background-color: BLACK;" />
-                </VBox>
-            </center>
-            <left>
-                <HBox>
-                    <Label fx:id="coins" text="0" prefWidth="100" prefHeight="100" style="-fx-background-image: url('/Assets/GUI/Icons/Coin.png');-fx-background-size: cover"/>
-                    <ImageView fx:id="bag" fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" >
-                        <Image url="/Assets/GUI/Icons/Bag.png"/>
-                    </ImageView>
-                </HBox>
-
-            </left>
-            <right>
-                <GridPane fx:id="characterCards" BorderPane.alignment="CENTER">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                </GridPane>
-            </right>
-        </BorderPane>
+        <HBox alignment="CENTER">
+            <VBox fx:id="you" alignment="CENTER" minHeight="200.0" minWidth="200.0" prefHeight="400.0" prefWidth="400.0" BorderPane.alignment="CENTER" >
+                <BoardPane fx:id="yourBoard"/>
+                <Button fx:id="toggleHandButton" mnemonicParsing="false" text="Show/hide hand" />
+                <ToolBar fx:id="assistantCards" minHeight="80" minWidth="60" maxHeight="80" maxWidth="600" nodeOrientation="LEFT_TO_RIGHT" style="-fx-background-color: BLACK;" />
+            </VBox>
+            <VBox alignment="CENTER" AnchorPane.leftAnchor="20">
+                <Label fx:id="coins" text="0" prefWidth="100" prefHeight="100" style="-fx-background-image: url('/Assets/GUI/Icons/Coin.png');-fx-background-size: cover"/>
+                <ImageView fx:id="bag" fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" >
+                    <Image url="/Assets/GUI/Icons/Bag.png"/>
+                </ImageView>
+            </VBox>
+            <GridPane fx:id="characterCards" AnchorPane.rightAnchor="0">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                </rowConstraints>
+            </GridPane>
+        </HBox>
     </bottom>
 </fx:root>

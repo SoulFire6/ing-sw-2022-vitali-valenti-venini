@@ -3,6 +3,7 @@ package it.polimi.softeng.network.client.view.FXML_Controllers;
 import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.CharID;
+import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.fxml.FXML;
@@ -15,6 +16,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
@@ -26,6 +28,9 @@ public class GamePane extends BorderPane implements Initializable {
     VBox you, oppositePlayer, leftPlayer, rightPlayer, gameChat;
     @FXML
     GridPane tiles,characterCards;
+
+    @FXML
+    BoardPane yourBoard, oppositeBoard, leftBoard, rightBoard;
     @FXML
     Button toggleHandButton;
     @FXML
@@ -35,6 +40,8 @@ public class GamePane extends BorderPane implements Initializable {
     private final ArrayList<VBox> otherPlayers=new ArrayList<>();
     private final ArrayList<IslandPane> visibleIslands=new ArrayList<>();
     private final ArrayList<CloudPane> visibleClouds=new ArrayList<>();
+
+    private final HashMap<String,BoardPane> playerBoards=new HashMap<>();
     private MessageSender messageSender;
 
     private final Properties characterInfo=new Properties();
@@ -72,8 +79,13 @@ public class GamePane extends BorderPane implements Initializable {
             characterInfo.load(getClass().getResourceAsStream("/CardData/CharacterCards.properties"));
         }
         catch (IOException ignored) {
-
         }
+        oppositeBoard.setVisible(false);
+        oppositeBoard.setManaged(false);
+        rightBoard.setVisible(false);
+        rightBoard.setVisible(false);
+        leftBoard.setVisible(false);
+        leftBoard.setVisible(false);
     }
 
     public void addChatMessage(String sender, String message, MsgType type) {
@@ -93,7 +105,31 @@ public class GamePane extends BorderPane implements Initializable {
     public void setupGame(ReducedGame model) throws UpdateGUIException {
         updateIslands(model.getIslands());
         updateClouds(model.getClouds());
+        ArrayList<BoardPane> opponentBoards=new ArrayList<>();
+        if (model.getPlayers().size()!=3) {
+            opponentBoards.add(oppositeBoard);
+        }
+        if (model.getPlayers().size()>2) {
+            opponentBoards.add(leftBoard);
+            opponentBoards.add(rightBoard);
+        }
+        for (BoardPane boardPane : opponentBoards) {
+            boardPane.getParent().addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET,event->{
+                boardPane.setVisible(true);
+                boardPane.setManaged(true);
+            });
+            boardPane.getParent().addEventHandler(MouseEvent.MOUSE_EXITED_TARGET,event->{
+                boardPane.setVisible(false);
+                boardPane.setManaged(false);
+            });
+        }
         for (ReducedPlayer player : model.getPlayers()) {
+            if (player.getName().equals(messageSender.getSender())) {
+                playerBoards.put(player.getName(),yourBoard);
+            } else {
+                playerBoards.put(player.getName(),opponentBoards.get(0));
+                opponentBoards.remove(0);
+            }
             updatePlayer(player);
         }
         updateTurnState(model);
@@ -107,6 +143,7 @@ public class GamePane extends BorderPane implements Initializable {
         for (CloudPane cloud : visibleClouds) {
             cloud.setMessageSender(messageSender);
         }
+        yourBoard.setMessageSender(messageSender);
     }
     public void updateIslands(ArrayList<ReducedIsland> reducedIslands) throws UpdateGUIException {
         Optional<ReducedIsland> motherNatureIsland=reducedIslands.stream().filter(ReducedIsland::hasMotherNature).findFirst();
@@ -144,13 +181,19 @@ public class GamePane extends BorderPane implements Initializable {
     }
 
     public void updatePlayer(ReducedPlayer player) {
+        ReducedSchoolBoard schoolBoard=player.getSchoolBoard();
+        BoardPane boardPane=playerBoards.get(player.getName());
         if (player.getName().equals(messageSender.getSender())) {
             //Update interactive elements
             updateHand(player.getSchoolBoard().getHand());
-            updateSchoolBoard(player.getSchoolBoard(),true);
+            boardPane.updateEntrance(schoolBoard.getEntrance(),true);
         } else {
-            //Update passive elements
-            updateSchoolBoard(player.getSchoolBoard(),false);
+            boardPane.updateEntrance(schoolBoard.getEntrance(),false);
+        }
+        //Update passive elements
+        boardPane.updateTowers(schoolBoard.getTowers());
+        for (Colour c : Colour.values()) {
+            boardPane.updateRow(c,schoolBoard.getDiningRoom().get(c),schoolBoard.getProfessorTable().get(c));
         }
     }
 
@@ -160,19 +203,15 @@ public class GamePane extends BorderPane implements Initializable {
             assistantCards.getContextMenu().getItems().clear();
         }
         for (ReducedAssistantCard card : cards) {
-            //TODO add zoom when mouse is hovered over it so it can be seen better
             ImageView assistantCard=new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Cards/Assistants/" + card.getId() + "_LQ.png")).toExternalForm()));
-            assistantCard.fitHeightProperty().bind(assistantCards.heightProperty());
+            assistantCard.fitHeightProperty().setValue(assistantCards.getHeight());
             assistantCard.fitWidthProperty().bind(assistantCard.fitHeightProperty().divide(4).multiply(3));
             assistantCard.addEventHandler(MouseEvent.MOUSE_PRESSED,event-> messageSender.sendMessage(MsgType.PLAYASSISTCARD,card.getId(),card.getId()));
+            assistantCard.addEventHandler(MouseEvent.MOUSE_ENTERED,event-> assistantCard.setFitHeight(assistantCard.getFitHeight()*2));
+            assistantCard.addEventHandler(MouseEvent.MOUSE_EXITED,event-> assistantCard.setFitHeight(assistantCard.getFitHeight()/2));
             assistantCard.setAccessibleText("Card id: "+card.getId()+"\nTurn value: "+card.getTurnValue()+"\nMother nature value: "+card.getMotherNatureValue());
             assistantCards.getItems().add(assistantCard);
         }
-        assistantCards.prefWidthProperty().setValue(assistantCards.getChildrenUnmodifiable().size()*((ImageView)assistantCards.getChildrenUnmodifiable().get(0)).fitWidthProperty().get());
-    }
-
-    public void updateSchoolBoard(ReducedSchoolBoard schoolBoard, boolean personalBoard) {
-        //TODO implement (if not personalBoard do not send message to server when clicked)
     }
     public void updateTurnState(ReducedGame model) {
         currentPhase.setText("Current phase: "+model.getCurrentPhase().getDescription()+(model.getCurrentPhase().equals(TurnManager.TurnState.MOVE_STUDENTS_PHASE)?"(Remaining moves: "+model.getRemainingMoves()+")":""));
