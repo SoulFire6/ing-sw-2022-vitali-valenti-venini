@@ -249,7 +249,7 @@ public class Lobby implements Runnable {
 
     /**
      * Method that checks if the lobby master disconnected. If so, the lobby master is reassigned randomly and the other clients are notified.
-     * Meanwhile, the disconnected player will get his turn skipped.
+     * Also, it skips turns of disconnected players
      */
     private void checkClientsThread() {
         Thread thread=new Thread(()->{
@@ -303,7 +303,7 @@ public class Lobby implements Runnable {
     /**
      * This method does the game setup
      * @throws InvalidPlayerNumException if the game is being set up without the number of clients being equal to the game players number
-     * @throws LobbyClientDisconnectedException if a client does disconnect from the lobby
+     * @throws LobbyClientDisconnectedException if a client disconnects from the lobby
      */
     private void setupGame() throws InvalidPlayerNumException,LobbyClientDisconnectedException {
         if (clients.size()==maxPlayers) {
@@ -335,7 +335,7 @@ public class Lobby implements Runnable {
     }
 
     /**
-     * @return //todo
+     * @return ArrayList of usernames in lobby whitelist (usernames that are allowed to connect to this lobby)
      */
 
     public ArrayList<String> getWhiteList() {
@@ -397,6 +397,11 @@ public class Lobby implements Runnable {
             throw new GameIsOverException("Not enough players to continue game");
         }
     }
+
+    /**
+     * This method adds a client to the lobby and loads the game if it has already started (in case of reconnect)
+     * @param client the client to add to the lobby
+     */
 
     public void connectClient(LobbyClient client) {
         synchronized (clients) {

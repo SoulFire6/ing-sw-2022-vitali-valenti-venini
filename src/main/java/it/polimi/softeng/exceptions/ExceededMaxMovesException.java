@@ -1,6 +1,6 @@
 package it.polimi.softeng.exceptions;
 /**
- * This class defines the exception that occurs when a player tries to move mother nature further than what he actually can
+ * This class defines the exception that occurs when a player tries to move mother nature further than what they actually can
  */
 public class ExceededMaxMovesException extends Exception {
     /**

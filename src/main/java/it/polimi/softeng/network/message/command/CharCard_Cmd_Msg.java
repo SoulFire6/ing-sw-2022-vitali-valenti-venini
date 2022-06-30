@@ -13,7 +13,7 @@ public class CharCard_Cmd_Msg extends Command_Message {
     /**
      * @param sender String name of the player who requested the move
      * @param charID String ID of the character card that is being played
-     * @param options //todo
+     * @param options the arguments to pass when activating card
      */
     public CharCard_Cmd_Msg(String sender, String charID, String options) {
         super(MsgType.PLAYCHARCARD,sender,sender+" played "+charID);

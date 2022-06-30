@@ -1,7 +1,7 @@
 package it.polimi.softeng.exceptions;
 
 /**
- * This class defines the exception that occurs when a player tries to play an assistant card that isn't in his hand
+ * This class defines the exception that occurs when a player tries to play an assistant card that isn't in their hand
  */
 
 public class AssistantCardNotFoundException extends Exception {

@@ -4,6 +4,10 @@ import it.polimi.softeng.exceptions.ServerCreationException;
 import it.polimi.softeng.network.client.Client;
 import it.polimi.softeng.network.server.Server;
 
+/**
+ * This class is a launcher wrapper that allows client cli, client gui and server to be run from the same main class
+ */
+
 public class Eriantys {
     private static final String DEFAULT_IP="127.0.0.1";
     private static final Integer DEFAULT_PORT=50033;

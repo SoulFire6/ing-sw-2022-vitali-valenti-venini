@@ -14,7 +14,7 @@ import java.util.ArrayList;
 //Message factory
 public class MessageCenter {
     /**
-     * This static method is responsible for the generation of a Message based on the given type.
+     * This static factory method is responsible for the generation of a Message based on the given type.
      * @param type MsgType of the message
      * @param sender String sender of the message
      * @param context String explanation of the message

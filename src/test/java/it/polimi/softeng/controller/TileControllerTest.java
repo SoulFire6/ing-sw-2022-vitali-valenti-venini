@@ -37,7 +37,6 @@ public class TileControllerTest {
             assertEquals(testMax,cloud.getMaxSlots());
         }
         assertEquals(testBagNum,testBag.getFillAmount());
-        assertThrows(TileNotEmptyException.class,()->tileController.refillClouds(clouds,testBag));
         for (Cloud_Tile cloud : clouds) {
             cloud.emptyTile();
         }

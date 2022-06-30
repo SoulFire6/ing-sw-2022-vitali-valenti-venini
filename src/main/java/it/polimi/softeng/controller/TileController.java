@@ -162,14 +162,12 @@ public class TileController {
      * This method is used to fill the clouds from the bag
      * @param clouds the list of all the clouds of the current game
      * @param bag the Bag_Tile object of the current game
-     * @exception TileNotEmptyException when invoked while there is at least one non-empty cloud
      */
-    public void refillClouds(ArrayList<Cloud_Tile> clouds, Bag_Tile bag) throws TileNotEmptyException {
+    public void refillClouds(ArrayList<Cloud_Tile> clouds, Bag_Tile bag) {
         for (Cloud_Tile cloud : clouds) {
-            if (cloud.getFillAmount()>0) {
-                throw new TileNotEmptyException(cloud.getTileID()+" was not empty before refill");
+            if (cloud.getFillAmount()==0) {
+                cloud.fillCloud(bag);
             }
-            cloud.fillCloud(bag);
         }
     }
     public void refillEntranceFromCloud(Player p, String cloudID, ArrayList<Cloud_Tile> clouds) throws TileNotFoundException,TileEmptyException,MoveNotAllowedException {

@@ -1,6 +1,6 @@
 package it.polimi.softeng.exceptions;
 /**
- * This class defines the exception that occurs when a player does disconnect
+ * This class defines the exception that occurs when a player disconnects
  */
 public class LobbyClientDisconnectedException extends Exception {
     /**

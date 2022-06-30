@@ -1,7 +1,7 @@
 package it.polimi.softeng.exceptions;
 
 /**
- * This class defines the exception that occurs when a player tries to play an assistant card that he already played
+ * This class defines the exception that occurs when a player tries to play an assistant card that they already played
  */
 public class AssistantCardAlreadyPlayedException extends Exception {
     /**

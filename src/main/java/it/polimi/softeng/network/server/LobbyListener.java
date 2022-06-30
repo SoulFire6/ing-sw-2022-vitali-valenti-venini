@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- *  This class defines the listener
+ *  This class defines the listener for each client message stream towards the lobby
  */
 public class LobbyListener implements Runnable {
     private final LobbyClient client;
