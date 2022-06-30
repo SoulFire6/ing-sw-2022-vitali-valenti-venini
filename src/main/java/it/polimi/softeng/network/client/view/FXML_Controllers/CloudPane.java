@@ -80,7 +80,7 @@ public class CloudPane extends AnchorPane implements Initializable {
     public void update(ReducedCloud cloud) {
         int idx=0;
         for (Colour c : Colour.values()) {
-            for (int j=0; j<cloud.getContents().get(c); j++) {
+            for (int j=0; j<cloud.getContents().get(c); j++,idx++) {
                 slots.get(idx).setVisible(true);
                 slots.get(idx).setImage(disks.get(c));
             }
