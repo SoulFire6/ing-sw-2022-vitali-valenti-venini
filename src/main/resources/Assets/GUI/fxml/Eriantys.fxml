@@ -4,10 +4,10 @@
 <?import it.polimi.softeng.network.client.view.FXML_Controllers.*?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane fx:id="mainPane" minHeight="800.0" minWidth="1200.0" prefHeight="800.0" prefWidth="1200.0" maxHeight="-Infinity" maxWidth="-Infinity" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" style="-fx-background-image: url('Assets/GUI/Icons/Eriantys.png'); -fx-background-repeat: no-repeat; -fx-background-size: cover">
+<BorderPane fx:id="mainPane" minHeight="600.0" minWidth="800.0" prefHeight="800.0" prefWidth="1200.0" maxHeight="-Infinity" maxWidth="-Infinity" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" style="-fx-background-image: url('Assets/GUI/Icons/Eriantys.png'); -fx-background-repeat: no-repeat; -fx-background-size: cover">
     <center>
         <VBox alignment="CENTER" BorderPane.alignment="TOP_CENTER">
-            <GamePane fx:id="gamePane"/>
+            <GamePane fx:id="gamePane" minHeight="600.0" minWidth="800.0" prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #6161bd"/>
             <VBox fx:id="inputPane" alignment="CENTER" minWidth="400" prefWidth="400" maxWidth="400"/>
             <LoginPane fx:id="loginPane" minWidth="400" prefWidth="400" maxWidth="400"/>
         </VBox>

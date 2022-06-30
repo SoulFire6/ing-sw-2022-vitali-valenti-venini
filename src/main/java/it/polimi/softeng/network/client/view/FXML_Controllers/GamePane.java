@@ -5,7 +5,6 @@ import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.CharID;
 import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.network.message.MsgType;
-import javafx.beans.property.DoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -14,7 +13,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -22,17 +20,12 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Stream;
 
 public class GamePane extends BorderPane implements Initializable {
     @FXML
-    VBox you, oppositePlayer, leftPlayer, rightPlayer;
+    VBox you, oppositePlayer, leftPlayer, rightPlayer, gameChat;
     @FXML
-    GridPane tiles;
-    @FXML
-    VBox characterCards;
-    @FXML
-    VBox gameChat;
+    GridPane tiles,characterCards;
     @FXML
     Button toggleHandButton;
     @FXML
@@ -170,11 +163,12 @@ public class GamePane extends BorderPane implements Initializable {
             //TODO add zoom when mouse is hovered over it so it can be seen better
             ImageView assistantCard=new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Cards/Assistants/" + card.getId() + "_LQ.png")).toExternalForm()));
             assistantCard.fitHeightProperty().bind(assistantCards.heightProperty());
-            assistantCard.fitWidthProperty().bind(assistantCard.fitHeightProperty().divide(3).multiply(2));
+            assistantCard.fitWidthProperty().bind(assistantCard.fitHeightProperty().divide(4).multiply(3));
             assistantCard.addEventHandler(MouseEvent.MOUSE_PRESSED,event-> messageSender.sendMessage(MsgType.PLAYASSISTCARD,card.getId(),card.getId()));
             assistantCard.setAccessibleText("Card id: "+card.getId()+"\nTurn value: "+card.getTurnValue()+"\nMother nature value: "+card.getMotherNatureValue());
             assistantCards.getItems().add(assistantCard);
         }
+        assistantCards.prefWidthProperty().setValue(assistantCards.getChildrenUnmodifiable().size()*((ImageView)assistantCards.getChildrenUnmodifiable().get(0)).fitWidthProperty().get());
     }
 
     public void updateSchoolBoard(ReducedSchoolBoard schoolBoard, boolean personalBoard) {

@@ -42,9 +42,9 @@ public class Client {
             view.closeConnection();
         } catch (ClassNotFoundException | ClassCastException ce) {
             ce.printStackTrace();
-            System.out.println("Error reading message from server");
+            view.display(MessageCenter.genMessage(MsgType.ERROR,"","","Error reading message from server"));
         } catch (IOException io) {
-            System.out.println("Abrupt disconnection");
+            view.display(MessageCenter.genMessage(MsgType.ERROR,"","","Abrupt disconnection"));
         }
         if (inMessage != null && inMessage.getSubType() == MsgType.DISCONNECT) {
             view.display(inMessage);

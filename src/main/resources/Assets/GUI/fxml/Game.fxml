@@ -1,22 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import it.polimi.softeng.network.client.view.FXML_Controllers.*?>
-
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
-<fx:root type="javafx.scene.layout.BorderPane" prefWidth="-Infinity" prefHeight="-Infinity" style="-fx-background-color: #6161bd" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
-    <top>
-        <VBox fx:id="oppositePlayer"/>
-    </top>
-    <left>
-        <VBox fx:id="leftPlayer"/>
-    </left>
-    <right>
-        <VBox fx:id="rightPlayer"/>
-    </right>
+<?import it.polimi.softeng.network.client.view.FXML_Controllers.*?>
+<?import javafx.geometry.Insets?>
+
+<fx:root type="javafx.scene.layout.BorderPane" minHeight="600.0" minWidth="800.0" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <BorderPane.margin>
+        <Insets top="10.0" bottom="10" right="10" left="10"/>
+    </BorderPane.margin>
     <center>
-        <GridPane fx:id="tiles" minWidth="400" minHeight="400" prefHeight="400" prefWidth="400" maxWidth="400" maxHeight="400" gridLinesVisible="true">
+        <GridPane fx:id="tiles" maxHeight="600.0" maxWidth="600.0" minHeight="200.0" minWidth="400.0" prefHeight="400.0" prefWidth="400.0" BorderPane.alignment="CENTER">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" percentWidth="25.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" percentWidth="25.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" percentWidth="25.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" percentWidth="25.0" prefWidth="150.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="50.0" percentHeight="25.0" prefHeight="150.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="50.0" percentHeight="25.0" prefHeight="150.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="50.0" percentHeight="25.0" prefHeight="150.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="50.0" percentHeight="25.0" prefHeight="150.0" vgrow="SOMETIMES" />
+            </rowConstraints>
             <IslandPane fx:id="Island_1" img-src="Island_1.png" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
             <IslandPane fx:id="Island_2" img-src="Island_2.png" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
             <IslandPane fx:id="Island_3" img-src="Island_3.png" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
@@ -35,32 +42,58 @@
             <CloudPane fx:id="Cloud_4" GridPane.columnIndex="2" GridPane.rowIndex="1" />
         </GridPane>
     </center>
-    <bottom>
-        <BorderPane>
+    <left>
+        <VBox fx:id="leftPlayer" minWidth="200.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER" />
+    </left>
+    <right>
+        <VBox fx:id="rightPlayer" minWidth="200.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER" />
+    </right>
+    <top>
+        <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <center>
+                <VBox fx:id="oppositePlayer" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER" />
+            </center>
             <left>
-                <ScrollPane prefWidth="200" prefHeight="200" BorderPane.alignment="BOTTOM_LEFT">
-                    <VBox fx:id="gameChat"/>
+                <ScrollPane minWidth="200.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
+                    <content>
+                        <VBox fx:id="gameChat" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="300.0"/>
+                    </content>
                 </ScrollPane>
             </left>
+            <right>
+                <VBox fx:id="turnState" minWidth="200.0" prefHeight="200.0" prefWidth="400.0" BorderPane.alignment="CENTER" />
+            </right>
+        </BorderPane>
+    </top>
+    <bottom>
+        <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <center>
-                <VBox fx:id="you">
+                <VBox fx:id="you" minHeight="200.0" minWidth="200.0" prefHeight="400.0" prefWidth="400.0" BorderPane.alignment="CENTER" >
                     <AnchorPane fx:id="schoolBoard"/>
                     <Button fx:id="toggleHandButton" mnemonicParsing="false" text="Show/hide hand" />
                     <ToolBar fx:id="assistantCards" minHeight="80" minWidth="60" maxHeight="80" maxWidth="600" nodeOrientation="LEFT_TO_RIGHT" style="-fx-background-color: BLACK;" />
                 </VBox>
             </center>
-            <right>
-                <VBox fx:id="extraInfo">
-                    <Label fx:id="currentPhase" style="-fx-background-color: white" />
-                    <Label fx:id="currentPlayer" style="-fx-background-color: white" />
-                    <ImageView fx:id="bag" fitHeight="300" fitWidth="300" preserveRatio="true">
-                        <image>
-                            <Image url="/Assets/GUI/Icons/Bag.png"/>
-                        </image>
-                    </ImageView>
+            <left>
+                <HBox>
                     <Label fx:id="coins" style="-fx-background-image: url('/Assets/GUI/Icons/Coin.png')"/>
-                    <VBox fx:id="characterCards"/>
-                </VBox>
+                    <ImageView fx:id="bag" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" >
+                        <Image url="/Assets/GUI/Icons/Bag.png"/>
+                    </ImageView>
+                </HBox>
+
+            </left>
+            <right>
+                <GridPane fx:id="characterCards" BorderPane.alignment="CENTER">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                </GridPane>
             </right>
         </BorderPane>
     </bottom>
