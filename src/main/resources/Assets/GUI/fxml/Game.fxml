@@ -76,8 +76,8 @@
             </center>
             <left>
                 <HBox>
-                    <Label fx:id="coins" style="-fx-background-image: url('/Assets/GUI/Icons/Coin.png')"/>
-                    <ImageView fx:id="bag" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" >
+                    <Label fx:id="coins" text="0" prefWidth="100" prefHeight="100" style="-fx-background-image: url('/Assets/GUI/Icons/Coin.png');-fx-background-size: cover"/>
+                    <ImageView fx:id="bag" fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" >
                         <Image url="/Assets/GUI/Icons/Bag.png"/>
                     </ImageView>
                 </HBox>
