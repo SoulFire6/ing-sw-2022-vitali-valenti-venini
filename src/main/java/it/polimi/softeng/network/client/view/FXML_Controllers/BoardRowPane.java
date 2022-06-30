@@ -10,7 +10,18 @@ import javafx.scene.layout.AnchorPane;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * Controller class for custom fxml component BoardRowPane, which represents a row in a BoardPane
+ */
+
 public class BoardRowPane extends AnchorPane {
+
+    /**
+     * Default constructor for BoardRowPane
+     * @param diskSrc the image to use for student disks
+     * @param profSrc the image to use for the professor
+     * @exception RuntimeException when fxml file is not loaded correctly
+     */
     public BoardRowPane(@NamedArg("disk-src")String diskSrc, @NamedArg("prof-src")String profSrc) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/BoardRow.fxml"));
@@ -28,10 +39,13 @@ public class BoardRowPane extends AnchorPane {
             io.printStackTrace();
             throw new RuntimeException(io);
         }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
     }
+
+    /**
+     * This method updates the BoardRowPane components
+     * @param num the number of student disk in the player's dining room of this colour
+     * @param prof boolean representing whether the player has this colour's professor
+     */
     public void updateRow(int num, boolean prof) {
         for (Node node : getChildren()) {
             System.out.println(node.getId());
