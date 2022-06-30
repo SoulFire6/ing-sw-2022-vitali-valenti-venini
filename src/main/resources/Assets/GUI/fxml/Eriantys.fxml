@@ -2,14 +2,10 @@
 
 <?import javafx.scene.layout.VBox?>
 <?import it.polimi.softeng.network.client.view.FXML_Controllers.*?>
-<?import javafx.scene.layout.BorderPane?>
 
-<BorderPane fx:id="mainPane" minHeight="600.0" minWidth="800.0" prefHeight="800.0" prefWidth="1200.0" maxHeight="-Infinity" maxWidth="-Infinity" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" style="-fx-background-image: url('Assets/GUI/Icons/Eriantys.png'); -fx-background-repeat: no-repeat; -fx-background-size: cover">
-    <center>
-        <VBox alignment="CENTER" BorderPane.alignment="CENTER">
-            <GamePane fx:id="gamePane" BorderPane.alignment="CENTER" prefHeight="800" prefWidth="1200"/>
-            <VBox fx:id="inputPane" alignment="CENTER" minWidth="400" prefWidth="400" maxWidth="400"/>
-            <LoginPane fx:id="loginPane" minWidth="400" prefWidth="400" maxWidth="400"/>
-        </VBox>
-    </center>
-</BorderPane>
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane minHeight="800.0" minWidth="1200.0" prefHeight="800.0" prefWidth="1200.0" maxHeight="800" maxWidth="1200" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" style="-fx-background-image: url('Assets/GUI/Icons/Eriantys.png'); -fx-background-repeat: no-repeat; -fx-background-size: cover">
+    <GamePane fx:id="gamePane" visible="false" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" prefHeight="800" prefWidth="1200"/>
+    <VBox fx:id="inputPane" prefHeight="800" visible="false" alignment="CENTER" AnchorPane.leftAnchor="400" AnchorPane.rightAnchor="400" minWidth="400" prefWidth="400" maxWidth="400"/>
+    <LoginPane fx:id="loginPane" minWidth="400" prefHeight="600" AnchorPane.leftAnchor="400" AnchorPane.rightAnchor="400" prefWidth="400" maxWidth="400"/>
+</AnchorPane>

@@ -58,14 +58,6 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.loginPane.setVisible(true);
-        this.inputPane.setVisible(false);
-        this.inputPane.setManaged(false);
-        this.gamePane.setVisible(false);
-        this.gamePane.setManaged(false);
-        this.mainPane.getCenter().minHeight(600);
-        this.mainPane.getCenter().minWidth(800);
-
     }
 
     public Parent getRoot() {

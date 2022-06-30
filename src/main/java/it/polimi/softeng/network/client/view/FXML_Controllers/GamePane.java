@@ -85,7 +85,6 @@ public class GamePane extends AnchorPane implements Initializable {
             messageSender.sendMessage(MsgType.WHISPER,chatPartners.getValue(),chatField.getText());
             chatField.clear();
         });
-
     }
 
     public void addChatMessage(Message msg) {
@@ -138,7 +137,6 @@ public class GamePane extends AnchorPane implements Initializable {
                 playerPane.setVisible(true);
                 playerPane.setupPlayer(player);
                 playerPanes.put(player.getName(),playerPane);
-                otherPlayers.remove(0);
             }
         }
         updateTurnState(model);
@@ -205,12 +203,14 @@ public class GamePane extends AnchorPane implements Initializable {
         }
         for (ReducedAssistantCard card : cards) {
             ImageView assistantCard=new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Cards/Assistants/" + card.getId() + "_LQ.png")).toExternalForm()));
-            assistantCard.fitHeightProperty().setValue(assistantCards.getHeight());
-            assistantCard.fitWidthProperty().bind(assistantCard.fitHeightProperty().divide(4).multiply(3));
+            assistantCard.fitHeightProperty().setValue(80);
+            assistantCard.fitWidthProperty().setValue(60);
+            assistantCard.preserveRatioProperty().setValue(true);
             assistantCard.addEventHandler(MouseEvent.MOUSE_PRESSED,event-> messageSender.sendMessage(MsgType.PLAYASSISTCARD,card.getId(),card.getId()));
             Tooltip.install(assistantCard,new Tooltip("Card id: "+card.getId()+"\nTurn value: "+card.getTurnValue()+"\nMother nature value: "+card.getMotherNatureValue()));
             assistantCards.getItems().add(assistantCard);
         }
+        assistantCards.setPrefWidth(assistantCards.getChildrenUnmodifiable().size()*62);
     }
     public void updateTurnState(ReducedGame model) {
         currentPhase.setText("Current phase: "+model.getCurrentPhase().getDescription()+(model.getCurrentPhase().equals(TurnManager.TurnState.MOVE_STUDENTS_PHASE)?"(Remaining moves: "+model.getRemainingMoves()+")":""));

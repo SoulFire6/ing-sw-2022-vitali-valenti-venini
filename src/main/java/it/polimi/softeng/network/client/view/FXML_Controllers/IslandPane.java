@@ -15,10 +15,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
 
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -105,6 +107,9 @@ public class IslandPane extends AnchorPane implements Initializable {
         red.setText(island.getContents().get(Colour.RED).toString());
         purple.setText(island.getContents().get(Colour.PURPLE).toString());
         towerNum.setText(String.valueOf(island.getTowers()));
+        for (Button button : Arrays.asList(yellow,blue,green,red,purple)) {
+            Tooltip.install(button,new Tooltip(button.getText()));
+        }
         if (island.getTeam()!=null) {
             towerImage.setImage(teamTowers.get(island.getTeam()));
         }

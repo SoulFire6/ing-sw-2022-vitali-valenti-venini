@@ -11,17 +11,17 @@
     <PlayerPane fx:id="rightPlayer" AnchorPane.rightAnchor="0" layoutY="300" visible="false"/>
     <PlayerPane fx:id="oppositePlayer" AnchorPane.topAnchor="0" layoutX="520" prefHeight="140" visible="false"/>
 
-    <VBox AnchorPane.bottomAnchor="0" prefHeight="260" layoutX="300" prefWidth="600" alignment="BOTTOM_CENTER">
-        <PlayerPane fx:id="you" prefHeight="140"/>
-        <ToolBar fx:id="assistantCards" minHeight="80" minWidth="60" maxHeight="80" maxWidth="600" nodeOrientation="LEFT_TO_RIGHT" style="-fx-background-color: BLACK;" />
+    <VBox AnchorPane.bottomAnchor="0" prefHeight="260" AnchorPane.rightAnchor="250" AnchorPane.leftAnchor="300" prefWidth="700" alignment="BOTTOM_CENTER">
+        <PlayerPane fx:id="you" prefHeight="140" minHeight="140"/>
+        <ToolBar fx:id="assistantCards" minHeight="80" maxHeight="80" minWidth="65" maxWidth="605" nodeOrientation="LEFT_TO_RIGHT" style="-fx-background-color: BLACK;" />
     </VBox>
 
-    <VBox AnchorPane.bottomAnchor="50" AnchorPane.rightAnchor="50" prefHeight="100" prefWidth="100">
-        <VBox alignment="CENTER_LEFT" prefHeight="50">
+    <VBox AnchorPane.bottomAnchor="50" AnchorPane.rightAnchor="50" prefHeight="200" prefWidth="200">
+        <VBox alignment="CENTER_LEFT" prefHeight="50" prefWidth="200">
             <Label fx:id="currentPhase" text="Current phase:" prefHeight="20" style="-fx-background-color: white" />
             <Label fx:id="currentPlayer" text="Current player:" prefHeight="20" style="-fx-background-color: white" />
         </VBox>
-        <HBox>
+        <HBox alignment="CENTER">
             <ImageView fx:id="coins" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                 <Image url="/Assets/GUI/Icons/Coin.png"/>
             </ImageView>
@@ -33,10 +33,10 @@
 
 
 
-    <VBox alignment="TOP_CENTER" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="0" minWidth="200.0" prefHeight="200.0" prefWidth="300.0">
+    <VBox alignment="TOP_CENTER" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" minWidth="200.0" prefHeight="200.0" prefWidth="250.0">
         <ScrollPane minWidth="200.0" prefHeight="180.0" prefWidth="200.0">
             <content>
-                <VBox fx:id="gameChat" minHeight="180.0" minWidth="180.0" prefHeight="200.0" prefWidth="300.0"/>
+                <VBox fx:id="gameChat" minHeight="180.0" minWidth="180.0" prefHeight="200.0" prefWidth="250.0"/>
             </content>
         </ScrollPane>
         <HBox minWidth="200" minHeight="20" prefWidth="300" prefHeight="20">

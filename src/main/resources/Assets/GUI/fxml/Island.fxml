@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Button?>
 
+<?import javafx.scene.text.Font?>
 <fx:root type="javafx.scene.layout.AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="50.0" prefHeight="100.0" prefWidth="100.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/18">
     <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="50.0" minWidth="50.0" prefHeight="100.0" prefWidth="100.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/18">
         <columnConstraints>
@@ -22,11 +23,11 @@
             <RowConstraints minHeight="10.0" percentHeight="20.0" prefHeight="20.0" vgrow="SOMETIMES" />
         </rowConstraints>
         <children>
-            <Button fx:id="yellow" style="-fx-background-image: url('Assets/GUI/Icons/Yellow_Disk.png');-fx-background-size: contain" minHeight="10.0" minWidth="10.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="2" />
-            <Button fx:id="blue" style="-fx-background-image: url('Assets/GUI/Icons/Blue_Disk.png');-fx-background-size: contain" minHeight="10.0" minWidth="10.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.rowIndex="1" />
-            <Button fx:id="green" style="-fx-background-image: url('Assets/GUI/Icons/Green_Disk.png');-fx-background-size: contain" minHeight="10.0" minWidth="10.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-            <Button fx:id="red" style="-fx-background-image: url('Assets/GUI/Icons/Red_Disk.png');-fx-background-size: contain" minHeight="10.0" minWidth="10.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.rowIndex="3" />
-            <Button fx:id="purple" style="-fx-background-image: url('Assets/GUI/Icons/Purple_Disk.png');-fx-background-size: contain" minHeight="10.0" minWidth="10.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+            <Button fx:id="yellow" style="-fx-background-image: url('Assets/GUI/Icons/Yellow_Disk.png');-fx-background-size: contain;-fx-font-size: 7" minHeight="10.0" minWidth="10.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="2"/>
+            <Button fx:id="blue" style="-fx-background-image: url('Assets/GUI/Icons/Blue_Disk.png');-fx-background-size: contain;-fx-font-size: 7" minHeight="10.0" minWidth="10.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.rowIndex="1" />
+            <Button fx:id="green" style="-fx-background-image: url('Assets/GUI/Icons/Green_Disk.png');-fx-background-size: contain;-fx-font-size: 7" minHeight="10.0" minWidth="10.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+            <Button fx:id="red" style="-fx-background-image: url('Assets/GUI/Icons/Red_Disk.png');-fx-background-size: contain;-fx-font-size: 7" minHeight="10.0" minWidth="10.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.rowIndex="3" />
+            <Button fx:id="purple" style="-fx-background-image: url('Assets/GUI/Icons/Purple_Disk.png');-fx-background-size: contain;-fx-font-size: 7" minHeight="10.0" minWidth="10.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="4" GridPane.rowIndex="3" />
             <ImageView fx:id="motherNature" fitHeight="20" fitWidth="20" GridPane.rowIndex="2" GridPane.columnIndex="2" preserveRatio="true" pickOnBounds="true">
                 <Image url="/Assets/GUI/Icons/Mother_Nature.png"/>
             </ImageView>
