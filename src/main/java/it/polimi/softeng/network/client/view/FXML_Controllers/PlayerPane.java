@@ -3,6 +3,8 @@ package it.polimi.softeng.network.client.view.FXML_Controllers;
 import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.ReducedModel.ReducedAssistantCard;
 import it.polimi.softeng.model.ReducedModel.ReducedPlayer;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -51,13 +53,12 @@ public class PlayerPane extends VBox implements Initializable {
         stage.setMaxWidth(460);
         stage.setHeight(200);
         stage.setWidth(460);
-        stage.addEventHandler(MouseEvent.MOUSE_EXITED,event->stage.hide());
-        showBoard.setOnAction(event-> {
-            if (stage.isShowing()) {
+        stage.focusedProperty().addListener((observableValue, oldValue, newValue) -> {
+            if (!newValue) {
                 stage.hide();
             }
-            stage.show();
         });
+        showBoard.setOnAction(event-> stage.show());
     }
 
     public void setMessageSender(MessageSender messageSender) {
