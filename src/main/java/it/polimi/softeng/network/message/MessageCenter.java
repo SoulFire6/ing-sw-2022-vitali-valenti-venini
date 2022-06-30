@@ -8,8 +8,20 @@ import it.polimi.softeng.network.message.load.*;
 
 import java.util.ArrayList;
 
+/**
+ * This class is responsible for the generation of messages with its static method genMessage
+ */
 //Message factory
 public class MessageCenter {
+    /**
+     * This static method is responsible for the generation of a Message based on the given type.
+     * @param type MsgType of the message
+     * @param sender String sender of the message
+     * @param context String explanation of the message
+     * @param load Object representing the message
+     * @return Message the generated message
+     * @see MsgType
+     */
     public static Message genMessage(MsgType type, String sender, String context, Object load) {
         switch (type.getMainType()) {
             //Sender is client/server, context describes who it is sent to or from, load is the message

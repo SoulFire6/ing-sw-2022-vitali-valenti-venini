@@ -12,9 +12,18 @@ import java.net.Socket;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
+/**
+ *  This is the server class
+ */
 public class Server {
     private static final HashMap<String,Lobby> lobbies=new HashMap<>();
     private static final Integer SERVER_PORT=50033;
+
+    /**
+     * main method of the Server class: it does create the Server, then waits for Clients connections to serve them
+     * @param args arguments for the server creation; args[0] is the server port
+     * @throws ServerCreationException if any error occurs trying to create save file directory, if the port is out of range or if it's not a valid number
+     */
     public void main(String[] args) throws ServerCreationException {
         try {
             File saveDirectory=new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath()+"save");
@@ -59,6 +68,10 @@ public class Server {
         }
     }
 
+    /**
+     * This method allows the client to create/join a lobby or to disconnect from it
+     * @param clientSocket Socket of the client connected to the Server
+     */
     private static void serveClient(Socket clientSocket) {
         boolean clientSatisfied=false;
         String username=null;
@@ -85,6 +98,14 @@ public class Server {
         }
     }
 
+    /**
+     * @param username the Client username
+     * @param clientSocket the Client Socket by which it is connected to the server
+     * @param in ObjectInputStream by which the server can receive messages
+     * @param out ObjectOutputStream by which the server can send messages
+     * @return true if the operation succeeds, false otherwise
+     * @throws IOException if any I/O exception occurs
+     */
     private static boolean processRequest(String username, Socket clientSocket, ObjectInputStream in, ObjectOutputStream out) throws IOException {
         String lobbyName;
         try {
@@ -149,6 +170,15 @@ public class Server {
         }
     }
 
+    /**
+     * @param lobby the Lobby the client wants to join
+     * @param lobbyName the Lobby String name
+     * @param username the Client String username
+     * @param socket the Socket via which the Client is connected
+     * @param in ObjectInputStream by which the server can receive messages
+     * @param out ObjectOutputStream by which the server can send messages
+     * @return true if the operation succeeded, false otherwise
+     */
     private static boolean joinLobby(Lobby lobby, String lobbyName, String username,Socket socket, ObjectInputStream in, ObjectOutputStream out) {
         int maxPlayers=lobby.getMaxPlayers();
         try {
@@ -182,6 +212,9 @@ public class Server {
         return false;
     }
 
+    /**
+     * Method that removes empty lobbies from the lobbies list
+     */
     private static void checkLobbies() {
         for (String lobbyName : lobbies.keySet()) {
             Lobby lobby=lobbies.get(lobbyName);
