@@ -14,6 +14,10 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * This is the Lobby class. It manages the lobby from its creation to the game setup, when the maximum number of player is reached.
+ */
+
 public class Lobby implements Runnable {
     private final String lobbyName;
     private final ConcurrentLinkedQueue<Message> lobbyMessageQueue=new ConcurrentLinkedQueue<>();
@@ -31,11 +35,21 @@ public class Lobby implements Runnable {
 
     private boolean gameStarted=false;
 
+    /**
+     * @param lobbyName String which identifies the lobby
+     * @param username String name of the first player who creates this lobby
+     * @param lobbyMaster the first player, who created the lobby
+     */
     public Lobby(String lobbyName,String username, LobbyClient lobbyMaster) {
         this.lobbyName=lobbyName;
         this.clients.put(username,lobbyMaster);
         this.lobbyMaster=username;
     }
+
+    /**
+     * Run method of the Lobby. Once created, the lobby waits for other players.
+     * When the number of players is reached, it invokes the setupGame() method, then manages the message queue.
+     */
 
     @Override
     public void run() {
@@ -73,6 +87,11 @@ public class Lobby implements Runnable {
             clients.clear();
         }
     }
+
+    /**
+     * @param client the first client, who created the lobby
+     * @throws LobbyClientDisconnectedException when a client does disconnect from the lobby
+     */
     private void setupLobby(LobbyClient client) throws LobbyClientDisconnectedException {
         try {
             File saveDirectory=new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath()+"save");
@@ -178,6 +197,13 @@ public class Lobby implements Runnable {
             e.printStackTrace();
         }
     }
+
+    /**
+     * This method waits for clients to connect to the lobby.
+     * This method runs until the required number of clients connect to the lobby.
+     * @throws LobbyEmptyException if the lobby remains empty
+     * @throws GameIsOverException if the game finishes before the setup
+     */
     private void waitForOtherPlayers() throws LobbyEmptyException,GameIsOverException {
         String newPlayer;
         synchronized (clients) {
@@ -221,6 +247,10 @@ public class Lobby implements Runnable {
         }
     }
 
+    /**
+     * Method that checks if the lobby master disconnected. If so, the lobby master is reassigned randomly and the other clients are notified.
+     * Meanwhile, the disconnected player will get his turn skipped.
+     */
     private void checkClientsThread() {
         Thread thread=new Thread(()->{
             synchronized (clients) {
@@ -252,6 +282,10 @@ public class Lobby implements Runnable {
         thread.start();
     }
 
+    /**
+     * Method used to send a message to every client
+     * @param msg Message to be sent to every client
+     */
     private void sendToAll(Message msg) {
         synchronized (clients) {
             for (String clientName : clients.keySet()) {
@@ -265,6 +299,12 @@ public class Lobby implements Runnable {
             }
         }
     }
+
+    /**
+     * This method does the game setup
+     * @throws InvalidPlayerNumException if the game is being set up without the number of clients being equal to the game players number
+     * @throws LobbyClientDisconnectedException if a client does disconnect from the lobby
+     */
     private void setupGame() throws InvalidPlayerNumException,LobbyClientDisconnectedException {
         if (clients.size()==maxPlayers) {
             if (controller==null) {
@@ -279,15 +319,33 @@ public class Lobby implements Runnable {
             throw new InvalidPlayerNumException(clients.size()+" does not equal "+maxPlayers);
         }
     }
+
+    /**
+     * @return HashMap<String,LobbyClient> representing the clients of the lobby
+     */
     public HashMap<String,LobbyClient> getClients() {
         return this.clients;
     }
+
+    /**
+     * @return int number of players that can connect to this lobby
+     */
     public int getMaxPlayers() {
         return this.maxPlayers;
     }
+
+    /**
+     * @return //todo
+     */
+
     public ArrayList<String> getWhiteList() {
         return this.whiteList;
     }
+
+
+    /**
+     * @return String explaining the status of the lobby
+     */
     public String getLobbyStats() {
         if (maxPlayers==0) {
             return this.lobbyName+ " > "+this.lobbyName+" is not ready";
@@ -296,6 +354,13 @@ public class Lobby implements Runnable {
         waitingFor.removeAll(clients.keySet());
         return this.lobbyName+" > "+(this.expertMode?"expert":"normal")+" game ["+this.clients.size()+"/"+this.maxPlayers+"]\n Currently connected: "+this.clients.keySet()+(waitingFor.size()>0?"\nWaiting for: "+waitingFor:"");
     }
+
+    /**
+     * Method that processes and manages the messages present in the queue
+     * @throws LobbyClientDisconnectedException when a client disconnects from the lobby
+     * @throws GameIsOverException when the game ends
+     * @throws LobbyEmptyException when the lobby remains empty
+     */
     public void processMessageQueue() throws LobbyClientDisconnectedException,GameIsOverException,LobbyEmptyException {
         gameStarted=true;
         Message msg;

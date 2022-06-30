@@ -8,8 +8,20 @@ import java.util.EnumMap;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+/**
+ * This enumeration class defines the different types of character cards and their behaviours
+ */
+
 public enum CharID {
     MONK(MemType.INTEGER_COLOUR_MAP, 4) {
+        /**
+         * This method is responsible to activate the MONK card
+         * @param p the player wanting to activate the card
+         * @param charArgs, charArgs[0] specifies the Colour, charArgs[1] specifies the Island_Tile ID
+         * @param controller the LobbyController of the current game
+         * @throws MoveNotAllowedException if an error occurs during card's memory reading, the student disk of the specified colour isn't found or when the Args given are invalid
+         */
+
         @Override
         public void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException {
             Colour c;
@@ -40,6 +52,14 @@ public enum CharID {
         }
     },
     HERALD(MemType.NONE, null) {
+        /**
+         * This method is responsible to activate the HERALD card
+         * @param p the player wanting to activate the card
+         * @param charArgs contains the island Tile ID or number
+         * @param controller the LobbyController of the current game
+         * @throws MoveNotAllowedException when the island tile isn't specified/can't be found
+         * @throws GameIsOverException when the game ends after this card is played
+         */
         @Override
         public void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException,GameIsOverException {
             if (charArgs.length==0) {
@@ -53,6 +73,14 @@ public enum CharID {
         }
     },
     MAGIC_POSTMAN(MemType.NONE, null) {
+        /**
+         * This method is responsible to activate the MAGIC_POSTMAN card
+         * @param p the player wanting to activate the card
+         * @param charArgs null
+         * @param controller the LobbyController of the current game
+         * @throws MoveNotAllowedException if the player tries to activate this card without having played an assistant card before
+         */
+
         @Override
         public void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException {
             AssistantCard lastUsedCard=p.getSchoolBoard().getLastUsedCard();
@@ -63,6 +91,13 @@ public enum CharID {
         }
     },
     GRANDMA_HERBS(MemType.INTEGER, 4) {
+        /**
+         * This method is responsible to activate the GRANDMA_HERBS card
+         * @param p the player wanting to activate the card
+         * @param charArgs charArgs[0] contains the Island_Tile ID
+         * @param controller the LobbyController of the current game
+         * @throws MoveNotAllowedException if the specified Island already has a no entry tile, there aren't more no entry tiles available or the player didn't specify the island tile correctly
+         */
         @Override
         public void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException {
             if (charArgs.length==0) {
@@ -83,12 +118,25 @@ public enum CharID {
         }
     },
     CENTAUR(MemType.NONE, null) {
+        /**
+         * This method is responsible to activate the CENTAUR card
+         * @param p the player wanting to activate the card
+         * @param charArgs null
+         * @param controller the LobbyController of the current game
+         */
         @Override
         public void activateCard(Player p, String[] charArgs, LobbyController controller) {
             //DOES NOTHING
         }
     },
     JESTER(MemType.INTEGER_COLOUR_MAP, 6) {
+        /**
+         * This method is responsible to activate the JESTER card
+         * @param p the player wanting to activate the card
+         * @param charArgs contains up to three pairs of Strings representing student disk colours to swap between the player board's entrance and the card
+         * @param controller the LobbyController of the current game
+         * @throws MoveNotAllowedException if an error occurs during card's memory reading, charArgs parameter isn't well formatted, or when there aren't enough student disks to swap
+         */
         @Override
         public void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException {
             EnumMap<Colour,Integer> cardMem, entranceMem;
@@ -121,12 +169,25 @@ public enum CharID {
         }
     },
     KNIGHT(MemType.NONE, null) {
+        /**
+         * This method is responsible to activate the KNIGHT card
+         * @param p the player wanting to activate the card
+         * @param charArgs null
+         * @param controller the LobbyController of the current game
+         */
         @Override
         public void activateCard(Player p, String[] charArgs, LobbyController controller) {
             //DOES NOTHING
         }
     },
     SHROOM_VENDOR(MemType.BOOLEAN_COLOUR_MAP, null) {
+        /**
+         * This method is responsible to activate the SHROOM_VENDOR card
+         * @param p the player wanting to activate the card
+         * @param charArgs charArgs[0] specifies the colour that will be disabled towards the calculation of the influence during this turn
+         * @param controller the LobbyController of the current game
+         * @throws MoveNotAllowedException if an error occurs during card's memory reading, charArgs[0] isn't specified, isn't a valid colour or if the colour has already been disabled
+         */
         @Override
         public void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException {
             if (charArgs.length==0) {
@@ -147,6 +208,13 @@ public enum CharID {
         }
     },
     MINSTREL(MemType.NONE, null) {
+        /**
+         * This method is responsible to activate the MINSTREL card
+         * @param p the player wanting to activate the card
+         * @param charArgs contains up to two pairs of Strings representing student disk colours to swap between the player's entrance and dining room
+         * @param controller the LobbyController of the current game
+         * @throws MoveNotAllowedException bad charArgs formatting or not enough student disks to swap
+         */
         @Override
         public void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException {
             Colour c1,c2;
@@ -174,6 +242,13 @@ public enum CharID {
         }
     },
     SPOILED_PRINCESS(MemType.INTEGER_COLOUR_MAP, 4) {
+        /**
+         * This method is responsible to activate the SPOILED_PRINCESS card
+         * @param p the player wanting to activate the card
+         * @param charArgs charArgs[0] contains the Colour of the student disk that the player p wants to move from the card to his dining room
+         * @param controller the LobbyController of the current game
+         * @throws MoveNotAllowedException if an error occurs during card's memory reading, Args[0] isn't valid, if dining room has reached max. capacity for the specified colour or if the card hasn't any student disk of the specified colour on it
+         */
         @Override
         public void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException {
             if (charArgs.length==0) {
@@ -201,6 +276,13 @@ public enum CharID {
         }
     },
     THIEF(MemType.NONE, null) {
+        /**
+         * This method is responsible to activate the THIEF card
+         * @param p the player wanting to activate the card
+         * @param charArgs charArgs[0] specifies the Colour of the student disks that will get removed from players dining rooms
+         * @param controller the LobbyController of the current game
+         * @throws MoveNotAllowedException if charArgs[0] doesn't specify a Colour
+         */
         @Override
         public void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException {
             if (charArgs.length==0) {
@@ -219,6 +301,13 @@ public enum CharID {
         }
     },
     FARMER(MemType.PLAYER_COLOUR_MAP, null) {
+        /**
+         * This method is responsible to activate the FARMER card
+         * @param p the player wanting to activate the card
+         * @param charArgs null
+         * @param controller the LobbyController of the current game
+         * @throws MoveNotAllowedException if an error occurs during card's memory reading or if multiple players have the professor of the specified colour
+         */
         @Override
         public void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException {
             EnumMap<Colour,Player> mem=getMemory(Player.class);
@@ -237,6 +326,13 @@ public enum CharID {
         }
     };
 
+    /**
+     * This is the class constructor.
+     * @param memType Character card memory type
+     * @param limit Integer number of maximum student disks that can be stored in the card's memory
+     * @see MemType
+     */
+
     CharID(MemType memType, Integer limit) {
         this.memType = memType;
         if (memType.equals(MemType.INTEGER)) {
@@ -245,6 +341,10 @@ public enum CharID {
         this.memType.limit = limit;
     }
 
+    /**
+     * This is an enumeration defining the different types of memory a character card can have
+     *
+     */
     public enum MemType {
         NONE(),
         INTEGER(0),
@@ -252,10 +352,18 @@ public enum CharID {
         BOOLEAN_COLOUR_MAP(Colour.genBooleanMap()),
         PLAYER_COLOUR_MAP(Colour.genStringMap());
 
+        /**
+         * Constructor of the Enum Class MemType
+         * @param memory Colour map that can be INTEGER_COLOUR_MAP,BOOLEAN_COLOUR_MAP or PLAYER_COLOUR_MAP
+         */
+
         MemType(Object memory) {
             this.memory = memory;
         }
 
+        /**
+         * Default constructor
+         */
         MemType() {
             this.memory = null;
         }
@@ -263,6 +371,10 @@ public enum CharID {
         private Object memory;
         private Integer limit;
 
+        /**
+         * This method adds student disks from the bag to the character card memory
+         * @param bag the Bag_Tile from which to draw the student disks
+         */
         public void refillFromBag(Bag_Tile bag) {
             int fillAmount=0;
             if (this.equals(MemType.INTEGER_COLOUR_MAP)) {
@@ -279,17 +391,37 @@ public enum CharID {
         }
     }
 
+
+    /**
+     * @param p player that wants to activate the card
+     * @param charArgs arguments needed to the card activation, based on the specific character card
+     * @param controller the LobbyController of the current game
+     * @throws MoveNotAllowedException for any problem that doesn't allow the player move to be performed
+     * @throws GameIsOverException when the game ends
+     */
     public abstract void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException, GameIsOverException;
 
     private final MemType memType;
+
+    /**
+     * @return the memory type of the character card
+     */
 
     public MemType getMemType() {
         return this.memType;
     }
 
+    /**
+     * @return Integer memory limit of this character card
+     */
+
     public Integer getLimit() {
         return this.memType.limit;
     }
+
+    /**
+     * @return Integer current memory of this character card
+     */
 
     public Integer getMemory() {
         try {
@@ -299,6 +431,11 @@ public enum CharID {
         }
     }
 
+    /**
+     * @param valueClass represents the class contained in the EnumMap representing the memory
+     * @param <V> class which value depends on which memType is the memory
+     * @return EnumMap<Colour, V>, with V based on which memType is the memory, null if valueClass isn't valid
+     */
     public <V> EnumMap<Colour, V> getMemory(Class<V> valueClass) {
         try {
             @SuppressWarnings("unchecked")
@@ -314,10 +451,17 @@ public enum CharID {
         }
     }
 
+
+    /**
+     * @return the memory as an Object instance
+     */
     public Object getUncastedMemory() {
         return this.memType.memory;
     }
 
+    /**
+     * @param memory memory as Object instance, which will be set as the memory of the character card
+     */
     public void setMemory(Object memory) {
         this.memType.memory = memory;
     }
