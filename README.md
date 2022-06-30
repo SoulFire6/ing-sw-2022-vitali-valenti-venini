@@ -28,10 +28,10 @@
 The project consists of a Java application for the board game [Eriantys](https://www.craniocreations.it/prodotto/eriantys/)
 
 The final version will include:
-- [ ] initial high level UML diagram
+- [x] initial high level UML diagram
 - [ ] final UML diagrams, automatically generated from the code
 - [ ] working implementation of the game, compliant to the rules and requirements specified for the project
-- [ ] documentation for the communication protocol between client and server
+- [x] documentation for the communication protocol between client and server
 - [x] documentation for the peer reviews (2 total)
 - [ ] source code for the implementation
 - [ ] source code for the JUnit tests
