@@ -29,11 +29,11 @@ public class BoardPane extends AnchorPane implements Initializable {
     @FXML
     BoardRowPane yellowRow,blueRow,greenRow,redRow,purpleRow;
 
-    private ArrayList<ImageView> entranceSlots=new ArrayList<>();
+    private final ArrayList<ImageView> entranceSlots=new ArrayList<>();
 
-    private EnumMap<Colour, BoardRowPane> rows=new EnumMap<>(Colour.class);
+    private final EnumMap<Colour, BoardRowPane> rows=new EnumMap<>(Colour.class);
 
-    private EnumMap<Colour, Image> disks=new EnumMap<>(Colour.class);
+    private final EnumMap<Colour, Image> disks=new EnumMap<>(Colour.class);
 
     private MessageSender messageSender;
     public BoardPane() {
@@ -85,7 +85,11 @@ public class BoardPane extends AnchorPane implements Initializable {
                 entranceSlots.get(idx).setVisible(true);
                 entranceSlots.get(idx).setImage(disks.get(c));
                 if (interactive) {
-                    entranceSlots.get(idx).addEventHandler(MouseEvent.MOUSE_PRESSED, event->messageSender.sendMessage(MsgType.DISKTODININGROOM,c+"to dining room",c));
+                    entranceSlots.get(idx).addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+                        if (mouseEvent.getClickCount()==1) {
+                            messageSender.sendMessage(MsgType.DISKTODININGROOM, c + "to dining room", c);
+                        }
+                    });
                 }
             }
         }
