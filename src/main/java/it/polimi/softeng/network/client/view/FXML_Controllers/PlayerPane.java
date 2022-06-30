@@ -9,6 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -50,7 +51,13 @@ public class PlayerPane extends VBox implements Initializable {
         stage.setMaxWidth(460);
         stage.setHeight(200);
         stage.setWidth(460);
-        showBoard.setOnAction(event-> stage.showAndWait());
+        stage.addEventHandler(MouseEvent.MOUSE_EXITED,event->stage.hide());
+        showBoard.setOnAction(event-> {
+            if (stage.isShowing()) {
+                stage.hide();
+            }
+            stage.show();
+        });
     }
 
     public void setMessageSender(MessageSender messageSender) {
