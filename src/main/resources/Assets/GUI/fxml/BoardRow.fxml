@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+
+<fx:root type="javafx.scene.layout.AnchorPane" layoutX="77.0" layoutY="147.0" prefHeight="37.0" prefWidth="274.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <children>
+        <ImageView id="1" fitHeight="20.0" fitWidth="20.0" layoutX="8.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView id="2" fitHeight="20.0" fitWidth="20.0" layoutX="30.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView id="3" fitHeight="20.0" fitWidth="20.0" layoutX="52.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView id="4" fitHeight="20.0" fitWidth="20.0" layoutX="74.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView id="5" fitHeight="20.0" fitWidth="20.0" layoutX="96.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView id="6" fitHeight="20.0" fitWidth="20.0" layoutX="118.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView id="7" fitHeight="20.0" fitWidth="20.0" layoutX="140.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView id="8" fitHeight="20.0" fitWidth="20.0" layoutX="162.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView id="9" fitHeight="20.0" fitWidth="20.0" layoutX="184.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView id="10" fitHeight="20.0" fitWidth="20.0" layoutX="206.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView id="professor" fitHeight="22.0" fitWidth="28.0" layoutX="245.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true" rotate="90.0"/>
+    </children>
+</fx:root>
