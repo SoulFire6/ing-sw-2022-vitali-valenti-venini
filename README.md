@@ -32,7 +32,7 @@ The final version will include:
 - [ ] final UML diagrams, automatically generated from the code
 - [ ] working implementation of the game, compliant to the rules and requirements specified for the project
 - [ ] documentation for the communication protocol between client and server
-- [ ] documentation for the peer reviews (2 total)
+- [x] documentation for the peer reviews (2 total)
 - [ ] source code for the implementation
 - [ ] source code for the JUnit tests
 
@@ -41,11 +41,11 @@ The final version will include:
 | Feature                  |       Status       | Details                                       |
 |--------------------------|:------------------:|-----------------------------------------------|
 | Simplified rules         | :white_check_mark: | Normal mode only                              |
-| Complete rules           |     :warning:      | Expert mode with 8 character cards            |
+| Complete rules           | :white_check_mark: | Expert mode with 8 character cards            |
 | CLI                      | :white_check_mark: | Command line input                            |
 | GUI                      |     :warning:      | Graphical user interface                      |
 | Socket                   | :white_check_mark: | Client-server architecture                    |
-| Character cards          |     :warning:      | All 12 cards instead of just 8                |
+| Character cards          | :white_check_mark: | All 12 cards instead of just 8                |
 | 4 Player mode            | :white_check_mark: | Allows 4 players to participate in teams of 2 |
 | Multiple games           | :white_check_mark: | Allows simultaneous games on the same server  |
 | Persistence              | :white_check_mark: | Save and load game state to disk              |
