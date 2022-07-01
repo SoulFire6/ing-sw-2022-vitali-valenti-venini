@@ -24,7 +24,7 @@ public class CharCardController {
      * @exception InsufficientResourceException when the player doesn't have enough resources to activate the card
      * @exception MoveNotAllowedException when the action is requested in a not allowed state of the game
      * @exception GameIsOverException when the game is already over
-     * @return boolean true if the operation succeeded, false otherwise
+     * @return the wanted character card
      */
     public CharacterCard findAndCheckCard(Player p,String cardID, ArrayList<CharacterCard> cards) throws CharacterCardNotFoundException, InsufficientResourceException, MoveNotAllowedException, GameIsOverException {
         Optional<CharacterCard> playedCard = cards.stream().filter(characterCard -> characterCard.getCardID().equalsIgnoreCase(cardID.replace("_"," "))).findFirst();
@@ -152,7 +152,7 @@ public class CharCardController {
      * This method returns active status of requested card
      * @param id the card id that is requested
      * @param cards the character cards in the game
-     * @return boolean true if card is active and in gamew
+     * @return boolean true if card is active and in game, false otherwise
      */
     public boolean getActiveStatus(CharID id, ArrayList<CharacterCard> cards) {
         for (CharacterCard card : cards) {
