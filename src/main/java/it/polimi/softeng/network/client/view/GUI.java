@@ -15,10 +15,22 @@ import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+/**
+ * This class is the gui implementation of the view abstract class
+ */
 public class GUI extends Application implements View {
     private static GUI_ActionHandler controller;
+
+    /**
+     * Default constructor
+     */
     public GUI() {
     }
+
+    /**
+     * Inherited from Application, used to start a JavaFx Runtime
+     * @param stage the stage where the scene is laoded
+     */
     @Override
     public void start(Stage stage) {
         controller=new GUI_ActionHandler();
@@ -33,12 +45,21 @@ public class GUI extends Application implements View {
             System.exit(0);
         });
     }
+
+    /**
+     * Wrapping launch method inherited from Runnable so that both views can be instantiated in the same way
+     */
     @Override
     public void run() {
         System.out.println("STARTING");
         Application.launch();
     }
 
+    /**
+     * This method sets up the Socket
+     * @param args the arguments to try using as default arguments
+     * @return ObjectInputStream the object stream for receiving messages
+     */
     @Override
     public ObjectInputStream setUpConnection(String[] args) {
         ObjectInputStream objectInputStream=null;
@@ -61,11 +82,16 @@ public class GUI extends Application implements View {
         return objectInputStream;
     }
 
+    /**
+     * This methods closes the Socket
+     */
     @Override
     public void closeConnection() {
         Platform.runLater(()->controller.closeConnection());
     }
-
+    /**
+     * This methods displays messages received from server by passing them to the gui
+     */
     @Override
     public void display(Message message) {
         while (controller==null) {
@@ -74,7 +100,11 @@ public class GUI extends Application implements View {
         Platform.runLater(()-> controller.display(message));
     }
 
-    //GUI makes the fxml controller the property listener instead of itself
+    /**
+     * This method sets the GUI controller as the recipient of the model updates instead of itself
+     * @param evt A PropertyChangeEvent object describing the event source
+     *          and the property that has changed.
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         ReducedGame model=(ReducedGame) evt.getNewValue();
@@ -83,6 +113,11 @@ public class GUI extends Application implements View {
         model.notifyGameLoaded();
     }
 
+    /**
+     * This method is used for waiting whilst gui is getting set up
+     * @param milliseconds the time in between checks
+     * @param logMessage the message to display to console
+     */
     private void threadSleep(int milliseconds, String logMessage) {
         try {
             System.out.println(logMessage);

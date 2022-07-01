@@ -17,7 +17,42 @@ public class ReducedGame implements Serializable {
      * Enumeration class used to know which type of update is necessary
      */
     public enum UpdateType{
-        PLAYERS,PLAYER,BAG,CLOUDS,ISLANDS,COINS,CHARACTER_CARDS,TURN_STATE,LOADED_GAME
+        /**
+         * Defines an update to all players
+         */
+        PLAYERS,
+        /**
+         * Defines an update to a single player
+         */
+        PLAYER,
+        /**
+         * Defines an update to the bag
+         */
+        BAG,
+        /**
+         * Defines an update to the clouds tiles
+         */
+        CLOUDS,
+        /**
+         * Defines an update to the island tiles
+         */
+        ISLANDS,
+        /**
+         * Defines an update to game coins
+         */
+        COINS,
+        /**
+         * Defines an update to character cards
+         */
+        CHARACTER_CARDS,
+        /**
+         * Defines an update to turnstate
+         */
+        TURN_STATE,
+        /**
+         * Defines a game being loaded
+         */
+        LOADED_GAME
     }
     private final String id;
     private ArrayList<ReducedPlayer> players;
@@ -111,7 +146,7 @@ public class ReducedGame implements Serializable {
     }
 
     /**
-     * @return ArrayList<ReducedPlayer> list of reduced players of this reduced game
+     * @return ArrayList ofReducedPlayer, list of reduced players of this reduced game
      */
     public ArrayList<ReducedPlayer> getPlayers() {
         return this.players;
@@ -119,7 +154,7 @@ public class ReducedGame implements Serializable {
 
     /**
      * This method is used to set the players of this reduced game
-     * @param players ArrayList<ReducedPlayer> containing the reduced players we want to set
+     * @param players ArrayList of ReducedPlayer, containing the reduced players we want to set
      */
     public void setPlayers(ArrayList<ReducedPlayer> players) {
         this.players=players;
@@ -156,14 +191,14 @@ public class ReducedGame implements Serializable {
     }
 
     /**
-     * @return ArrayList<ReducedCloud> the clouds of this reduced game
+     * @return ArrayList of ReducedCloud, the clouds of this reduced game
      */
     public ArrayList<ReducedCloud> getClouds() {
         return clouds;
     }
 
     /**
-     * @param clouds ArrayList<ReducedCloud> we want to set in this reduced game
+     * @param clouds ArrayList of ReducedCloud, we want to set in this reduced game
      */
     public void setClouds(ArrayList<ReducedCloud> clouds) {
         this.clouds=clouds;
@@ -171,14 +206,14 @@ public class ReducedGame implements Serializable {
     }
 
     /**
-     * @return ArrayList<ReducedIsland> containing the islands of this reduced game
+     * @return ArrayList of ReducedIsland, containing the islands of this reduced game
      */
     public ArrayList<ReducedIsland> getIslands() {
         return islands;
     }
 
     /**
-     * @param islands ArrayList<ReducedIsland> we want to set in this reduced game
+     * @param islands ArrayList of ReducedIsland we want to set in this reduced game
      */
     public void setIslands(ArrayList<ReducedIsland> islands) {
         this.islands=islands;
@@ -208,14 +243,14 @@ public class ReducedGame implements Serializable {
     }
 
     /**
-     * @return ArrayList<ReducedCharacterCard> containing the character cards of the reduced game
+     * @return ArrayList of ReducedCharacterCard, containing the character cards of the reduced game
      */
     public ArrayList<ReducedCharacterCard> getCharacterCards() {
         return this.characterCards;
     }
 
     /**
-     * @param characterCards ArrayList<ReducedCharacterCard> we want to set in this reduced game
+     * @param characterCards ArrayList of ReducedCharacterCard we want to set in this reduced game
      */
     public void setCharacterCards(ArrayList<ReducedCharacterCard> characterCards) {
         this.characterCards = characterCards;

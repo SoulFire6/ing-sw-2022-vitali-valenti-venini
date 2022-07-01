@@ -12,12 +12,18 @@ import it.polimi.softeng.network.message.load.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-
+/**
+ * Main class for client instances
+ */
 public class Client {
     private ReducedGame model;
     private final View view;
     private final ObjectInputStream fromServer;
 
+    /**
+     * Default constructor
+     * @param args args to pass to setup connection
+     */
     public Client(String[] args) {
         this.view=(args[3].equals("GUI")?new GUI():new CLI());
         new Thread(view).start();
@@ -28,6 +34,10 @@ public class Client {
         }
         this.fromServer=view.setUpConnection(args);
     }
+
+    /**
+     * Main method that runs for client, it updates the model, but also sends messages to display on the view
+     */
     public void start() {
         if (fromServer == null) {
             System.out.println("Error: did not initialise client first");
@@ -51,6 +61,10 @@ public class Client {
         view.closeConnection();
     }
 
+    /**
+     * This method parses message received and decides what to do with them
+     * @param message the message to parse
+     */
     public void parseMessageFromServer(Message message) {
         switch (message.getType()) {
             case INFO:

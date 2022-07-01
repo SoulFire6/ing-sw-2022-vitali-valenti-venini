@@ -8,7 +8,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test class for SchoolBoard_Tile
+ */
 public class SchoolBoardTest {
+    /**
+     * Tests default constructor
+     */
     @Test
     public void testSchoolBoardConstructor() {
         AssistantCardController assistantCardController=new AssistantCardController();
@@ -25,6 +31,9 @@ public class SchoolBoardTest {
         assertEquals(testMaxTowers,schoolBoard.getMaxTowers());
         assertEquals(testCoins,schoolBoard.getCoins());
     }
+    /**
+     * Tests filling entrance from bag
+     */
     @Test
     public void testFillEntranceFromBag() {
         Bag_Tile bag=new Bag_Tile(10);
@@ -35,6 +44,9 @@ public class SchoolBoardTest {
         assertEquals(testMaxEntrance,schoolBoard.getFillAmount());
         assertEquals(bagFill-testMaxEntrance,bag.getFillAmount());
     }
+    /**
+     * Tests filling entrance from cloud
+     */
     @Test
     public void testFillEntranceFromCloud() {
         int testFillNum=3;
@@ -51,6 +63,9 @@ public class SchoolBoardTest {
         assertDoesNotThrow(()->schoolBoard.fillEntrance(cloud));
         assertEquals(testMaxEntranceSlots,schoolBoard.getFillAmount());
     }
+    /**
+     * Tests getter for dining room
+     */
     @Test
     public void testGetDiningRoomAmount() {
         SchoolBoard_Tile schoolBoard=new SchoolBoard_Tile("test",7,0,0,null,0);
@@ -58,6 +73,9 @@ public class SchoolBoardTest {
             assertEquals(0,schoolBoard.getDiningRoomAmount(c));
         }
     }
+    /**
+     * Tests adding students to dining room
+     */
     @Test
     public void testMoveStudentsToDiningRoom() {
         Colour randColour=Colour.getRandomColour();
@@ -70,6 +88,9 @@ public class SchoolBoardTest {
         }
         assertFalse(schoolBoard.moveStudentToDiningRoom(randColour));
     }
+    /**
+     * Tests moving students to island
+     */
     @Test
     public void testMoveStudentToIsland() {
         int testMoveAmount=7;
@@ -86,6 +107,9 @@ public class SchoolBoardTest {
         schoolBoard.moveStudentToIsland(randColour,island);
         assertEquals(testIslandAmount,island.getFillAmount());
     }
+    /**
+     * Tests professorTable setters and getters
+     */
     @Test
     public void testProfessors() {
         SchoolBoard_Tile schoolBoard=new SchoolBoard_Tile("test",0,0,0,null,0);
@@ -96,6 +120,9 @@ public class SchoolBoardTest {
         schoolBoard.setProfessor(randColour,true);
         assertTrue(schoolBoard.getProfessor(randColour));
     }
+    /**
+     * Tests modifying tower num
+     */
     @Test
     public void testModifyTowers() {
         int testTowers=8;
@@ -105,6 +132,9 @@ public class SchoolBoardTest {
         assertEquals(testTowers,schoolBoard.getTowers());
         assertFalse(schoolBoard.modifyTowers(1));
     }
+    /**
+     * Tests setter and getter for coins
+     */
     @Test
     public void testCoins() {
         int initCoins=0;
@@ -114,6 +144,9 @@ public class SchoolBoardTest {
         schoolBoard.setCoins(testCoins);
         assertEquals(testCoins,schoolBoard.getCoins());
     }
+    /**
+     * Tests playing an assist card
+     */
     @Test
     public void testPlayAssistantCard() {
         AssistantCardController assistantCardController=new AssistantCardController();
@@ -128,6 +161,4 @@ public class SchoolBoardTest {
             assertEquals(testCard,schoolBoard.getLastUsedCard());
         }
     }
-
-
 }

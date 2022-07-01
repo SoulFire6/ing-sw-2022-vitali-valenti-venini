@@ -22,7 +22,7 @@ public class PlayerController {
     /**
      * This method is used to get all the teams of the current game
      * @param players players of the current game
-     * @return ArrayList<Team> all of the teams that play the game
+     * @return ArrayList of Team, all of the teams that play the game
      */
     public ArrayList<Team> getTeams(ArrayList<Player> players) {
         ArrayList<Team> teams= new ArrayList<>();
@@ -39,7 +39,7 @@ public class PlayerController {
      * This method generates players with given names
      * @param playerNames the names of the players of the game
      * @exception InvalidPlayerNumException when player number is greater than 4 or smaller than 2
-     * @return ArrayList<Player> the generated players
+     * @return ArrayList of Player, the generated players
      */
     public ArrayList<Player> genPlayers(ArrayList<String> playerNames) throws InvalidPlayerNumException{
         Random rand=new Random();
@@ -80,7 +80,7 @@ public class PlayerController {
      * This method is used to know which players are from a certain team
      * @param players all the players of the current game
      * @param t the team from which we want to know the players
-     * @return ArrayList<Player> the players from the Team t
+     * @return ArrayList of Player, the players from the Team t
      */
     public ArrayList<Player> getPlayersOnTeam(ArrayList<Player> players, Team t) {
         ArrayList<Player> res=new ArrayList<>();
@@ -96,7 +96,7 @@ public class PlayerController {
      * This method is used to calculate the combined disks present owned by a team in its players dining rooms
      * @param t the team we want to calculate the disks from
      * @param players all the players of the current game
-     * @return ArrayList<Colour> all the disks owned by the team
+     * @return ArrayList of Colour, all the disks owned by the team
      */
     public ArrayList<Colour> getTeamColours(Team t, ArrayList<Player> players) {
         ArrayList<Colour> colours=new ArrayList<>();

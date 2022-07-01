@@ -23,6 +23,11 @@ public class Eriantys {
             "-ip : client-only, specifies server ip for client, if not found will default to "+DEFAULT_IP,
             "-port | -p : specify server port, if not found will default to " + DEFAULT_PORT};
 
+    /**
+     * The main method of the project
+     * @param args passed arguments
+     * @throws IllegalArgumentException if passed arguments are invalid
+     */
     public static void main(String[] args) throws IllegalArgumentException{
         //username,ip,port,cli/gui
         String[] clientArgs={null,null,null,null};

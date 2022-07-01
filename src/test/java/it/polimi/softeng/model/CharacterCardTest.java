@@ -1,14 +1,17 @@
 package it.polimi.softeng.model;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
+/**
+ * Test class for CharacterCard
+ */
 public class CharacterCardTest {
+
+    /**
+     * Tests default constructor for CharacterCard
+     */
     @Test
     public void testCharacterCardConstructor() {
         String testID="test";
@@ -19,6 +22,10 @@ public class CharacterCardTest {
         assertEquals(testCard.getCost(),testCost);
         assertEquals(testCard.getCharacter(),testCharID);
     }
+
+    /**
+     * Tests incrementing card cost
+     */
     @Test
     public void testIncrementCost() {
         int testValue=0;

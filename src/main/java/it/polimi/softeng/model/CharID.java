@@ -432,9 +432,9 @@ public enum CharID {
     }
 
     /**
-     * @param valueClass represents the class contained in the EnumMap representing the memory
-     * @param <V> class which value depends on which memType is the memory
-     * @return EnumMap<Colour, V>, with V based on which memType is the memory, null if valueClass isn't valid
+     * @param valueClass represents the V class contained in the EnumMap representing the memory
+     * @param <V> the class to cast to
+     * @return Colour EnumMap of V, with V based on which memType is the memory, null if valueClass isn't valid
      */
     public <V> EnumMap<Colour, V> getMemory(Class<V> valueClass) {
         try {

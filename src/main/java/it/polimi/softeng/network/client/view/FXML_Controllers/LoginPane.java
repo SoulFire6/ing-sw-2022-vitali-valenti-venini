@@ -19,6 +19,9 @@ import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
+/**
+ * This class is a custom FXML component controller used to generate client Socket
+ */
 
 public class LoginPane extends BorderPane implements Initializable {
     @FXML
@@ -32,6 +35,9 @@ public class LoginPane extends BorderPane implements Initializable {
     private static final Integer DEFAULT_PORT=50033;
     private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$";
 
+    /**
+     * Default constructor that loads the correct fxml file
+     */
     public LoginPane() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Login.fxml"));
@@ -44,6 +50,10 @@ public class LoginPane extends BorderPane implements Initializable {
             throw new RuntimeException(io);
         }
     }
+
+    /**
+     * Inherited initialize method to set up fxml components
+     */
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -63,17 +73,31 @@ public class LoginPane extends BorderPane implements Initializable {
         }
 
     }
+    /**
+     * Getter for username Textfield
+     * @return TextField
+     */
 
     public TextField getUsernameField() {
         return this.usernameField;
     }
+    /**
+     * Getter for ip Textfield
+     * @return TextField
+     */
     public TextField getIpField() {
         return this.ipField;
     }
+    /**
+     * Getter for port Textfield
+     * @return TextField
+     */
     public TextField getPortField() {
         return this.portField;
     }
-
+    /**
+     * this method checks if a server connection is possible
+     */
     private void connectToServer(ActionEvent actionEvent) {
         Alert alert=new Alert(Alert.AlertType.WARNING);
         if (incorrectUsername(alert) || incorrectIP(alert) || incorrectPort(alert)) {
@@ -82,6 +106,10 @@ public class LoginPane extends BorderPane implements Initializable {
         }
         validLogin=true;
     }
+    /**
+     * This method creates a local server, hosted on the client itself
+     */
+
     private void hostServer(ActionEvent actionEvent) {
         Alert alert=new Alert(Alert.AlertType.ERROR);
         if (incorrectUsername(alert) || incorrectPort(alert)) {
@@ -112,12 +140,16 @@ public class LoginPane extends BorderPane implements Initializable {
             connectToServer(actionEvent);
         }
     }
-
+    /**
+     * This method checks usernameField, to see if it matches the correct format
+     */
     private boolean incorrectUsername(Alert alert) {
         alert.setContentText("Username must be 3-10 characters long and not contain spaces");
         return usernameField.getText().length()<3 || usernameField.getText().length()>10 || usernameField.getText().contains(" ");
     }
-
+    /**
+     * This method checks ipField, to see if it matches the correct format
+     */
     private boolean incorrectIP(Alert alert) {
         alert.setContentText("Invalid ip format");
         if (ipField.getText()==null || ipField.getText().equals("") || ipField.getText().equalsIgnoreCase("local")) {
@@ -126,7 +158,9 @@ public class LoginPane extends BorderPane implements Initializable {
         }
         return !Pattern.compile(IP_FORMAT).matcher(ipField.getText()).matches();
     }
-
+    /**
+     * This method checks portField, to see if it matches the correct format
+     */
     private boolean incorrectPort(Alert alert) {
         if (portField.getText()==null || portField.getText().equals("") || portField.getText().equalsIgnoreCase("local")) {
             portField.setText(DEFAULT_PORT.toString());
@@ -142,9 +176,16 @@ public class LoginPane extends BorderPane implements Initializable {
             return true;
         }
     }
+    /**
+     * This method returns true if connectToServer() succeeded
+     * @return boolean the value of validLogin
+     */
     public boolean getValidLogin() {
         return this.validLogin;
     }
+    /**
+     * This method sets validLogin to false when Socket or ObjectStream creation fails
+     */
     public void invalidateLogin() {
         this.validLogin=false;
     }

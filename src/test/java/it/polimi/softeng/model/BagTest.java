@@ -6,7 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.EnumMap;
 
+/**
+ * Testing class for Bag
+ */
 public class BagTest {
+    /**
+     * Testing default Bag constructor
+     */
     @Test
     public void testBagConstructor() {
         Integer initValue=0;
@@ -15,6 +21,9 @@ public class BagTest {
             assertEquals(initValue,b.getContents().get(c));
         }
     }
+    /**
+     * Testing drawing students from bag
+     */
     @Test
     public void testDrawStudents() {
         EnumMap<Colour,Integer> testDraw;
@@ -27,6 +36,9 @@ public class BagTest {
         }
         assertEquals(testSum,testDrawNum);
     }
+    /**
+     * Testing drawing students when bag has less than required
+     */
     @Test
     public void testDrawStudentsWithLessThanRequired() {
         EnumMap<Colour,Integer> testDraw;

@@ -15,7 +15,7 @@ public class Island_Load_Msg extends Load_Message {
     /**
      * @param sender String name of the player who requested the move
      * @param context String explanation of the move
-     * @param load ArrayList<Island_Tile> containing the island tiles to be simplified
+     * @param load ArrayList of Island_Tile, containing the island tiles to be simplified
      */
     public Island_Load_Msg(String sender, String context, ArrayList<Island_Tile> load) {
         super(MsgType.ISLANDS,sender,context);
@@ -23,7 +23,7 @@ public class Island_Load_Msg extends Load_Message {
     }
 
     /**
-     * @return ArrayList<ReducedIsland> containing the reduced island tiles
+     * @return ArrayList of ReducedIsland, containing the reduced island tiles
      */
     public ArrayList<ReducedIsland> getLoad() {
         return this.load;

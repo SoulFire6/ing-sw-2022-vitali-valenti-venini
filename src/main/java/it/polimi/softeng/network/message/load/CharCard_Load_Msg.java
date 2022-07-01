@@ -17,7 +17,7 @@ public class CharCard_Load_Msg extends Load_Message {
     /**
      * @param sender String name of the player who requested the move
      * @param context String explanation of the move
-     * @param load ArrayList<CharacterCard> containing the character cards to be loaded
+     * @param load ArrayList of CharacterCard, containing the character cards to be loaded
      */
     public CharCard_Load_Msg(String sender, String context, ArrayList<CharacterCard> load) {
         super(MsgType.CHARACTERCARDS,sender,context);
@@ -25,7 +25,7 @@ public class CharCard_Load_Msg extends Load_Message {
     }
 
     /**
-     * @return ArrayList<ReducedCharacterCard> containing the reduced versions of the character cards
+     * @return ArrayList of ReducedCharacterCard, containing the reduced versions of the character cards
      */
     public ArrayList<ReducedCharacterCard> getLoad() {
         return this.load;

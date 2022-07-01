@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * This class is a custom FXML component controller for a player
+ */
 public class PlayerPane extends VBox implements Initializable {
     @FXML
     Label name, towers, coins, mnValue, turnValue;
@@ -29,6 +32,10 @@ public class PlayerPane extends VBox implements Initializable {
     private MessageSender messageSender;
 
     private Stage stage;
+
+    /**
+     * Default constructor for PlayerPane
+     */
     public PlayerPane() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Player.fxml"));
@@ -42,6 +49,11 @@ public class PlayerPane extends VBox implements Initializable {
         }
     }
 
+    /**
+     * Inherited initialize method to set up components
+     * @param url default unused url
+     * @param resourceBundle default unused resource
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         board=new BoardPane();
@@ -61,10 +73,20 @@ public class PlayerPane extends VBox implements Initializable {
         showBoard.setOnAction(event-> stage.show());
     }
 
+    /**
+     * Setter for message sender
+     * @param messageSender the message sender to set
+     */
+
     public void setMessageSender(MessageSender messageSender) {
         this.messageSender=messageSender;
         this.board.setMessageSender(messageSender);
     }
+
+    /**
+     * Setups up the PlayerPane with info from the player
+     * @param player the player this Pane represents
+     */
 
     public void setupPlayer(ReducedPlayer player) {
         name.setText(player.getName());
@@ -72,6 +94,11 @@ public class PlayerPane extends VBox implements Initializable {
         board.setupTowers(player.getSchoolBoard().getTowers(),player.getTeam());
         updatePlayer(player);
     }
+
+    /**
+     * Updates PlayerPane with info from the player
+     * @param player the player this Pane represents
+     */
 
     public void updatePlayer(ReducedPlayer player) {
         towers.setText(String.valueOf(player.getSchoolBoard().getTowers()));
@@ -85,6 +112,11 @@ public class PlayerPane extends VBox implements Initializable {
             board.updateRow(c,player.getSchoolBoard().getDiningRoom().get(c),player.getSchoolBoard().getProfessorTable().get(c));
         }
     }
+
+    /**
+     * This method returns the name of the player this Pane belongs to
+     * @return String the name of the player
+     */
 
     public String getName() {
         return this.name.getText();

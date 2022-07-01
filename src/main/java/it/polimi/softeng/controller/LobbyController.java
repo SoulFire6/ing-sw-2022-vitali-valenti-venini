@@ -12,11 +12,12 @@ import java.io.*;
 import java.lang.Exception;
 import java.util.*;
 
+/**
+ Controller class that handles a game lobby
+ */
 public class LobbyController {
 
-    /**
-     Controller class that handles a game lobby
-     */
+
     private final Game game;
     private final String lobbyName;
     private final TurnManager turnManager;
@@ -29,7 +30,7 @@ public class LobbyController {
     //Constructor for new game
     /**
      * This method is the constructor of the LobbyController class.
-     * @param playerNames ArrayList<String> names of the players of current game
+     * @param playerNames ArrayList of String, names of the players of current game
      * @param expertMode boolean set to false if the game is in normal mode, set to true if the game is in expert mode
      * @param lobbyName String used to identify the lobby when creating messages to send to clients
      * @param saveFile File where the game state is saved
@@ -307,7 +308,7 @@ public class LobbyController {
      * @param inMessage the Message sent by the Player
      * @exception LobbyClientDisconnectedException when a client disconnects
      * @exception GameIsOverException when the game is over
-     * @return ArrayList<Message> response the Messages of response to the Clients from the Server
+     * @return ArrayList of Message, response the Messages of response to the Clients from the Server
      */
     public ArrayList<Message> parseMessage(Message inMessage) throws LobbyClientDisconnectedException, GameIsOverException {
         Player currentPlayer=null;
@@ -454,6 +455,7 @@ public class LobbyController {
     }
     /**
      * This method is used to calculate the winner Team when a GameIsOverException is raised
+     * @param connectedPlayers the currently still connected players, used to penalise teams with disconnected players
      * @return Team the winning team
      */
     public Team calculateWinningTeam(Set<String> connectedPlayers) {

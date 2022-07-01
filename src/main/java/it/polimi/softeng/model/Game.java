@@ -20,8 +20,8 @@ public class Game {
     /**
      * This is the class constructor, and it initializes the Game.
      * @param gameID String identifier of the game
-     * @param players ArrayList<Player> containing the players of this game
-     * @param teams ArrayList<Team> containing the teams of this game
+     * @param players ArrayList of Player, containing the players of this game
+     * @param teams ArrayList of Team, containing the teams of this game
      * @param bag the bag of the game
      * @param clouds the clouds of the game
      * @param islands the islands of the game
@@ -56,14 +56,14 @@ public class Game {
     }
 
     /**
-     * @return ArrayList<Player> containing the players of this game
+     * @return ArrayList of Player, containing the players of this game
      */
     public ArrayList<Player> getPlayers() {
         return this.players;
     }
 
     /**
-     * @return ArrayList<Team> containing the teams of this game
+     * @return ArrayList of Team, containing the teams of this game
      */
     public ArrayList<Team> getTeams() {
         return this.teams;
@@ -77,14 +77,14 @@ public class Game {
     }
 
     /**
-     * @return ArrayList<Cloud_Tile> containing the Cloud_Tile instances of this game
+     * @return ArrayList of Cloud_Tile, containing the Cloud_Tile instances of this game
      */
     public ArrayList<Cloud_Tile> getClouds() {
         return this.clouds;
     }
 
     /**
-     * @return ArrayList<Island_Tile> containing the Island_Tile instances of this game
+     * @return ArrayList of Island_Tile, containing the Island_Tile instances of this game
      */
     public ArrayList<Island_Tile> getIslands() {
         return this.islands;
@@ -112,7 +112,7 @@ public class Game {
     }
 
     /**
-     * @return ArrayList<CharacterCard> containing the character cards of the current game
+     * @return ArrayList of CharacterCard, containing the character cards of the current game
      */
     public ArrayList<CharacterCard> getCharacterCards() {
         return this.characterCards;

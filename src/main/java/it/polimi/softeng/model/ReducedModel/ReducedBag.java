@@ -30,7 +30,7 @@ public class ReducedBag implements Serializable {
     }
 
     /**
-     * @return EnumMap<Colour,Integer> the student discs contained in the bag
+     * @return Colour EnumMap of Integer, the student discs contained in the bag
      */
     public EnumMap<Colour,Integer> getContents() {
         return this.contents.clone();

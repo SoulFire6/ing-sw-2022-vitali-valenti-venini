@@ -3,7 +3,13 @@ package it.polimi.softeng.model;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Test class for Cloud_Tile
+ */
 public class CloudTest {
+    /**
+     * Tests constructor
+     */
     @Test
     public void testCloudConstructor() {
         String testID="test";
@@ -12,6 +18,9 @@ public class CloudTest {
         assertEquals(testID,cloud.getTileID());
         assertEquals(testMaxSlots,cloud.getMaxSlots());
     }
+    /**
+     * Tests setter for max slots
+     */
     @Test
     public void testSetMaxSlots() {
         int testMax=3;
@@ -20,6 +29,9 @@ public class CloudTest {
         cloud.setMaxSlots(testMax);
         assertEquals(testMax,cloud.getMaxSlots());
     }
+    /**
+     * Tests filling cloud
+     */
     @Test
     public void testFillCloud() {
         int fillAmount=5;

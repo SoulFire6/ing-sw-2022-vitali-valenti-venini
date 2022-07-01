@@ -39,7 +39,7 @@ public class ReducedIsland implements Serializable {
      }
 
     /**
-     * @return EnumMap<Colour, Integer> the student disks contained in this reduced island
+     * @return Colour EnumMap of Integer, the student disks contained in this reduced island
      */
     public EnumMap<Colour, Integer> getContents() {
         return contents.clone();

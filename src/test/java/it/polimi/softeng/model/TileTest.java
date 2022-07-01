@@ -8,8 +8,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+/**
+ * Test class for Tile
+ */
 public class TileTest {
-    //Class implementation for tests only
+    /**
+     * Class implementation for tests
+     */
     private static class Test_Tile extends Tile{
         private Test_Tile() {
             super();
@@ -18,18 +23,26 @@ public class TileTest {
             super(num);
         }
     }
-
+    /**
+     * Tests default constructor
+     */
     @Test
     public void testTileBaseConstructor() {
         Tile tile=new Test_Tile();
         assertEquals(0,tile.getFillAmount());
     }
+    /**
+     * Tests constructor with passed int argument
+     */
     @Test
     public void testTileConstructorWithNum() {
         int num=5;
         Tile tile=new Test_Tile(num);
         assertEquals(num*Colour.values().length,tile.getFillAmount());
     }
+    /**
+     * Tests getter for id
+     */
     @Test
     public void testTileID() {
         String testID="test";
@@ -37,6 +50,9 @@ public class TileTest {
         tile.setTileID(testID);
         assertEquals(testID,tile.getTileID());
     }
+    /**
+     * Tests adding int to contents of a certain colours
+     */
     @Test
     public void testAddColour() {
         int num=10;
@@ -51,6 +67,9 @@ public class TileTest {
             }
         }
     }
+    /**
+     * Tests removing a disk
+     */
     @Test
     public void testRemoveColour() {
         int num=5;
@@ -68,6 +87,9 @@ public class TileTest {
         assertEquals(false,tile.removeColour(randColour,10));
         assertNull(tile.removeColour(randColour,-1));
     }
+    /**
+     * Tests removing more disks than available
+     */
     @Test
     public void testRemoveColourWithValueHigherThanCurrent() {
         int num=5;
@@ -82,6 +104,9 @@ public class TileTest {
             }
         }
     }
+    /**
+     * Tests getter and setter for content
+     */
     @Test
     public void testContents() {
         int idx=10;
@@ -95,6 +120,9 @@ public class TileTest {
             assertEquals(testContents.get(c),tile.getContents().get(c));
         }
     }
+    /**
+     * Tests adding disks with int
+     */
     @Test
     public void testAddStudentsWithNum() {
         int initialNum=10;
@@ -105,6 +133,9 @@ public class TileTest {
             assertEquals(initialNum+addedNum,tile.getContents().get(c).intValue());
         }
     }
+    /**
+     * Tests adding disks with EnumMap
+     */
     @Test
     public void testAddStudentsWithEnumMap() {
         int idx=10;
@@ -119,6 +150,9 @@ public class TileTest {
             assertEquals(testStudents.get(c)+initialNum,tile.getContents().get(c).intValue());
         }
     }
+    /**
+     * Tests clearing tile contents
+     */
     @Test
     public void testEmptyTile() {
         Tile tile=new Test_Tile(10);
@@ -127,6 +161,9 @@ public class TileTest {
             assertEquals(0,(int)tile.getContents().get(c));
         }
     }
+    /**
+     * Tests empty tile
+     */
     @Test
     public void testIsEmpty() {
         Tile tile=new Test_Tile();

@@ -21,6 +21,9 @@ import java.util.EnumMap;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+/**
+ * Class that defines the command line view
+ */
 public class CLI implements View {
     private String username=null;
     private final BufferedReader in;
@@ -35,6 +38,9 @@ public class CLI implements View {
     private static final Integer DEFAULT_PORT=50033;
     private static final String IP_FORMAT="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}+([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$";
 
+    /**
+     * Default constructor
+     */
     public CLI() {
         boolean loadStatus=true;
         this.in=new BufferedReader(new InputStreamReader(System.in));
@@ -48,6 +54,9 @@ public class CLI implements View {
         }
         this.supportsAnsiCodes=loadStatus && (System.getProperty("os.name").contains("Mac") || System.getProperty("os.name").contains("Linux") || System.getProperty("java.class.path").contains("idea_rt.jar"));
     }
+    /**
+     * Wrapping launch method inherited from Runnable so that both views can be instantiated in the same way
+     */
     @Override
     public void run() {
         clearScreen();
@@ -91,6 +100,11 @@ public class CLI implements View {
         }
     }
 
+    /**
+     * This method sets up the Socket
+     * @param args the arguments to try using as default arguments
+     * @return ObjectInputStream the object stream for receiving messages
+     */
     @Override
     public ObjectInputStream setUpConnection(String[] args) {
         String ip;
@@ -163,6 +177,10 @@ public class CLI implements View {
         }
     }
 
+    /**
+     * Recursive method that checks input until a valid username is chosen
+     * @param username the default username or input to check
+     */
     private void setUsername(String username) {
         if (username!=null) {
             if (username.length()<3 || username.length()>10 || username.contains(" ")) {
@@ -185,7 +203,10 @@ public class CLI implements View {
             }
         }
     }
-
+    /**
+     * Recursive method that checks input until a valid ip is chosen
+     * @param ip the default ip or input to check
+     */
     private String setIp(String ip) {
         Pattern pattern=Pattern.compile(IP_FORMAT);
         if (ip==null) {
@@ -207,7 +228,10 @@ public class CLI implements View {
         }
         return setIp(null);
     }
-
+    /**
+     * Recursive method that checks input until a valid port is chosen
+     * @param port the default port or input to check
+     */
     private int setPort(String port) {
         if (port==null) {
             System.out.print("Server port (local or empty for default 50033) [49152-65535]: ");
@@ -235,6 +259,9 @@ public class CLI implements View {
         return setPort(null);
     }
 
+    /**
+     * This method closes the Socket
+     */
     @Override
     public void closeConnection() {
         try {
@@ -246,6 +273,11 @@ public class CLI implements View {
             System.exit(-1);
         }
     }
+
+    /**
+     * This method displays the message received from server
+     * @param message the message to display
+     */
     @Override
     public void display(Message message) {
         switch (message.getSubType()) {
@@ -276,6 +308,10 @@ public class CLI implements View {
         }
     }
 
+    /**
+     * This method sends a message to the server
+     * @param message the message to send
+     */
     public void sendMessage(Message message) {
         try {
             toServer.writeObject(message);
@@ -287,6 +323,11 @@ public class CLI implements View {
         }
     }
 
+    /**
+     * This method gets CLI ANSI escape codes
+     * @param styleName name of ANSI property to search for
+     * @return String, an ANSI escape code or an empty string if those are not supported
+     */
     public String getDisplayStyle(String styleName) {
         if (!supportsAnsiCodes) {
             return "";
@@ -298,6 +339,10 @@ public class CLI implements View {
         return (char)27+displayStyle;
     }
 
+    /**
+     * This method generates and print a view of the model
+     * @param model the model to print
+     */
     private void printModel(ReducedGame model) {
         String dash=supportsAnsiCodes?"▬":"-",wall=supportsAnsiCodes?"▌":"|";
         ReducedPlayer firstPlayer,secondPlayer;
@@ -381,6 +426,13 @@ public class CLI implements View {
         System.out.println(modelUI);
     }
 
+    /**
+     * This method is used for printing the schoolboard row
+     * @param c the row colour
+     * @param t the player's team
+     * @param board the board model to get info from
+     * @return String representing a board row
+     */
     private String getSchoolBoardRow(Colour c, Team t, ReducedSchoolBoard board) {
         String wall=supportsAnsiCodes?"▌":"|";
         String tower=supportsAnsiCodes?getDisplayStyle(t.name())+"▲"+getDisplayStyle("RESET")+" ":"▲ ";
@@ -394,7 +446,14 @@ public class CLI implements View {
         schoolBoardRow.append(board.getTowers()>=((2*c.ordinal()+1))?tower:"  ").append((board.getTowers()>=(c.ordinal()+1)*2)?tower:"  ").append(wall).append("  ");
         return schoolBoardRow.toString();
     }
-
+    /**
+     * This method is used for printing a tile
+     * @param id the tile id
+     * @param  contents Colour EnumMap of Integer, the tile's contents
+     * @param motherNature boolean indicating if mothernature is on this tile (always false if not on island)
+     * @param team the team this tile belongs to (always null for clouds)
+     * @return String representing a tile
+     */
     private String getTileStats(String id, EnumMap<Colour,Integer> contents, boolean motherNature, Team team, int towerNum) {
         StringBuilder tileStats=new StringBuilder();
         if (motherNature) {
@@ -410,7 +469,11 @@ public class CLI implements View {
         }
         return tileStats.toString();
     }
-
+    /**
+     * This method generates a string representing a character card
+     * @param card the card to load info from
+     * @return a string representing a character card
+     */
     private String getCharacterData(ReducedCharacterCard card) {
         StringBuilder cardData=new StringBuilder();
         cardData.append(card.getId()).append(" (").append(card.getCost()).append(") ");
@@ -448,6 +511,9 @@ public class CLI implements View {
         return cardData.toString();
     }
 
+    /**
+     * This method tries to clear the screen based on os and the ability to support ANSI codes
+     */
     private void clearScreen() {
         if (supportsAnsiCodes) {
             System.out.println((char)27+properties.getProperty("ANSI_CLEAR"));
@@ -462,6 +528,12 @@ public class CLI implements View {
         }
     }
 
+    /**
+     * This method receives model updates and prints model, CLI ignores most small
+     * updates as whole model is passed for TurnState updates after every action
+     * @param evt A PropertyChangeEvent object describing the event source
+     *          and the property that has changed.
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         //CLI only prints model after every update has been made, as otherwise there would be more prints than needed
@@ -471,6 +543,12 @@ public class CLI implements View {
         }
     }
 
+    /**
+     * This method parses client input to generate a message
+     * @param input the inputted args to parse
+     * @return Message the message that will be sent to the server
+     * @throws MoveNotAllowedException when passed args are invalid
+     */
     public Message parseMessage(String[] input) throws MoveNotAllowedException {
         if (input.length==0 || input[0].isEmpty()) {
             System.out.println("For list of commands type help");

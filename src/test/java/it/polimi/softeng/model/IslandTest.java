@@ -7,7 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+/**
+ * Test class for Island
+ */
 public class IslandTest {
+
+    /**
+     * Tests default constructor
+     */
     @Test
     public void testIslandConstructor() {
         String testID="test";
@@ -20,12 +27,20 @@ public class IslandTest {
         assertNull(island.getPrev());
         assertFalse(island.getNoEntry());
     }
+
+    /**
+     * Tests setter and getters for mother nature
+     */
     @Test
     public void testMotherNature() {
         Island_Tile island=new Island_Tile("MotherNatureTest");
         island.setMotherNature(true);
         assertEquals(true,island.getMotherNature());
     }
+
+    /**
+     * Tests setter and getters for towers
+     */
     @Test
     public void testTower() {
         int num=8;
@@ -33,6 +48,9 @@ public class IslandTest {
         island.setTowers(num);
         assertEquals(num,island.getTowers());
     }
+    /**
+     * Tests setter and getters for team
+     */
     @Test
     public void testTeam() {
         Island_Tile island=new Island_Tile("TeamTest");
@@ -42,6 +60,9 @@ public class IslandTest {
             assertEquals(team,island.getTeam());
         }
     }
+    /**
+     * Tests pointers next and prev
+     */
     @Test
     public void testPointers() {
         String islandOneID="1";
@@ -54,6 +75,10 @@ public class IslandTest {
         assertNotEquals(one,one.getNext());
         assertEquals(one,one.getNext().getPrev());
     }
+
+    /**
+     * Tests setter and getters no entry tile
+     */
     @Test
     public void testNoEntry() {
         Island_Tile island=new Island_Tile("NoEntryTest");

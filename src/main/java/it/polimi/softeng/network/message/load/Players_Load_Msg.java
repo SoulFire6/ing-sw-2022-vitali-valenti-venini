@@ -15,7 +15,7 @@ public class Players_Load_Msg extends Load_Message {
     /**
      * @param sender String name of the player who requested the move
      * @param context String explanation of the move
-     * @param load ArrayList<Player> containing the players to be simplified
+     * @param load ArrayList of Player, containing the players to be simplified
      */
     public Players_Load_Msg(String sender, String context, ArrayList<Player> load) {
         super(MsgType.PLAYERS,sender, context);
@@ -23,7 +23,7 @@ public class Players_Load_Msg extends Load_Message {
     }
 
     /**
-     * @return ArrayList<ReducedPlayer> containing the reduced players
+     * @return ArrayList of ReducedPlayer, containing the reduced players
      */
     public ArrayList<ReducedPlayer> getLoad() {
         return this.load;

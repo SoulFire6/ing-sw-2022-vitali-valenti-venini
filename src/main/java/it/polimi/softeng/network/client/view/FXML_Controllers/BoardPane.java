@@ -20,6 +20,9 @@ import java.util.EnumMap;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
+/**
+ * This class is an fxml component controller defining a player's school board
+ */
 public class BoardPane extends AnchorPane implements Initializable {
 
     @FXML
@@ -36,6 +39,11 @@ public class BoardPane extends AnchorPane implements Initializable {
     private final EnumMap<Colour, Image> disks=new EnumMap<>(Colour.class);
 
     private MessageSender messageSender;
+
+    /**
+     * Default constructor that loads fxml file
+     */
+
     public BoardPane() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Board.fxml"));
@@ -51,6 +59,11 @@ public class BoardPane extends AnchorPane implements Initializable {
         }
     }
 
+    /**
+     * inhereted method initialize for setting up fxml components
+     * @param url default unused url
+     * @param resourceBundle default unused resource
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         for (Node node : entrance.getChildren()) {
@@ -66,9 +79,19 @@ public class BoardPane extends AnchorPane implements Initializable {
         }
     }
 
+    /**
+     * Setter for message sender
+     * @param messageSender class that sends messages to server
+     */
     public void setMessageSender(MessageSender messageSender) {
         this.messageSender=messageSender;
     }
+
+    /**
+     * This methods sets up the tower on the BoardPane, while also loading the correct image corresponding to the player's team
+     * @param num the amount of towers to set
+     * @param team the player's team which defines tower colour
+     */
     public void setupTowers(int num, Team team) {
         String teamName=team.name().charAt(0)+team.name().substring(1).toLowerCase();
         Image towerImage=new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Icons/" + teamName + "_Tower.png")).toExternalForm());
@@ -77,6 +100,12 @@ public class BoardPane extends AnchorPane implements Initializable {
         }
         updateTowers(num);
     }
+
+    /**
+     * This method updates the disks in the BoardPane entrance
+     * @param entrance the disks in the entrance
+     * @param interactive whether the disks can be interacted with to add to dining room
+     */
 
     public void updateEntrance(EnumMap<Colour,Integer> entrance, boolean interactive) {
         int idx=0;
@@ -97,11 +126,23 @@ public class BoardPane extends AnchorPane implements Initializable {
             entranceSlots.get(i).setVisible(false);
         }
     }
+
+    /**
+     * This method updates the tower num on the board
+     * @param num the amount to set
+     */
     public void updateTowers(int num) {
         for (Node node : towers.getChildren()) {
             node.setVisible(Integer.parseInt(node.getId())<=num);
         }
     }
+
+    /**
+     * This method updates the dining room of the corresponding colour c
+     * @param c the row colour to update
+     * @param num the amount of student disks in that row
+     * @param prof the presence of the professor pawn
+     */
     public void updateRow(Colour c, int num, boolean prof) {
         rows.get(c).updateRow(num,prof);
     }

@@ -7,8 +7,15 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+/**
+ * Test class for lobby controller
+ */
 public class LobbyControllerTest {
     LobbyController controller;
+
+    /**
+     * Tests creating a new game
+     */
     @Test
     public void testCreateGame() {
         ArrayList<String> playerNames=new ArrayList<>();

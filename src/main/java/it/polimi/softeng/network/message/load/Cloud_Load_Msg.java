@@ -15,7 +15,7 @@ public class Cloud_Load_Msg extends Load_Message{
     /**
      * @param sender String name of the player who requested the move
      * @param context String explanation of the move
-     * @param load ArrayList<Cloud_Tile> containing the cloud tiles to be loaded
+     * @param load ArrayList of Cloud_Tile containing the cloud tiles to be loaded
      */
     public Cloud_Load_Msg(String sender, String context, ArrayList<Cloud_Tile> load) {
         super(MsgType.CLOUDS,sender,context);
@@ -23,7 +23,7 @@ public class Cloud_Load_Msg extends Load_Message{
     }
 
     /**
-     * @return ArrayList<ReducedCloud> containing the reduced versions of the cloud tiles
+     * @return ArrayList of ReducedCloud, containing the reduced versions of the cloud tiles
      */
     public ArrayList<ReducedCloud> getLoad() {
         return this.load;

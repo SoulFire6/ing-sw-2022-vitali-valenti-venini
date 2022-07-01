@@ -18,7 +18,7 @@ public class Bag_Tile extends Tile {
     /**
      * This method is used to randomly draw num students from the bag
      * @param num int number of students to randomly draw
-     * @return EnumMap<Colour,Integer>, containing the drawn student disks (the EnumMap contains for each Colour the corresponding Integer number of drawn student disks)
+     * @return Colour EnumMap of Integer, containing the drawn student disks (the EnumMap contains for each Colour the corresponding Integer number of drawn student disks)
      */
     public EnumMap<Colour,Integer> drawStudents(int num) {
         EnumMap<Colour,Integer> contents=this.getContents();

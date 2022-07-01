@@ -41,14 +41,14 @@ public abstract class Tile {
     }
 
     /**
-     * @return EnumMap<Colour, Integer> the content of the Tile
+     * @return Colour EnumMap of Integer, the content of the Tile
      */
     public EnumMap<Colour, Integer> getContents() {
         return this.contents;
     }
 
     /**
-     * @param contents the EnumMap<Colour,Integer> to set the contents to, representing each student disk colour with the corresponding number to be set in the Tile contents attribute
+     * @param contents the Colour EnumMap of Integer to set the contents to, representing each student disk colour with the corresponding number to be set in the Tile contents attribute
      */
     public void setContents(EnumMap<Colour,Integer> contents) {
         this.contents=contents;
@@ -67,7 +67,7 @@ public abstract class Tile {
      * This method removes a number of student disks of the same colour from contents. If num does exceed the number of students in contents, all students of this colour are removed from contents.
      * @param c Colour of the student disks to be removed from the Tile contents attribute
      * @param num number of student disks of colour c to be removed from contents
-     * @return true if all desired student disks have been removed, false if num exceeds the number of student disks present, null if num<0
+     * @return true if all desired student disks have been removed, false if num exceeds the number of student disks present, null if num below 0
      */
     //Sets it to zero if the removed amount is higher
     //than the current amount
@@ -97,8 +97,8 @@ public abstract class Tile {
     }
 
     /**
-     * This method adds the content of an EnumMap<Colour,Integer> into contents
-     * @param added the EnumMap<Colour,Integer> to add
+     * This method adds the content of a Colour EnumMap of Integer into contents
+     * @param added the Colour EnumMap of Integer, to add
      */
     //Adds the contents of an EnumMap into contents
     public void addStudents(EnumMap<Colour,Integer> added) {

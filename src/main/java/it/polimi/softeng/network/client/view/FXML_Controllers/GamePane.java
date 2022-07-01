@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * This class is a custom FXML component controller that represents a whole game
+ */
 public class GamePane extends AnchorPane implements Initializable {
     @FXML
     PlayerPane you, oppositePlayer, leftPlayer, rightPlayer;
@@ -53,6 +56,10 @@ public class GamePane extends AnchorPane implements Initializable {
     private final HashMap<String,PlayerPane> playerPanes=new HashMap<>();
     private MessageSender messageSender;
     private final Properties characterInfo=new Properties();
+
+    /**
+     * Default constructor that loads the fxml file
+     */
     public GamePane() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Game.fxml"));
@@ -69,6 +76,11 @@ public class GamePane extends AnchorPane implements Initializable {
         }
     }
 
+    /**
+     * Inherited intialize method that sets up fxml components
+     * @param url unused default url
+     * @param resourceBundle unused default resource
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         for (Node node : tiles.getChildren()) {
@@ -93,6 +105,10 @@ public class GamePane extends AnchorPane implements Initializable {
         });
     }
 
+    /**
+     * This method adds a message to the chat window
+     * @param msg the message to add
+     */
     public void addChatMessage(Message msg) {
         String labelText,labelStyle="-fx-text-fill: black";
         switch (msg.getSubType()) {
@@ -121,6 +137,11 @@ public class GamePane extends AnchorPane implements Initializable {
         this.gameChat.getChildren().add(chatLabel);
     }
 
+    /**
+     * This method sets up the game pane with model data
+     * @param model the model to load
+     * @throws UpdateGUIException if there is an error updating part of the GUI
+     */
     public void setupGame(ReducedGame model) throws UpdateGUIException {
         updateIslands(model.getIslands());
         updateClouds(model.getClouds());
@@ -151,6 +172,10 @@ public class GamePane extends AnchorPane implements Initializable {
         updateTurnState(model);
     }
 
+    /**
+     * Setter for messageSender, also sets it for all child nodes that need it like IslandPanes, CloudPanes and PlayerPanes
+     * @param messageSender the messageSender to set
+     */
     public void setMessageSender(MessageSender messageSender) {
         this.messageSender=messageSender;
         for (IslandPane island : visibleIslands) {
@@ -163,6 +188,12 @@ public class GamePane extends AnchorPane implements Initializable {
             player.setMessageSender(messageSender);
         }
     }
+
+    /**
+     * This methods updates the IslandPanes with info from the model islands
+     * @param reducedIslands the model islands
+     * @throws UpdateGUIException if mother nature island cannot be found
+     */
     public void updateIslands(ArrayList<ReducedIsland> reducedIslands) throws UpdateGUIException {
         Optional<ReducedIsland> motherNatureIsland=reducedIslands.stream().filter(ReducedIsland::hasMotherNature).findFirst();
         if (motherNatureIsland.isEmpty()) {
@@ -181,6 +212,10 @@ public class GamePane extends AnchorPane implements Initializable {
         visibleIslands.removeIf(islandPane -> !islandPane.isVisible());
     }
 
+    /**
+     * This method updates the cloud tiles from model clouds
+     * @param reducedClouds the model clouds
+     */
     public void updateClouds(ArrayList<ReducedCloud> reducedClouds) {
         boolean found;
         for (CloudPane cloud : visibleClouds) {
@@ -198,13 +233,20 @@ public class GamePane extends AnchorPane implements Initializable {
         visibleClouds.removeIf(cloudPane -> !cloudPane.isVisible());
     }
 
+    /**
+     * this method updates a single PlayerPane
+     * @param player the player to load into PlayerPane
+     */
     public void updatePlayer(ReducedPlayer player) {
         playerPanes.get(player.getName()).updatePlayer(player);
         if (player.getName().equals(messageSender.getSender())) {
             updateHand(player.getSchoolBoard().getHand());
         }
     }
-
+    /**
+     * this method updates the player's hand
+     * @param cards the cards to load
+     */
     public void updateHand(ArrayList<ReducedAssistantCard> cards) {
         assistantCards.getItems().clear();
         if (assistantCards.getContextMenu()!=null) {
@@ -221,12 +263,20 @@ public class GamePane extends AnchorPane implements Initializable {
         }
         assistantCards.setPrefWidth(assistantCards.getChildrenUnmodifiable().size()*62);
     }
+    /**
+     * this method updates the turnstate, but also the bag tile and the game coins
+     * @param model the model to load
+     */
     public void updateTurnState(ReducedGame model) {
         updateBag(model.getBag());
         updateCoins(model.getCoins());
         currentPhase.setText("Current phase: "+model.getCurrentPhase().getDescription()+(model.getCurrentPhase().equals(TurnManager.TurnState.MOVE_STUDENTS_PHASE)?"(Remaining moves: "+model.getRemainingMoves()+")":""));
         currentPlayer.setText("Current player:"+model.getCurrentPlayer());
     }
+    /**
+     * this method updates the character cards
+     * @param cards the cards to laod
+     */
     public void updateCharacterCards(ArrayList<ReducedCharacterCard> cards) {
         characterCards.getChildren().clear();
         Button characterCard;
@@ -249,15 +299,22 @@ public class GamePane extends AnchorPane implements Initializable {
             characterCard.setOnAction(event->messageSender.sendMessage(MsgType.PLAYCHARCARD,card.getId(),""));
         }
     }
+    /**
+     * this method updates the game coins
+     * @param num the current value of game coins
+     */
     public void updateCoins(int num) {
         Tooltip.install(coins,new Tooltip("Game coins: "+num));
     }
+    /**
+     * this method updates the bag
+     * @param bag the bag to load
+     */
     public void updateBag(ReducedBag bag) {
         StringBuilder toolTip=new StringBuilder();
         for (Colour c : Colour.values()) {
             toolTip.append(c.name()).append(": ").append(bag.getContents().get(c)).append("-");
         }
         Tooltip.install(this.bag,new Tooltip(toolTip.substring(0,toolTip.length()-1).replace("-","\n")));
-        //TODO implement
     }
 }

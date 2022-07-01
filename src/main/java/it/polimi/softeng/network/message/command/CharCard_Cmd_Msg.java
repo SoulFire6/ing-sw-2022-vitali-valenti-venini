@@ -28,6 +28,10 @@ public class CharCard_Cmd_Msg extends Command_Message {
         return this.charID;
     }
 
+    /**
+     * Getter for options
+     * @return Object options
+     */
     public Object getOptions() {
         return this.options;
     }

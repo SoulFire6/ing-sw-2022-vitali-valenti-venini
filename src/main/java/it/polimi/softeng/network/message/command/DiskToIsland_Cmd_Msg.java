@@ -28,6 +28,11 @@ public class DiskToIsland_Cmd_Msg extends Command_Message {
     public Colour getColour() {
         return colour;
     }
+
+    /**
+     * Getter for island id
+     * @return String island id
+     */
     public String getIslandID() {
         return this.islandID;
     }

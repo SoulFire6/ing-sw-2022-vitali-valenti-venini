@@ -1,7 +1,5 @@
 package it.polimi.softeng.controller;
 
-import it.polimi.softeng.exceptions.InsufficientResourceException;
-import it.polimi.softeng.exceptions.TileNotFoundException;
 import it.polimi.softeng.model.Player;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
 
@@ -19,14 +17,33 @@ public class TurnManager {
     private final int maxMoves;
     private int remainingMoves;
 
-
+    /**
+     * Inner enum class that defines different phases of the game
+     */
     public enum TurnState {
+        /**
+         * Defines the planning phase where assistant cards are played
+         */
         ASSISTANT_CARDS_PHASE("playing assistant cards"),
+        /**
+         * Defines the part of the action phase where student disks are moved
+         */
         MOVE_STUDENTS_PHASE("moving student disks"),
+        /**
+         * Defines the part of the action phase where mother nature is moved
+         */
         MOVE_MOTHER_NATURE_PHASE("moving mother nature"),
+        /**
+         * Defines the part of the action phase where a cloud is chosen
+         */
         CHOOSE_CLOUD_TILE_PHASE("choosing cloud");
 
         private final String description;
+
+        /**
+         * Default constructor for Turnstate
+         * @param description the description of the current phase
+         */
         TurnState(String description) {
             this.description=description;
         }
@@ -127,24 +144,52 @@ public class TurnManager {
         currentPlayer=playerOrder.get(0);
     }
 
+    /**
+     * Getter for current player
+     * @return Player the current player
+     */
     public Player getCurrentPlayer() {
         return this.currentPlayer;
     }
+    /**
+     * Getter for next player
+     * @return Player the next player
+     */
     public Player getNextPlayer() {
         return this.playerOrder.get((playerOrder.indexOf(currentPlayer)+1)%playerOrder.size());
     }
+    /**
+     * Getter for last player
+     * @return Player the last player of the phase
+     */
     public Player getLastPlayer() {
         return this.playerOrder.get(playerOrder.size()-1);
     }
+    /**
+     * Getter for turnstate
+     * @return TurnState current turnstate
+     */
     public TurnState getTurnState() {
         return this.turnState;
     }
+    /**
+     * Getter for maxMoves
+     * @return int maxMoves
+     */
     public int getMaxMoves() {
         return this.maxMoves;
     }
+    /**
+     * Getter for remainingMoves
+     * @return int remainingMoves
+     */
     public int getRemainingMoves() {
         return this.remainingMoves;
     }
+    /**
+     * Getter for playerOrder
+     * @return ArrayList of Player, the player order
+     */
     public ArrayList<Player> getPlayerOrder() {
         return this.playerOrder;
     }

@@ -18,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+/**
+ * Tets class for PlayerController
+ */
 public class PlayerControllerTest {
     private static final PlayerController playerController=new PlayerController();
     private static final boolean printTestResults=false;
@@ -36,6 +39,10 @@ public class PlayerControllerTest {
         }
 
     }
+
+    /**
+     * Tests player generation
+     */
     @Test
     //Test for method genPlayers which generates players with teams
     public void testGenPlayers() {
@@ -64,6 +71,10 @@ public class PlayerControllerTest {
             }
         }
     }
+
+    /**
+     * Tests getting teams from player list
+     */
     @Test
     //Test for method getTeams
     public void testGetTeam() {
@@ -78,6 +89,9 @@ public class PlayerControllerTest {
             }
         }
     }
+    /**
+     * Tests getting player list for team
+     */
     @Test
     //Test for method getPlayersOnTeam
     public void testGetPlayersOnTeam() {
@@ -109,6 +123,9 @@ public class PlayerControllerTest {
             assertEquals(num,i);
         }
     }
+    /**
+     * Tests getting arraylist of teams in player list
+     */
     @Test
     public void testGetTeamColours() {
         Colour c=Colour.getRandomColour();
@@ -126,7 +143,9 @@ public class PlayerControllerTest {
             assertEquals(1,teamColours.size());
         }
     }
-
+    /**
+     * Tests generating the wrong amount of players
+     */
     @Test
     public void testInvalidPlayerNumExceptionOnPlayerGen() {
         ArrayList<String> playerNames=new ArrayList<>();
@@ -137,6 +156,9 @@ public class PlayerControllerTest {
         assertThrows(InvalidPlayerNumException.class,()->playerController.genPlayers(playerNames));
     }
 
+    /**
+     * Tests moving student disk
+     */
     @Test
     public void testMoveStudentToDiningRoom() {
         Colour c=Colour.getRandomColour();
@@ -162,7 +184,9 @@ public class PlayerControllerTest {
         assertTrue(testPlayer.getSchoolBoard().getProfessor(c));
         assertFalse(professorPlayer.getSchoolBoard().getProfessor(c));
     }
-
+    /**
+     * Tests swapping towers between islands and players
+     */
     @Test
     public void testSwapTowers() {
         int testSwapTowerNum=6;
@@ -178,6 +202,9 @@ public class PlayerControllerTest {
         assertEquals(testSwapTowerNum,testPlayers.get(1).getSchoolBoard().getTowers());
     }
 
+    /**
+     * Tests tower swapping with 2 player on each team
+     */
     @Test
     public void testSwapFourPlayer() {
         int testSwapTowerNum=6;

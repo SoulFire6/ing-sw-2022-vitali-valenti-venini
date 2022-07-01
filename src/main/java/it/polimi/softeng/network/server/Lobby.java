@@ -321,7 +321,7 @@ public class Lobby implements Runnable {
     }
 
     /**
-     * @return HashMap<String,LobbyClient> representing the clients of the lobby
+     * @return HashMap of LobbyClient, representing the clients of the lobby
      */
     public HashMap<String,LobbyClient> getClients() {
         return this.clients;

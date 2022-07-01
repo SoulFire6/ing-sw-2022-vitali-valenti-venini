@@ -4,7 +4,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+/**
+ * Test class for Player
+ */
 public class PlayerTest {
+    /**
+     * Tests Player constructor
+     */
     @Test
     public void testPlayerConstructor() {
         String testName="test_player";
@@ -15,6 +21,9 @@ public class PlayerTest {
         assertNull(testPlayer.getTeamMate());
         assertNull(testPlayer.getSchoolBoard());
     }
+    /**
+     * Tests setters and getters for teamMate
+     */
     @Test
     public void testTeamMate() {
         Player playerOne=new Player("one",Team.WHITE);
@@ -25,6 +34,9 @@ public class PlayerTest {
         assertEquals(playerTwo,playerOne.getTeamMate());
         assertEquals(playerOne.getTeam(),playerTwo.getTeam());
     }
+    /**
+     * Tests setters and getters for schoolBoard
+     */
     @Test
     public void testSchoolBoard() {
         Player testPlayer=new Player("test",Team.WHITE);

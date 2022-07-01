@@ -30,14 +30,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-//GUI Controller
-public class GUI_ActionHandler implements Initializable, PropertyChangeListener {
-
+/**
+ * This class is the main GUI fxml controller
+ */
+public class GUI_ActionHandler implements PropertyChangeListener {
     private Parent root;
     private Socket socket;
-
     private MessageSender messageSender;
-
     @FXML
     BorderPane mainPane;
     @FXML
@@ -46,6 +45,10 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
     private VBox inputPane;
     @FXML
     private GamePane gamePane;
+
+    /**
+     * Default constructor
+     */
     public GUI_ActionHandler() {
         try {
             FXMLLoader loader=new FXMLLoader(getClass().getResource("/Assets/GUI/fxml/Eriantys.fxml"));
@@ -56,14 +59,19 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
             io.printStackTrace();
         }
     }
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-    }
 
+    /**
+     * Getter for fxml root
+     * @return root, the main scene root
+     */
     public Parent getRoot() {
         return root;
     }
 
+    /**
+     * This method sets up the TextField with passed arguments
+     * @param args the passed arguments
+     */
     public void setupLoginParams(String[] args) {
         TextField textField=this.loginPane.getUsernameField();
         if (textField!=null && textField.getText().isEmpty()) {
@@ -79,6 +87,9 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
         }
     }
 
+    /**
+     * This method tries to establish a Socket and therefore also a messagesender
+     */
     public void tryConnection() {
         if (this.loginPane!=null && this.loginPane.getValidLogin()) {
             try {
@@ -99,10 +110,19 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
             }
         }
     }
+
+    /**
+     * Getter for the socket
+     * @return Socket the socket created by the gui
+     */
     public Socket getSocket() {
         return socket;
     }
 
+    /**
+     * This method decides how to handle and display messages on the gui
+     * @param message the message to process
+     */
     public void display(Message message) {
         switch (message.getSubType()) {
             case INPUT:
@@ -194,15 +214,29 @@ public class GUI_ActionHandler implements Initializable, PropertyChangeListener 
         }
     }
 
+    /**
+     * Closes socket connection
+     */
     public void closeConnection() {
         try {
             messageSender.closeConnection();
             socket.close();
+            Alert alert=new Alert(Alert.AlertType.INFORMATION,"Connection closed");
+            alert.setOnCloseRequest(event->{
+                Platform.exit();
+                System.exit(0);
+            });
+            alert.showAndWait();
         }
         catch (IOException ignored) {
         }
     }
 
+    /**
+     * Triggers when a property has changed in the model
+     * @param evt A PropertyChangeEvent object describing the event source
+     *          and the property that has changed.
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         Platform.runLater(()->{

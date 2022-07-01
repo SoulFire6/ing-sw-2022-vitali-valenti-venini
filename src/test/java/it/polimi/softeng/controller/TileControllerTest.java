@@ -5,6 +5,7 @@ import it.polimi.softeng.model.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,8 +14,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.fail;
 
+/**
+ * Test class for TileController
+ */
 public class TileControllerTest {
     private static final TileController tileController=new TileController();
+    /**
+     * Tests island generation
+     */
     @Test
     public void testGenIslands() {
         int testNum=12;
@@ -24,7 +31,9 @@ public class TileControllerTest {
         //testNum-2 islands have a student disk so testNum * 5 colours - testNum + 2 = testNum*4 + 2
         assertEquals((testNum*4)+2,testBag.getFillAmount());
     }
-
+    /**
+     * Tests refilling clouds
+     */
     @Test
     public void testGenAndRefillClouds() {
         int testNum=4;
@@ -44,12 +53,28 @@ public class TileControllerTest {
         assertDoesNotThrow(()->tileController.refillClouds(clouds,testBag));
         assertEquals(testBagNum,testBag.getFillAmount());
     }
-
+    /**
+     * Tests moving motherNature
+     */
     @Test
     public void testMoveMotherNature() {
-        //TODO add test once method is finalised
+        PlayerController playerController=new PlayerController();
+        try {
+            ArrayList<Player> players=playerController.genPlayers(new ArrayList<>(Arrays.asList("test","test2")));
+            for (Player player : players) {
+                player.setSchoolBoard(new SchoolBoard_Tile("",0,0,0,null,0));
+                player.getSchoolBoard().setLastUsedCard(new AssistantCard("",0,5));
+            }
+            ArrayList<Island_Tile> islands=tileController.genIslands(12,new Bag_Tile(2));
+            assertDoesNotThrow(()->tileController.moveMotherNature(players.get(0),1,null,players,null,islands,playerController));
+        }
+        catch (InvalidPlayerNumException invalidPlayerNumException) {
+            fail();
+        }
     }
-
+    /**
+     * Tests moving student disk to island
+     */
     @Test
     public void testMoveStudentToIsland() {
         Colour c=Colour.getRandomColour();
@@ -66,7 +91,9 @@ public class TileControllerTest {
         testPlayer.getSchoolBoard().setContents(entrance);
         assertDoesNotThrow(()->tileController.moveStudentsToIsland(testPlayer,c,islandID,islands));
     }
-
+    /**
+     * Tests refilling entrance from cloud
+     */
     @Test
     public void testRefillEntranceFromCloud() {
         int testNum=4;
@@ -79,7 +106,9 @@ public class TileControllerTest {
         assertEquals(testNum,testPlayer.getSchoolBoard().getFillAmount());
         assertThrows(TileEmptyException.class,()->tileController.refillEntranceFromCloud(testPlayer,cloudID,clouds));
     }
-
+    /**
+     * Tests calculating influence
+     */
     @Test
     public void testInfluence() {
         PlayerController playerController=new PlayerController();
@@ -108,7 +137,9 @@ public class TileControllerTest {
         assertNotEquals(Team.GREY,islands.get(0).getTeam());
         assertEquals(players.get(0).getTeam(),islands.get(0).getTeam());
     }
-
+    /**
+     * Tests island merging
+     */
     @Test
     public void testMergeIslands() {
         int testNum=12;

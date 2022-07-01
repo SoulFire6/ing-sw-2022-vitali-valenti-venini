@@ -70,6 +70,8 @@ public class ReducedCharacterCard implements Serializable {
 
     /**
      * @return the memory of the character card
+     * @param <V> the class to cast to
+     * @param valueClass the class to cast to
      */
 
     public <V> EnumMap<Colour, V> getMemory(Class<V> valueClass) {

@@ -30,7 +30,7 @@ public class ReducedCloud implements Serializable {
     }
 
     /**
-     * @return EnumMap<Colour,Integer> that represents the student disks content of the cloud
+     * @return colour EnumMap of Integer, that represents the student disks content of the cloud
      */
     public EnumMap<Colour,Integer> getContents() {
         return this.contents.clone();

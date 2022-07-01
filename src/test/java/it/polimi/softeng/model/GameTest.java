@@ -8,8 +8,13 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
+/**
+ * Test class for Game
+ */
 public class GameTest {
+    /**
+     * Tests constructor
+     */
     @Test
     public void testGameConstructor() {
         String testID="Game";
@@ -45,6 +50,9 @@ public class GameTest {
         assertEquals(cards,game.getCharacterCards());
 
     }
+    /**
+     * Tests setting coins
+     */
     @Test
     public void testSetCoins() {
         PlayerController playerController=new PlayerController();

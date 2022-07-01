@@ -3,7 +3,13 @@ package it.polimi.softeng.model;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * JUnit tests for AssistantCard
+ */
 public class AssistantCardTest {
+    /**
+     * Testing default constructor
+     */
     @Test
     public void testAssistantCardConstructor() {
         String testID="test";

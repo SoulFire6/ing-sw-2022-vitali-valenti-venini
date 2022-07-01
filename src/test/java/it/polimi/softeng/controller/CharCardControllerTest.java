@@ -9,13 +9,20 @@ import org.junit.jupiter.api.BeforeEach;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Test class for CharCardController
+ */
 
 public class CharCardControllerTest {
     CharCardController charController;
     ArrayList<CharacterCard> cards;
+
+    /**
+     * Tests character card generation
+     */
 
     @Test @BeforeEach
     public void testGenCards() {
@@ -25,11 +32,19 @@ public class CharCardControllerTest {
         assertEquals(testNum,cards.size());
     }
 
+    /**
+     * Tests generating more cards than possible, resulting in null
+     */
+
     @Test
     public void testGenNullCards() {
         cards=charController.genNewCharacterCards(13,null);
         assertNull(cards);
     }
+
+    /**
+     * Tests activating character card
+     */
 
     @Test
     public void testActivateCardAndStatus() {
@@ -72,6 +87,10 @@ public class CharCardControllerTest {
         }
     }
 
+    /**
+     * Tests correct deactivation of cards
+     */
+
     @Test
     public void testDeactivateAllCards() {
         charController=new CharCardController();
@@ -85,6 +104,10 @@ public class CharCardControllerTest {
             assertFalse(card.isActive());
         }
     }
+
+    /**
+     * Tests shroom vendor effect
+     */
 
     @Test
     public void testDisabledColour() {
@@ -116,6 +139,10 @@ public class CharCardControllerTest {
         assertTrue(shroomCard.isActive());
         assertTrue(shroomCard.getCharacter().getMemory(Boolean.class).get(c));
     }
+
+    /**
+     * Tests activating argument-less cards
+     */
 
     @Test
     public void testCardSetup() {
