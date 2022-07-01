@@ -22,7 +22,7 @@ public class Client {
 
     /**
      * Default constructor
-     * @param args args to pass to setup connection
+     * @param args args to pass to set up connection
      */
     public Client(String[] args) {
         this.view=(args[3].equals("GUI")?new GUI():new CLI());

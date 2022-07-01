@@ -6,7 +6,7 @@ import it.polimi.softeng.network.message.MsgType;
  * This class represents a command message, used when mother nature is going to move
  */
 public class MoveMotherNature_Cmd_Msg extends Command_Message {
-    int moveAmount;
+    final int moveAmount;
 
     /**
      * @param sender String name of the player who requested the move

@@ -3,7 +3,6 @@ package it.polimi.softeng.network.client.view.FXML_Controllers;
 import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.CharID;
-import it.polimi.softeng.model.CharacterCard;
 import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.network.message.Info_Message;
@@ -13,7 +12,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -22,9 +20,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-
-import javax.tools.Tool;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -45,7 +40,6 @@ public class GamePane extends AnchorPane implements Initializable {
     GridPane tiles;
     @FXML
     HBox characterCards;
-
     @FXML
     ToolBar assistantCards;
     @FXML
@@ -55,7 +49,6 @@ public class GamePane extends AnchorPane implements Initializable {
     ImageView bag, coins;
     private final ArrayList<IslandPane> visibleIslands=new ArrayList<>();
     private final ArrayList<CloudPane> visibleClouds=new ArrayList<>();
-
     private final HashMap<String,PlayerPane> playerPanes=new HashMap<>();
     private MessageSender messageSender;
     private final Properties characterInfo=new Properties();
@@ -80,7 +73,7 @@ public class GamePane extends AnchorPane implements Initializable {
     }
 
     /**
-     * Inherited intialize method that sets up fxml components
+     * Inherited initialize method that sets up fxml components
      * @param url unused default url
      * @param resourceBundle unused default resource
      */
@@ -196,7 +189,7 @@ public class GamePane extends AnchorPane implements Initializable {
     }
 
     /**
-     * This methods updates the IslandPanes with info from the model islands
+     * This method updates the IslandPanes with info from the model islands
      * @param reducedIslands the model islands
      * @throws UpdateGUIException if mother nature island cannot be found
      */
@@ -294,7 +287,7 @@ public class GamePane extends AnchorPane implements Initializable {
             StringBuilder stringBuilder=new StringBuilder();
             stringBuilder.append(card.getId()).append("\nCost: ").append(card.getCost()).append(characterInfo.getProperty(card.getCharID() + "_SETUP")).append("\n").append(characterInfo.getProperty(card.getCharID() + "_EFFECT"));
             characterCard = new Button();
-            characterCard.setStyle("-fx-background-image: url('Assets/GUI/Cards/Characters/" + card.getId().replace(" ", "").concat(".png") + "');-fx-background-size: cover");
+            characterCard.setStyle("-fx-background-image: url('Assets/GUI/Cards/Characters/" + card.getId().replace(" ", "").concat(".png")+"');-fx-background-size: cover");
             characterCard.setPrefWidth(50);
             characterCard.setPrefHeight(80);
             tooltip=new Tooltip();

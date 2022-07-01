@@ -5,8 +5,6 @@ import it.polimi.softeng.model.*;
 import it.polimi.softeng.model.ReducedModel.*;
 import it.polimi.softeng.network.message.command.*;
 import it.polimi.softeng.network.message.*;
-import it.polimi.softeng.network.message.MessageCenter;
-import it.polimi.softeng.network.message.MsgType;
 
 import java.io.*;
 import java.lang.Exception;
@@ -217,7 +215,6 @@ public class LobbyController {
         //LOAD CHARACTER CARDS
         if (charCardController!=null) {
             characterCards=new ArrayList<>();
-            CharacterCard card;
             CharID character;
             for (ReducedCharacterCard reducedCharacterCard : reducedGame.getCharacterCards()) {
                 try {
@@ -387,12 +384,10 @@ public class LobbyController {
                             if (turnManager.getTurnState()!=TurnManager.TurnState.MOVE_MOTHER_NATURE_PHASE) {
                                 throw new WrongPhaseException("Cannot move mother nature during "+turnManager.getTurnState().getDescription());
                             }
-                            boolean updatePlayers=tileController.moveMotherNature(currentPlayer,((MoveMotherNature_Cmd_Msg)inMessage).getMoveAmount(),charCardController,game.getPlayers(),game.getCharacterCards(),game.getIslands(),playerController);
+                            tileController.moveMotherNature(currentPlayer,((MoveMotherNature_Cmd_Msg)inMessage).getMoveAmount(),charCardController,game.getPlayers(),game.getCharacterCards(),game.getIslands(),playerController);
                             turnManager.nextAction();
                             response.add(MessageCenter.genMessage(MsgType.ISLANDS,lobbyName,"Moved mother nature",game.getIslands()));
-                            if (updatePlayers) {
-                                response.add(MessageCenter.genMessage(MsgType.PLAYERS,lobbyName,"Swapped team",game.getPlayers()));
-                            }
+                            response.add(MessageCenter.genMessage(MsgType.PLAYERS,lobbyName,"Swapped team",game.getPlayers()));
                             actionMessage=currentPlayer.getName()+" has moved mother nature by "+((MoveMotherNature_Cmd_Msg)inMessage).getMoveAmount()+" spaces";
                             break;
                         case CHOOSECLOUD:
@@ -425,7 +420,7 @@ public class LobbyController {
                                 throw new WrongPhaseException("Cannot play character cards  "+turnManager.getTurnState().getDescription());
                             }
                             CharacterCard playedCard=charCardController.findAndCheckCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),game.getCharacterCards());
-                            charCardController.playCharacterCard(playedCard,currentPlayer,inMessage.getContext().split(" "),this);
+                            charCardController.playCharacterCard(playedCard,currentPlayer,((CharCard_Cmd_Msg) inMessage).getOptions().split(" "),this);
                             response.add(MessageCenter.genMessage(MsgType.CHARACTERCARDS,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),game.getCharacterCards()));
                             actionMessage=currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID();
                             break;

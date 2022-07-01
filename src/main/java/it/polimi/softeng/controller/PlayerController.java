@@ -22,7 +22,7 @@ public class PlayerController {
     /**
      * This method is used to get all the teams of the current game
      * @param players players of the current game
-     * @return ArrayList of Team, all of the teams that play the game
+     * @return ArrayList of Team, all the teams currently in game
      */
     public ArrayList<Team> getTeams(ArrayList<Player> players) {
         ArrayList<Team> teams= new ArrayList<>();

@@ -6,7 +6,7 @@ import it.polimi.softeng.network.message.MsgType;
  * This class represents a command message, used when a Cloud_Tile has been chosen
  */
 public class ChooseCloud_Cmd_Msg extends Command_Message {
-    String cloudID;
+    final String cloudID;
 
     /**
      * @param sender String name of the player who requested the move

@@ -6,7 +6,7 @@ import it.polimi.softeng.network.message.MsgType;
  * This class represents a command message, used when an assistant card is played.
  */
 public class AssistCard_Cmd_Msg extends Command_Message {
-    String assistID;
+    final String assistID;
 
     /**
      * @param sender String name of the player who requested the move

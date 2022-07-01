@@ -1,9 +1,7 @@
 package it.polimi.softeng.network.message.load;
 
 import it.polimi.softeng.model.CharacterCard;
-import it.polimi.softeng.model.Cloud_Tile;
 import it.polimi.softeng.model.ReducedModel.ReducedCharacterCard;
-import it.polimi.softeng.model.ReducedModel.ReducedCloud;
 import it.polimi.softeng.network.message.MsgType;
 
 import java.util.ArrayList;

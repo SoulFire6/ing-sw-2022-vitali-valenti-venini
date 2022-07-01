@@ -1,6 +1,5 @@
 package it.polimi.softeng.network.message.load;
 
-import it.polimi.softeng.model.Game;
 import it.polimi.softeng.model.ReducedModel.ReducedGame;
 import it.polimi.softeng.network.message.MsgType;
 

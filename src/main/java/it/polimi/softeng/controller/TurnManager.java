@@ -68,7 +68,7 @@ public class TurnManager {
         this.turnState = TurnState.ASSISTANT_CARDS_PHASE;
     }
 
-    TurnState[] turnStates = TurnState.values();
+    final TurnState[] turnStates = TurnState.values();
 
     /**
      * This method is TurnManager constructor loading from saved file

@@ -99,7 +99,7 @@ public class TileController {
      * @return boolean true if the operation succeeded, false otherwise
      */
 
-    public boolean moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException,MoveNotAllowedException,GameIsOverException {
+    public void moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException,MoveNotAllowedException,GameIsOverException {
         int maxAmount=p.getSchoolBoard().getLastUsedCard().getMotherNatureValue();
         if (charCardController!=null && charCardController.getActiveStatus(CharID.MAGIC_POSTMAN,cards)) {
             maxAmount+=2;
@@ -134,7 +134,6 @@ public class TileController {
                 break;
             }
         }
-        return false;
     }
 
     /**

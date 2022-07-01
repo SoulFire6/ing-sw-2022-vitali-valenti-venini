@@ -361,7 +361,7 @@ public class Lobby implements Runnable {
      * @throws GameIsOverException when the game ends
      * @throws LobbyEmptyException when the lobby remains empty
      */
-    public void processMessageQueue() throws LobbyClientDisconnectedException,GameIsOverException,LobbyEmptyException {
+    public void processMessageQueue() throws LobbyClientDisconnectedException,GameIsOverException {
         gameStarted=true;
         Message msg;
         synchronized (lobbyMessageQueue) {

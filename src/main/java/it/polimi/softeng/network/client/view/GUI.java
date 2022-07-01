@@ -31,7 +31,7 @@ public class GUI extends Application implements View {
 
     /**
      * Inherited from Application, used to start a JavaFx Runtime
-     * @param stage the stage where the scene is laoded
+     * @param stage the stage where the scene is loaded
      */
     @Override
     public void start(Stage stage) {

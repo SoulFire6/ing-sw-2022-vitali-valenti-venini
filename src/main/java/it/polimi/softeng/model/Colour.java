@@ -74,7 +74,7 @@ public enum Colour {
     }
 
     /**
-     * This methods return a random colour from the Colour enum values
+     * This method return a random colour from the Colour enum values
      * @return Colour randomly chosen colour
      */
     public static Colour getRandomColour() {

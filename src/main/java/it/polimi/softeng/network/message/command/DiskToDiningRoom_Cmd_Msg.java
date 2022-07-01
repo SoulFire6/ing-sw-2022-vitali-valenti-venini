@@ -7,7 +7,7 @@ import it.polimi.softeng.network.message.MsgType;
  * This class represents a command message, used when a disk is moved to the dining room
  */
 public class DiskToDiningRoom_Cmd_Msg extends Command_Message {
-    Colour colour;
+    final Colour colour;
 
     /**
      * @param sender String name of the player who requested the move

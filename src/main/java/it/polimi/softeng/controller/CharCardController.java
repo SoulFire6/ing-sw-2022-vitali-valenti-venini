@@ -23,10 +23,9 @@ public class CharCardController {
      * @exception CharacterCardNotFoundException when the character card is not present in the current game
      * @exception InsufficientResourceException when the player doesn't have enough resources to activate the card
      * @exception MoveNotAllowedException when the action is requested in a not allowed state of the game
-     * @exception GameIsOverException when the game is already over
      * @return the wanted character card
      */
-    public CharacterCard findAndCheckCard(Player p,String cardID, ArrayList<CharacterCard> cards) throws CharacterCardNotFoundException, InsufficientResourceException, MoveNotAllowedException, GameIsOverException {
+    public CharacterCard findAndCheckCard(Player p,String cardID, ArrayList<CharacterCard> cards) throws CharacterCardNotFoundException, InsufficientResourceException, MoveNotAllowedException {
         Optional<CharacterCard> playedCard = cards.stream().filter(characterCard -> characterCard.getCardID().equalsIgnoreCase(cardID.replace("_"," "))).findFirst();
         if (playedCard.isEmpty()) {
             throw new CharacterCardNotFoundException("Character with id " + cardID + " is not in play");

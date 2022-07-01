@@ -6,9 +6,9 @@ import it.polimi.softeng.network.message.MsgType;
  * This class represents a command message, used when a character card is played.
  */
 public class CharCard_Cmd_Msg extends Command_Message {
-    String charID;
+    final String charID;
 
-    String options;
+    final String options;
 
     /**
      * @param sender String name of the player who requested the move
@@ -32,7 +32,7 @@ public class CharCard_Cmd_Msg extends Command_Message {
      * Getter for options
      * @return Object options
      */
-    public Object getOptions() {
+    public String getOptions() {
         return this.options;
     }
 }
