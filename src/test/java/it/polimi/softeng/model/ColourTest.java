@@ -59,4 +59,11 @@ public class ColourTest {
         Colour randColour=Colour.getRandomColour();
         assertTrue(Arrays.asList(Colour.values()).contains(randColour));
     }
+
+    @Test
+    public void testGetString() {
+        for (Colour c : Colour.values()) {
+            assertEquals(c.name().charAt(0)+c.name().toLowerCase().substring(1),c.getName());
+        }
+    }
 }

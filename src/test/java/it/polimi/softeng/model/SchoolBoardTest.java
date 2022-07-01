@@ -3,7 +3,9 @@ package it.polimi.softeng.model;
 import it.polimi.softeng.controller.AssistantCardController;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 
+import it.polimi.softeng.exceptions.MoveNotAllowedException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,10 +62,37 @@ public class SchoolBoardTest {
         }
         assertEquals(testMaxEntranceSlots-testFillNum,schoolBoard.getFillAmount());
         assertDoesNotThrow(()->schoolBoard.fillEntrance(cloud));
+        cloud.fillCloud(new Bag_Tile(10));
+        assertThrows(MoveNotAllowedException.class,()->schoolBoard.fillEntrance(cloud));
         assertEquals(testMaxEntranceSlots,schoolBoard.getFillAmount());
     }
+
     /**
-     * Tests getter for dining room
+     * Tests setter and getter of dining room
+     */
+    @Test
+    public void testDiningRoom() {
+        SchoolBoard_Tile schoolBoard_tile=new SchoolBoard_Tile("test",0,0,0,null,0);
+        Bag_Tile bag=new Bag_Tile(2);
+        schoolBoard_tile.setDiningRoom(bag.getContents());
+        assertEquals(bag.getContents(),schoolBoard_tile.getDiningRoom());
+    }
+
+    /**
+     * Tests getter for professor table
+     */
+    @Test
+    public void testGetProfessorTable() {
+        SchoolBoard_Tile schoolBoard_tile=new SchoolBoard_Tile("test",0,0,0,null,0);
+        EnumMap<Colour,Boolean> professorTable=Colour.genBooleanMap();
+        for (Colour c : Colour.values()) {
+            schoolBoard_tile.setProfessor(c,c.ordinal()%2==0);
+            professorTable.put(c,c.ordinal()%2==0);
+        }
+        assertEquals(professorTable,schoolBoard_tile.getProfessorTable());
+    }
+    /**
+     * Tests getter for dining room amount
      */
     @Test
     public void testGetDiningRoomAmount() {
