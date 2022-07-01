@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -21,6 +22,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import javax.tools.Tool;
 import java.io.IOException;
@@ -285,19 +287,138 @@ public class GamePane extends AnchorPane implements Initializable {
      */
     public void updateCharacterCards(ArrayList<ReducedCharacterCard> cards) {
         characterCards.getChildren().clear();
+        EnumMap<Colour,?> memory=null;
         Tooltip tooltip;
         Button characterCard;
         for (ReducedCharacterCard card : cards) {
-            tooltip=new Tooltip(card.getId()+"\nCost: "+card.getCost()+characterInfo.getProperty(card.getCharID()+"_SETUP")+"\n"+characterInfo.getProperty(card.getCharID()+"_EFFECT"));
-            tooltip.setStyle("-fx-font-size: 15");
+            StringBuilder stringBuilder=new StringBuilder();
+            stringBuilder.append(card.getId()).append("\nCost: ").append(card.getCost()).append(characterInfo.getProperty(card.getCharID() + "_SETUP")).append("\n").append(characterInfo.getProperty(card.getCharID() + "_EFFECT"));
             characterCard = new Button();
-            Tooltip.install(characterCard,tooltip);
             characterCard.setStyle("-fx-background-image: url('Assets/GUI/Cards/Characters/" + card.getId().replace(" ", "").concat(".png") + "');-fx-background-size: cover");
             characterCard.setPrefWidth(50);
             characterCard.setPrefHeight(80);
+            tooltip=new Tooltip();
+            tooltip.setStyle("-fx-font-size: 15");
+            switch (CharID.MemType.valueOf(card.getMemoryType())) {
+                case INTEGER:
+                    stringBuilder.append("\nNo entry tiles: ").append(card.getMemory());
+                    break;
+                case BOOLEAN_COLOUR_MAP:
+                    memory=card.getMemory(Boolean.class);
+                    break;
+                case INTEGER_COLOUR_MAP:
+                    memory=card.getMemory(Integer.class);
+                    break;
+                case PLAYER_COLOUR_MAP:
+                case NONE:
+                    break;
+                default:
+                    new Alert(Alert.AlertType.ERROR,"This should not be reachable").showAndWait();
+                    break;
+            }
+            if (memory!=null) {
+                for (Colour c : Colour.values()) {
+                    stringBuilder.append(c.name()).append(": ").append(memory.get(c)).append("\n");
+                }
+            }
+            tooltip=new Tooltip(stringBuilder.toString());
+
+            Tooltip.install(characterCard,tooltip);
+            switch (CharID.valueOf(card.getCharID())) {
+                //Choose a colour
+                case SHROOM_VENDOR:
+                case SPOILED_PRINCESS:
+                case THIEF:
+                    characterCard.setOnAction(event-> new Alert(Alert.AlertType.INFORMATION,"Right click to choose colour").showAndWait());
+                    ContextMenu colourContextMenu=new ContextMenu();
+                    for (Colour c : Colour.values()) {
+                        MenuItem menuItem=new MenuItem(c.name().toLowerCase());
+                        menuItem.setOnAction(event-> messageSender.sendMessage(MsgType.PLAYCHARCARD,card.getCharID(),c.getName()));
+                        colourContextMenu.getItems().add(menuItem);
+                    }
+                    characterCard.setContextMenu(colourContextMenu);
+                    break;
+                //Choose island
+                case HERALD:
+                case GRANDMA_HERBS:
+                    characterCard.setOnAction(event-> new Alert(Alert.AlertType.INFORMATION,"Right click to choose island").showAndWait());
+                    ContextMenu islandContextMenu=new ContextMenu();
+                    for (IslandPane islandPane : visibleIslands) {
+                        MenuItem menuItem=new MenuItem(islandPane.getId());
+                        menuItem.setOnAction(event-> messageSender.sendMessage(MsgType.PLAYCHARCARD,card.getCharID(),menuItem.getText()));
+                        islandContextMenu.getItems().add(menuItem);
+                    }
+                    characterCard.setContextMenu(islandContextMenu);
+                    break;
+                case MONK:
+                    characterCard.setOnAction(event-> new Alert(Alert.AlertType.INFORMATION,"Right click to choose colour, then again for colour").showAndWait());
+                    ContextMenu outerColourContextMenu=new ContextMenu();
+                    for (Colour c : Colour.values()) {
+                        MenuItem menuItem=new MenuItem(c.name().toLowerCase());
+                        Button innerCharacterCard = characterCard;
+                        menuItem.setOnAction(event-> {
+                            ContextMenu innerColourContextMenu=new ContextMenu();
+                            for (IslandPane islandPane : visibleIslands) {
+                                MenuItem innerMenuItem=new MenuItem(menuItem.getText()+" "+islandPane.getId());
+                                innerMenuItem.setOnAction(innerEvent-> {
+                                    innerCharacterCard.setContextMenu(outerColourContextMenu);
+                                    messageSender.sendMessage(MsgType.PLAYCHARCARD,card.getCharID(),menuItem.getText());
+                                });
+                                innerColourContextMenu.getItems().add(innerMenuItem);
+                            }
+                            innerCharacterCard.setContextMenu(innerColourContextMenu);
+                        });
+                        outerColourContextMenu.getItems().add(menuItem);
+                    }
+                    characterCard.setContextMenu(outerColourContextMenu);
+                    break;
+                //Colour swap
+                case JESTER:
+                case MINSTREL:
+                    characterCard.setOnAction(event-> new Alert(Alert.AlertType.INFORMATION,"Right click to choose colour, then again to concatenate, reset to clear all").showAndWait());
+                    ContextMenu swapContextMenu=new ContextMenu();
+                    MenuItem resetItem=new MenuItem("Reset");
+                    Button resetCharacterCard = characterCard;
+                    resetItem.setOnAction(resetEvent-> resetCharacterCard.setContextMenu(swapContextMenu));
+                    for (Colour c : Colour.values()) {
+                        MenuItem menuItem=new MenuItem(c.name());
+                        ContextMenu middleContextMenu=new ContextMenu();
+                        Button innerCharacterCard = characterCard;
+                        menuItem.setOnAction(event->{
+                            ContextMenu innerSwapMenu=new ContextMenu();
+                           for (Colour innerC : Colour.values()) {
+                               MenuItem innerMenuItem=new MenuItem(menuItem.getText()+" "+innerC.name());
+                               innerMenuItem.setOnAction(innerEvent->{
+                                   //TODO finish
+                               });
+                               innerSwapMenu.getItems().add(innerMenuItem);
+                           }
+                           innerCharacterCard.setContextMenu(innerSwapMenu);
+                           MenuItem sendItem=new MenuItem("Send");
+                           sendItem.setOnAction(sendEvent->{
+                               messageSender.sendMessage(MsgType.PLAYCHARCARD,card.getCharID(),menuItem.getText());
+                               innerCharacterCard.setContextMenu(swapContextMenu);
+                           });
+                           innerSwapMenu.getItems().add(sendItem);
+                           innerSwapMenu.getItems().add(resetItem);
+                        });
+                        middleContextMenu.getItems().add(menuItem);
+                        swapContextMenu.getItems().add(menuItem);
+                    }
+                    characterCard.setContextMenu(swapContextMenu);
+                    break;
+                //No args
+                case MAGIC_POSTMAN:
+                case CENTAUR:
+                case KNIGHT:
+                case FARMER:
+                    characterCard.setOnAction(event->messageSender.sendMessage(MsgType.PLAYCHARCARD,card.getId(),""));
+                    break;
+                default:
+                    new Alert(Alert.AlertType.ERROR,"This should not be reachable").showAndWait();
+                    break;
+            }
             characterCards.getChildren().add(characterCard);
-            //TODO add other character cards with input
-            characterCard.setOnAction(event->messageSender.sendMessage(MsgType.PLAYCHARCARD,card.getId(),""));
         }
     }
     /**
@@ -314,7 +435,6 @@ public class GamePane extends AnchorPane implements Initializable {
      * @param bag the bag to load
      */
     public void updateBag(ReducedBag bag) {
-
         StringBuilder stringBuilder=new StringBuilder();
         for (Colour c : Colour.values()) {
             stringBuilder.append(c.name()).append(": ").append(bag.getContents().get(c)).append("-");
