@@ -53,10 +53,10 @@ public class Lobby implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("LOBBY CREATED: " + lobbyName);
+        //System.out.println("LOBBY CREATED: " + lobbyName);
         try {
             setupLobby(clients.get(lobbyMaster));
-            System.out.println("Creating listener for lobbymaster: "+lobbyMaster);
+            //System.out.println("Creating listener for lobbymaster: "+lobbyMaster);
             listeners.put(lobbyMaster,new LobbyListener(clients.get(lobbyMaster),lobbyName,maxPlayers,lobbyMessageQueue,clients,listeners));
             checkClientsThread();
             waitForOtherPlayers();
@@ -64,7 +64,7 @@ public class Lobby implements Runnable {
             processMessageQueue();
         }
         catch (LobbyEmptyException lee) {
-            System.out.println("Lobby "+lobbyName+" is empty");
+            //System.out.println("Lobby "+lobbyName+" is empty");
         }
         catch (LobbyClientDisconnectedException lcde) {
             sendToAll(MessageCenter.genMessage(MsgType.DISCONNECT,lobbyName,"Lobby closed due to disconnection",lcde.getMessage()));
@@ -78,7 +78,7 @@ public class Lobby implements Runnable {
             saveFile.delete();
         }
         catch (InvalidPlayerNumException ipne) {
-            System.out.println("Invalid player num, closing lobby");
+            //System.out.println("Invalid player num, closing lobby");
         }
         finally {
             if (controller!=null) {
@@ -113,7 +113,7 @@ public class Lobby implements Runnable {
                         fileChoice=Integer.parseInt(((Info_Message) client.getMessage()).getInfo());
                     }
                     catch (NumberFormatException nfe) {
-                        nfe.printStackTrace();
+                        //nfe.printStackTrace();
                         client.sendMessage(MsgType.ERROR,"Incorrect format","Not a number : "+((Info_Message) client.getMessage()).getInfo());
                     }
                     catch (NullPointerException npe) {
@@ -190,11 +190,11 @@ public class Lobby implements Runnable {
             if (saveFile!=null) {
                 saveFile.delete();
             }
-            npe.printStackTrace();
+            //npe.printStackTrace();
             throw new LobbyClientDisconnectedException("Lobby master "+lobbyMaster);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
@@ -213,7 +213,7 @@ public class Lobby implements Runnable {
                     clients.wait();
                     for (String clientName : clients.keySet()) {
                         if (listeners.get(clientName)==null) {
-                            System.out.println("Creating listener for: "+clientName);
+                            //System.out.println("Creating listener for: "+clientName);
                             listeners.put(clientName,new LobbyListener(clients.get(clientName),lobbyName,maxPlayers,lobbyMessageQueue,clients,listeners));
                             clients.get(clientName).sendMessage(MsgType.TEXT, "Connect to lobby msg", maxPlayers + " player " + (expertMode ? "expert" : "normal") + " game");
                             newPlayer=clientName;
@@ -228,10 +228,10 @@ public class Lobby implements Runnable {
                     }
                 }
                 catch (InterruptedException ie) {
-                    System.out.println("Lobby " + lobbyName + " interrupted whilst waiting for connections");
+                    //System.out.println("Lobby " + lobbyName + " interrupted whilst waiting for connections");
                 }
                 if (clients.size()==maxPlayers) {
-                    System.out.println("[" + lobbyName + "] GOT MAX CLIENTS CONNECTED: " + clients.keySet());
+                    //System.out.println("[" + lobbyName + "] GOT MAX CLIENTS CONNECTED: " + clients.keySet());
                     sendToAll(MessageCenter.genMessage(MsgType.TEXT, lobbyName, "Lobby full", "Lobby now full [" + clients.size() + "/" + maxPlayers + "], setting up game..."));
                     if (clients.size()<maxPlayers) {
                         throw new GameIsOverException("A client disconnected before game could be setup");
@@ -310,7 +310,7 @@ public class Lobby implements Runnable {
             if (controller==null) {
                 this.controller=new LobbyController(new ArrayList<>(clients.keySet()),expertMode,lobbyName,saveFile);
             }
-            System.out.println("GAME SETUP");
+            //System.out.println("GAME SETUP");
             Message gameLoad=MessageCenter.genMessage(MsgType.GAME,lobbyName,"Game has been setup",new ReducedGame(controller.getGame(),controller.getTurnManager()));
             for (String client: clients.keySet()) {
                 clients.get(client).sendMessage(gameLoad);
@@ -391,7 +391,7 @@ public class Lobby implements Runnable {
                         }
                     }
                     //Check print
-                    System.out.println("["+lobbyName+"]: processed message ("+msg.getSender()+": "+msg.getClass().getSimpleName()+"), queue size: "+lobbyMessageQueue.size());
+                    //System.out.println("["+lobbyName+"]: processed message ("+msg.getSender()+": "+msg.getClass().getSimpleName()+"), queue size: "+lobbyMessageQueue.size());
                 }
             }
             throw new GameIsOverException("Not enough players to continue game");

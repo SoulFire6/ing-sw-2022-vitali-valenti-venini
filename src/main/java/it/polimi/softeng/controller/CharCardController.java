@@ -108,7 +108,7 @@ public class CharCardController {
                     res.add(new CharacterCard(card[0],Integer.parseInt(card[1]),CharID.valueOf(card[2])));
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
             //Removing excess cards
@@ -120,7 +120,7 @@ public class CharCardController {
             }
             reader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         if (bag!=null) {
             setUpCards(bag, res);

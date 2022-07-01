@@ -32,7 +32,7 @@ public class Eriantys {
         //username,ip,port,cli/gui
         String[] clientArgs={null,null,null,null};
         //port
-        String[] serverArgs={null};
+        String[] serverArgs={null,"true"};
         boolean isClient = false, isServer = false, stop=false;
         if (args.length > 0) {
             for (int i = 0; i<args.length && !stop; i++) {

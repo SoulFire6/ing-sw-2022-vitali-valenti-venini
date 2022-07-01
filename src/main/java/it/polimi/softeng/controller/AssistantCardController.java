@@ -37,7 +37,7 @@ public class AssistantCardController {
             }
             reader.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return res;
     }

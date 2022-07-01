@@ -19,6 +19,8 @@ public class Server {
     private static final HashMap<String,Lobby> lobbies=new HashMap<>();
     private static final Integer SERVER_PORT=50033;
 
+    private boolean printServerMessages=false;
+
     /**
      * main method of the Server class: it does create the Server, then waits for Clients connections to serve them
      * @param args arguments for the server creation; args[0] is the server port
@@ -49,6 +51,9 @@ public class Server {
                 throw new ServerCreationException("Not a valid number");
             }
         }
+        if (args.length>1 && args[1].equalsIgnoreCase("true")) {
+            printServerMessages=true;
+        }
         try {
             serverSocket=new ServerSocket(port);
             while (true) {
@@ -57,7 +62,9 @@ public class Server {
                     try {
                         serveClient(clientSocket);
                     } catch (NullPointerException npe) {
-                        System.out.println("Client disconnected abruptly");
+                        if (printServerMessages) {
+                            System.out.println("Client disconnected abruptly");
+                        }
                         npe.printStackTrace();
                     }
                 }).start();
@@ -72,7 +79,7 @@ public class Server {
      * This method allows the client to create/join a lobby or to disconnect from it
      * @param clientSocket Socket of the client connected to the Server
      */
-    private static void serveClient(Socket clientSocket) {
+    private void serveClient(Socket clientSocket) {
         boolean clientSatisfied=false;
         String username=null;
         Message inMessage;
@@ -81,20 +88,28 @@ public class Server {
             ObjectOutputStream out=new ObjectOutputStream(clientSocket.getOutputStream());
             inMessage=(Message)in.readObject();
             username=inMessage.getSender();
-            System.out.println("New client: "+username);
+            if (printServerMessages) {
+                System.out.println("New client: "+username);
+            }
             out.writeObject(MessageCenter.genMessage(MsgType.CONNECT,"SERVER","Welcome message","Connected to server with username: "+username));
             while (!clientSatisfied) {
                 checkLobbies();
                 out.writeObject(MessageCenter.genMessage(MsgType.INPUT,"SERVER","C > Create-J > Join-D > Disconnect",username+", create or join lobby?\nOtherwise disconnect"));
                 clientSatisfied=processRequest(username,clientSocket,in,out);
             }
-            System.out.println("Client ["+username+"]'s request processed");
+            if (printServerMessages) {
+                System.out.println("Client ["+username+"]'s request processed");
+            }
         }
         catch (IOException io) {
-            System.out.println(username+" disconnected abruptly");
+            if (printServerMessages) {
+                System.out.println(username+" disconnected abruptly");
+            }
         }
         catch (ClassNotFoundException cnfe) {
-            System.out.println("Could not determine what client has sent");
+            if (printServerMessages) {
+                System.out.println("Could not determine what client has sent");
+            }
         }
     }
 
@@ -106,7 +121,7 @@ public class Server {
      * @return true if the operation succeeds, false otherwise
      * @throws IOException if any I/O exception occurs
      */
-    private static boolean processRequest(String username, Socket clientSocket, ObjectInputStream in, ObjectOutputStream out) throws IOException {
+    private boolean processRequest(String username, Socket clientSocket, ObjectInputStream in, ObjectOutputStream out) throws IOException {
         String lobbyName;
         try {
             Info_Message response=(Info_Message)in.readObject();
@@ -161,11 +176,15 @@ public class Server {
             }
         }
         catch (ClassNotFoundException cnfe) {
-            System.out.println("Error receiving message");
+            if (printServerMessages) {
+                System.out.println("Error receiving message");
+            }
             return false;
         }
         catch (NullPointerException npe) {
-            System.out.println(username+" abruptly disconnected");
+            if (printServerMessages) {
+                System.out.println(username+" abruptly disconnected");
+            }
             return false;
         }
     }
@@ -179,12 +198,14 @@ public class Server {
      * @param out ObjectOutputStream by which the server can send messages
      * @return true if the operation succeeded, false otherwise
      */
-    private static boolean joinLobby(Lobby lobby, String lobbyName, String username,Socket socket, ObjectInputStream in, ObjectOutputStream out) {
+    private boolean joinLobby(Lobby lobby, String lobbyName, String username,Socket socket, ObjectInputStream in, ObjectOutputStream out) {
         int maxPlayers=lobby.getMaxPlayers();
         try {
             if (maxPlayers==0) {
                 out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","Lobby not ready","Lobby not yet ready, try joining later"));
-                System.out.println(username+" tried to join lobby "+lobbyName+" but it was not ready");
+                if (printServerMessages) {
+                    System.out.println(username+" tried to join lobby "+lobbyName+" but it was not ready");
+                }
             } else {
                 synchronized (lobby.getClients()) {
                     if (lobby.getClients().size()<maxPlayers) {
@@ -197,17 +218,23 @@ public class Server {
                             return true;
                         } else {
                             out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","Username already in use","Player with that username already exists"));
-                            System.out.println(username+" is a duplicate username for lobby "+lobbyName);
+                            if (printServerMessages) {
+                                System.out.println(username+" is a duplicate username for lobby "+lobbyName);
+                            }
                         }
                     } else {
                         out.writeObject(MessageCenter.genMessage(MsgType.ERROR,"SERVER","Lobby full","Lobby is full ["+maxPlayers+"/"+maxPlayers+"]"));
-                        System.out.println(username+" tried to join lobby "+lobbyName+", but it was full");
+                        if (printServerMessages) {
+                            System.out.println(username+" tried to join lobby "+lobbyName+", but it was full");
+                        }
                     }
                 }
             }
         }
         catch (IOException io) {
-            System.out.println("Error sending message to client during lobby join");
+            if (printServerMessages) {
+                System.out.println(username+" tried to join lobby "+lobbyName+", but it was full");
+            }
         }
         return false;
     }
@@ -215,14 +242,18 @@ public class Server {
     /**
      * Method that removes empty lobbies from the lobbies list
      */
-    private static void checkLobbies() {
+    private void checkLobbies() {
         for (String lobbyName : lobbies.keySet()) {
             Lobby lobby=lobbies.get(lobbyName);
             if (lobby.getClients().size()==0) {
-                System.out.println("Closed lobby "+lobbyName);
+                if (printServerMessages) {
+                    System.out.println("Closed lobby "+lobbyName);
+                }
                 lobbies.remove(lobbyName);
             } else {
-                System.out.println("Checked lobby "+lobbyName+" "+lobby.getClients().size()+"/"+lobby.getMaxPlayers());
+                if (printServerMessages) {
+                    System.out.println("Checked lobby "+lobbyName+" "+lobby.getClients().size()+"/"+lobby.getMaxPlayers());
+                }
             }
         }
     }

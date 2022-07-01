@@ -49,7 +49,7 @@ public class LobbyListener implements Runnable {
             messageQueue.add(inMessage);
         }
         synchronized (listeners) {
-            System.out.println("Removing listener for "+client.getUsername());
+            //System.out.println("Removing listener for "+client.getUsername());
             listeners.remove(client.getUsername());
         }
         synchronized (clients) {

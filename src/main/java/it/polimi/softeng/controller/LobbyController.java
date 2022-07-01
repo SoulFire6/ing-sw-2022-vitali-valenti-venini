@@ -88,12 +88,11 @@ public class LobbyController {
         if (saveFileStream!=null) {
             try {
                 saveFileStream.close();
-                System.out.println("Closed stream");
+                //System.out.println("Closed stream");
             }
             catch (IOException io) {
-                System.out.println("Error closing stream");
+                //System.out.println("Error closing stream");
             }
-
         }
     }
     /**
@@ -121,13 +120,13 @@ public class LobbyController {
      */
     public void saveGame() {
         if (saveFileStream!=null) {
-            System.out.println("SAVING GAME...");
+            //System.out.println("SAVING GAME...");
             try {
                 saveFileStream.writeObject(new ReducedGame(this.game,this.turnManager));
             }
-            catch (IOException io) {
-                System.out.println("COULD NOT SAVE GAME");
-                io.printStackTrace();
+            catch (IOException ignored) {
+                //System.out.println("COULD NOT SAVE GAME");
+                //io.printStackTrace();
             }
         }
     }
@@ -148,7 +147,7 @@ public class LobbyController {
             return reducedGame;
         }
         catch (IOException io) {
-            io.printStackTrace();
+            //io.printStackTrace();
             throw new GameLoadException(io.getMessage());
         }
         catch (ClassNotFoundException cnfe) {
@@ -442,9 +441,9 @@ public class LobbyController {
             throw new GameIsOverException(gioe.getMessage());
         }
         catch (Exception e) {
-            System.out.println("["+lobbyName+"] "+currentPlayer.getName()+"'s action has thrown "+e.getClass().getSimpleName());
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            //System.out.println("["+lobbyName+"] "+currentPlayer.getName()+"'s action has thrown "+e.getClass().getSimpleName());
+            //System.out.println(e.getMessage());
+            //e.printStackTrace();
             response.add(MessageCenter.genMessage(MsgType.ERROR,lobbyName,e.getClass().toString(),e.getMessage()));
         }
         return response;
