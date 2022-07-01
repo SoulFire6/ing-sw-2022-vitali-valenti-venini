@@ -42,7 +42,7 @@ public enum CharID {
             if (mem.get(c)==0) {
                 throw new MoveNotAllowedException("No "+c.name().toLowerCase()+" students on card");
             }
-            Optional<Island_Tile> island=controller.getGame().getIslands().stream().filter(island_tile -> island_tile.getTileID().equalsIgnoreCase(charArgs[0]) || island_tile.getTileID().equalsIgnoreCase("Island_"+charArgs[0])).findFirst();
+            Optional<Island_Tile> island=controller.getGame().getIslands().stream().filter(island_tile -> island_tile.getTileID().equalsIgnoreCase(charArgs[1]) || island_tile.getTileID().equalsIgnoreCase("Island_"+charArgs[1])).findFirst();
             if (island.isEmpty()) {
                 throw new MoveNotAllowedException("Could not find island with id "+charArgs[1]);
             }
