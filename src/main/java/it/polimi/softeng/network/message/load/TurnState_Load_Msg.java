@@ -1,6 +1,6 @@
 package it.polimi.softeng.network.message.load;
 
-import it.polimi.softeng.model.ReducedModel.ReducedTurnState;
+import it.polimi.softeng.network.reducedModel.ReducedTurnState;
 import it.polimi.softeng.network.message.MsgType;
 
 /**

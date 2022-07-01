@@ -1,8 +1,8 @@
 package it.polimi.softeng.network.client.view.FXML_Controllers;
 
 import it.polimi.softeng.model.Colour;
-import it.polimi.softeng.model.ReducedModel.ReducedAssistantCard;
-import it.polimi.softeng.model.ReducedModel.ReducedPlayer;
+import it.polimi.softeng.network.reducedModel.ReducedAssistantCard;
+import it.polimi.softeng.network.reducedModel.ReducedPlayer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;

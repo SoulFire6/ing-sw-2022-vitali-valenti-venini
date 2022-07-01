@@ -1,8 +1,8 @@
 package it.polimi.softeng.network.message;
 
 import it.polimi.softeng.model.*;
-import it.polimi.softeng.model.ReducedModel.ReducedGame;
-import it.polimi.softeng.model.ReducedModel.ReducedTurnState;
+import it.polimi.softeng.network.reducedModel.ReducedGame;
+import it.polimi.softeng.network.reducedModel.ReducedTurnState;
 import it.polimi.softeng.network.message.command.*;
 import it.polimi.softeng.network.message.load.*;
 

@@ -1,4 +1,4 @@
-package it.polimi.softeng.model.ReducedModel;
+package it.polimi.softeng.network.reducedModel;
 
 import it.polimi.softeng.controller.TurnManager;
 

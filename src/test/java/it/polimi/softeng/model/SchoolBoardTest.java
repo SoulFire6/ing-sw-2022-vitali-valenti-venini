@@ -26,7 +26,6 @@ public class SchoolBoardTest {
         int testCoins=0;
         SchoolBoard_Tile schoolBoard=new SchoolBoard_Tile(testPlayerName,testMaxEntranceSlots,testTowers,testMaxTowers,testHand,testCoins);
         assertTrue(schoolBoard.getTileID().contains(testPlayerName));
-        assertEquals(testMaxEntranceSlots,schoolBoard.getMaxExntranceSlots());
         assertEquals(testTowers,schoolBoard.getTowers());
         assertEquals(testMaxTowers,schoolBoard.getMaxTowers());
         assertEquals(testCoins,schoolBoard.getCoins());

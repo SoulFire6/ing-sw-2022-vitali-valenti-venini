@@ -1,7 +1,7 @@
 package it.polimi.softeng.network.message.load;
 
 import it.polimi.softeng.model.Bag_Tile;
-import it.polimi.softeng.model.ReducedModel.ReducedBag;
+import it.polimi.softeng.network.reducedModel.ReducedBag;
 import it.polimi.softeng.network.message.MsgType;
 
 /**

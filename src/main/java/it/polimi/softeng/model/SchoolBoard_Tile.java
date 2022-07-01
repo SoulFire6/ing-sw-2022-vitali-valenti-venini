@@ -28,7 +28,7 @@ public class SchoolBoard_Tile extends Tile{
      * @param coins int number of coins that the schoolBoard owner's has
      */
     public SchoolBoard_Tile(String playerName, int maxEntranceSlots, int towers, int maxTowers,ArrayList<AssistantCard> hand, int coins) {
-        this.setTileID(playerName+"'s_schoolboard");
+        this.setTileID(playerName+"'s_schoolBoard");
         this.maxEntranceSlots=maxEntranceSlots;
         this.diningRoom=Colour.genIntegerMap();
         this.professorTable=Colour.genBooleanMap();
@@ -36,13 +36,6 @@ public class SchoolBoard_Tile extends Tile{
         this.maxTowers=maxTowers;
         this.hand=hand;
         this.coins=coins;
-    }
-
-    /**
-     * @return int maximum number of student disks that can be placed in the entrance
-     */
-    public int getMaxExntranceSlots() {
-        return this.maxEntranceSlots;
     }
 
     /**
@@ -73,7 +66,7 @@ public class SchoolBoard_Tile extends Tile{
                 entrance.put(c,entrance.get(c)+newStudents.get(c));
             }
         } else {
-            throw new MoveNotAllowedException("Error filling schoolboard entrance: "+(this.getFillAmount()+cloud.getFillAmount())+">"+this.maxEntranceSlots);
+            throw new MoveNotAllowedException("Error filling schoolBoard entrance: "+(this.getFillAmount()+cloud.getFillAmount())+">"+this.maxEntranceSlots);
         }
     }
 
@@ -118,7 +111,7 @@ public class SchoolBoard_Tile extends Tile{
             this.diningRoom.put(c,this.diningRoom.get(c)+1);
             return true;
         } else {
-            System.out.println("Error: max students of colour "+c+" reached in dining room");
+            //System.out.println("Error: max students of colour "+c+" reached in dining room");
             return false;
         }
 

@@ -1,6 +1,6 @@
 package it.polimi.softeng.network.client.view;
 
-import it.polimi.softeng.model.ReducedModel.ReducedGame;
+import it.polimi.softeng.network.reducedModel.ReducedGame;
 
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MessageCenter;

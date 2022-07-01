@@ -1,7 +1,7 @@
 package it.polimi.softeng.network.client.view.FXML_Controllers;
 
 import it.polimi.softeng.model.Colour;
-import it.polimi.softeng.model.ReducedModel.ReducedIsland;
+import it.polimi.softeng.network.reducedModel.ReducedIsland;
 import it.polimi.softeng.model.Team;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.beans.NamedArg;

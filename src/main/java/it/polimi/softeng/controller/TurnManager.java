@@ -1,7 +1,7 @@
 package it.polimi.softeng.controller;
 
 import it.polimi.softeng.model.Player;
-import it.polimi.softeng.model.ReducedModel.ReducedGame;
+import it.polimi.softeng.network.reducedModel.ReducedGame;
 
 import java.util.ArrayList;
 import java.util.Comparator;

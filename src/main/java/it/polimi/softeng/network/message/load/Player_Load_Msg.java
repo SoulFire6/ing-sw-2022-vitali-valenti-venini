@@ -1,7 +1,7 @@
 package it.polimi.softeng.network.message.load;
 
 import it.polimi.softeng.model.Player;
-import it.polimi.softeng.model.ReducedModel.ReducedPlayer;
+import it.polimi.softeng.network.reducedModel.ReducedPlayer;
 import it.polimi.softeng.network.message.MsgType;
 
 /**

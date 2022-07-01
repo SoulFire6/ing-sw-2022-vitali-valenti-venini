@@ -1,7 +1,7 @@
 package it.polimi.softeng.network.client.view;
 
 import it.polimi.softeng.exceptions.UpdateGUIException;
-import it.polimi.softeng.model.ReducedModel.*;
+import it.polimi.softeng.network.reducedModel.*;
 import it.polimi.softeng.network.client.view.FXML_Controllers.GamePane;
 import it.polimi.softeng.network.client.view.FXML_Controllers.LoginPane;
 import it.polimi.softeng.network.client.view.FXML_Controllers.MessageSender;

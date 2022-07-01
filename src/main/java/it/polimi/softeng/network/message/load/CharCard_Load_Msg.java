@@ -1,7 +1,7 @@
 package it.polimi.softeng.network.message.load;
 
 import it.polimi.softeng.model.CharacterCard;
-import it.polimi.softeng.model.ReducedModel.ReducedCharacterCard;
+import it.polimi.softeng.network.reducedModel.ReducedCharacterCard;
 import it.polimi.softeng.network.message.MsgType;
 
 import java.util.ArrayList;

@@ -2,7 +2,7 @@ package it.polimi.softeng.controller;
 
 import it.polimi.softeng.exceptions.*;
 import it.polimi.softeng.model.*;
-import it.polimi.softeng.model.ReducedModel.*;
+import it.polimi.softeng.network.reducedModel.*;
 import it.polimi.softeng.network.message.command.*;
 import it.polimi.softeng.network.message.*;
 

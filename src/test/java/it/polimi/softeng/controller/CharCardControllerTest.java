@@ -82,7 +82,7 @@ public class CharCardControllerTest {
             assertTrue(card.isActive());
         }
         catch (InvalidPlayerNumException | CharacterCardNotFoundException | InsufficientResourceException |
-               MoveNotAllowedException | GameIsOverException ipne) {
+               MoveNotAllowedException ipne) {
             fail();
         }
     }

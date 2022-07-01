@@ -1,7 +1,7 @@
 package it.polimi.softeng.network.client.view.FXML_Controllers;
 
 import it.polimi.softeng.model.Colour;
-import it.polimi.softeng.model.ReducedModel.ReducedCloud;
+import it.polimi.softeng.network.reducedModel.ReducedCloud;
 import it.polimi.softeng.network.message.MsgType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

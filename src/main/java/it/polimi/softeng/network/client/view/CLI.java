@@ -5,7 +5,7 @@ import it.polimi.softeng.exceptions.MoveNotAllowedException;
 import it.polimi.softeng.exceptions.ServerCreationException;
 import it.polimi.softeng.model.CharID;
 import it.polimi.softeng.model.Colour;
-import it.polimi.softeng.model.ReducedModel.*;
+import it.polimi.softeng.network.reducedModel.*;
 import it.polimi.softeng.model.Team;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;

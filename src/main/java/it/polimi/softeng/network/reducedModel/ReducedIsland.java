@@ -1,4 +1,4 @@
-package it.polimi.softeng.model.ReducedModel;
+package it.polimi.softeng.network.reducedModel;
 
 import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.Island_Tile;

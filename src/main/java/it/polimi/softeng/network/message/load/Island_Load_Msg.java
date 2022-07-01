@@ -1,7 +1,7 @@
 package it.polimi.softeng.network.message.load;
 
 import it.polimi.softeng.model.Island_Tile;
-import it.polimi.softeng.model.ReducedModel.ReducedIsland;
+import it.polimi.softeng.network.reducedModel.ReducedIsland;
 import it.polimi.softeng.network.message.MsgType;
 
 import java.util.ArrayList;

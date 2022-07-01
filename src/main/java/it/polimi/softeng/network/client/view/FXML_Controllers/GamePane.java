@@ -4,7 +4,7 @@ import it.polimi.softeng.controller.TurnManager;
 import it.polimi.softeng.exceptions.UpdateGUIException;
 import it.polimi.softeng.model.CharID;
 import it.polimi.softeng.model.Colour;
-import it.polimi.softeng.model.ReducedModel.*;
+import it.polimi.softeng.network.reducedModel.*;
 import it.polimi.softeng.network.message.Info_Message;
 import it.polimi.softeng.network.message.Message;
 import it.polimi.softeng.network.message.MsgType;
