@@ -59,12 +59,7 @@ public class PlayerPane extends VBox implements Initializable {
         board=new BoardPane();
         stage=new Stage();
         stage.setScene(new Scene(board));
-        stage.setMinHeight(200);
-        stage.setMinWidth(460);
-        stage.setMaxHeight(200);
-        stage.setMaxWidth(460);
-        stage.setHeight(200);
-        stage.setWidth(460);
+        stage.resizableProperty().setValue(false);
         stage.focusedProperty().addListener((observableValue, oldValue, newValue) -> {
             if (!newValue) {
                 stage.hide();

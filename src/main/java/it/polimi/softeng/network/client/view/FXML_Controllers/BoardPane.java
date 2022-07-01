@@ -7,12 +7,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -32,11 +33,11 @@ public class BoardPane extends AnchorPane implements Initializable {
     @FXML
     BoardRowPane yellowRow,blueRow,greenRow,redRow,purpleRow;
 
-    private final ArrayList<ImageView> entranceSlots=new ArrayList<>();
+    private final ArrayList<Button> entranceSlots=new ArrayList<>();
 
     private final EnumMap<Colour, BoardRowPane> rows=new EnumMap<>(Colour.class);
 
-    private final EnumMap<Colour, Image> disks=new EnumMap<>(Colour.class);
+    private final EnumMap<Colour, String> disks=new EnumMap<>(Colour.class);
 
     private MessageSender messageSender;
 
@@ -60,14 +61,14 @@ public class BoardPane extends AnchorPane implements Initializable {
     }
 
     /**
-     * inhereted method initialize for setting up fxml components
+     * inherited method initialize for setting up fxml components
      * @param url default unused url
      * @param resourceBundle default unused resource
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         for (Node node : entrance.getChildren()) {
-            entranceSlots.add((ImageView) node);
+            entranceSlots.add((Button) node);
         }
         rows.put(Colour.YELLOW,yellowRow);
         rows.put(Colour.BLUE,blueRow);
@@ -75,7 +76,7 @@ public class BoardPane extends AnchorPane implements Initializable {
         rows.put(Colour.RED,redRow);
         rows.put(Colour.PURPLE,purpleRow);
         for (Colour c : Colour.values()) {
-            disks.put(c,new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Icons/" + c.name().charAt(0) + c.name().substring(1).toLowerCase()+"_Disk.png")).toExternalForm()));
+            disks.put(c,"-fx-background-image: url('Assets/GUI/Icons/"+c.name().charAt(0) + c.name().substring(1).toLowerCase()+"_Disk.png"+"');-fx-background-size: contain");
         }
     }
 
@@ -88,7 +89,7 @@ public class BoardPane extends AnchorPane implements Initializable {
     }
 
     /**
-     * This methods sets up the tower on the BoardPane, while also loading the correct image corresponding to the player's team
+     * This method sets up the tower on the BoardPane, while also loading the correct image corresponding to the player's team
      * @param num the amount of towers to set
      * @param team the player's team which defines tower colour
      */
@@ -112,13 +113,9 @@ public class BoardPane extends AnchorPane implements Initializable {
         for (Colour c : Colour.values()) {
             for (int j=0; j<entrance.get(c); j++,idx++) {
                 entranceSlots.get(idx).setVisible(true);
-                entranceSlots.get(idx).setImage(disks.get(c));
+                entranceSlots.get(idx).setStyle(disks.get(c));
                 if (interactive) {
-                    entranceSlots.get(idx).addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
-                        if (mouseEvent.getClickCount()==1) {
-                            messageSender.sendMessage(MsgType.DISKTODININGROOM, c + "to dining room", c);
-                        }
-                    });
+                    entranceSlots.get(idx).setOnAction(event->messageSender.sendMessage(MsgType.DISKTODININGROOM, c + "to dining room", c));
                 }
             }
         }

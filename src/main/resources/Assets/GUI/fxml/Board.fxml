@@ -8,22 +8,23 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<fx:root type="javafx.scene.layout.AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="256.0" prefWidth="593.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.control.Button?>
+<fx:root type="javafx.scene.layout.AnchorPane" minHeight="200" minWidth="460" prefHeight="200.0" prefWidth="460.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <ImageView fitHeight="200.0" fitWidth="460.0" pickOnBounds="true" preserveRatio="true">
          <Image url="/Assets/GUI/Tiles/SchoolBoard.png" />
       </ImageView>
       <AnchorPane fx:id="entrance" layoutX="8.0" layoutY="18.0" prefHeight="161.0" prefWidth="61.0">
          <children>
-            <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="34.0" layoutY="6.0" pickOnBounds="true" preserveRatio="true" />
-            <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="34.0" layoutY="39.0" pickOnBounds="true" preserveRatio="true" />
-            <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="34.0" layoutY="71.0" pickOnBounds="true" preserveRatio="true" />
-            <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="34.0" layoutY="104.0" pickOnBounds="true" preserveRatio="true"/>
-            <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="34.0" layoutY="137.0" pickOnBounds="true" preserveRatio="true"/>
-            <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="7.0" layoutY="39.0" pickOnBounds="true" preserveRatio="true"/>
-            <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="7.0" layoutY="71.0" pickOnBounds="true" preserveRatio="true"/>
-            <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="7.0" layoutY="104.0" pickOnBounds="true" preserveRatio="true"/>
-            <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="7.0" layoutY="137.0" pickOnBounds="true" preserveRatio="true"/>
+            <Button minHeight="20.0" minWidth="20.0" maxHeight="20" maxWidth="20" layoutX="34.0" layoutY="6.0"/>
+            <Button minHeight="20.0" minWidth="20.0" maxHeight="20" maxWidth="20" layoutX="34.0" layoutY="39.0"/>
+            <Button minHeight="20.0" minWidth="20.0" maxHeight="20" maxWidth="20" layoutX="34.0" layoutY="71.0"/>
+            <Button minHeight="20.0" minWidth="20.0" maxHeight="20" maxWidth="20" layoutX="34.0" layoutY="104.0"/>
+            <Button minHeight="20.0" minWidth="20.0" maxHeight="20" maxWidth="20" layoutX="34.0" layoutY="137.0"/>
+            <Button minHeight="20.0" minWidth="20.0" maxHeight="20" maxWidth="20" layoutX="7.0" layoutY="39.0"/>
+            <Button minHeight="20.0" minWidth="20.0" maxHeight="20" maxWidth="20" layoutX="7.0" layoutY="71.0"/>
+            <Button minHeight="20.0" minWidth="20.0" maxHeight="20" maxWidth="20" layoutX="7.0" layoutY="104.0"/>
+            <Button minHeight="20.0" minWidth="20.0" maxHeight="20" maxWidth="20" layoutX="7.0" layoutY="137.0"/>
          </children>
       </AnchorPane>
       <BoardRowPane fx:id="greenRow" disk-src="Green_Disk.png" prof-src="Green_Professor.png" layoutX="78" layoutY="17"/>
