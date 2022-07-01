@@ -9,11 +9,13 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.Objects;
 
 /**
  * This class is the gui implementation of the view abstract class
@@ -36,6 +38,7 @@ public class GUI extends Application implements View {
         controller=new GUI_ActionHandler();
         Parent root=controller.getRoot();
         stage.setTitle("Eriantys");
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Icons/AppIcon.png")).toExternalForm()));
         stage.setScene(new Scene(root));
         stage.setMinWidth(800);
         stage.setMinHeight(600);
@@ -83,14 +86,14 @@ public class GUI extends Application implements View {
     }
 
     /**
-     * This methods closes the Socket
+     * This method closes the Socket
      */
     @Override
     public void closeConnection() {
         Platform.runLater(()->controller.closeConnection());
     }
     /**
-     * This methods displays messages received from server by passing them to the gui
+     * This method displays messages received from server by passing them to the gui
      */
     @Override
     public void display(Message message) {

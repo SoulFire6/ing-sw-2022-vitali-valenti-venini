@@ -3,15 +3,12 @@ package it.polimi.softeng.network.client.view.FXML_Controllers;
 import it.polimi.softeng.model.Colour;
 import it.polimi.softeng.model.ReducedModel.ReducedAssistantCard;
 import it.polimi.softeng.model.ReducedModel.ReducedPlayer;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
