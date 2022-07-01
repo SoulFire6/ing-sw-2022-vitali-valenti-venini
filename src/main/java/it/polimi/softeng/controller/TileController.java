@@ -18,7 +18,7 @@ public class TileController {
      * This method is used to generate and initialize the islands of the current game
      * @param num the number of islands to be generated
      * @param bag the Bag_Tile object of the current game
-     * @return ArrayList<Island_Tile> the list of generated islands
+     * @return ArrayList of Island_Tile the list of generated islands
      */
     public ArrayList<Island_Tile> genIslands(int num, Bag_Tile bag) {
         ArrayList<Island_Tile> islands=new ArrayList<>();
@@ -71,7 +71,7 @@ public class TileController {
      * @param num the number of cloud tiles to be generated
      * @param max the maximum number of student disks that can be held on a cloud tile
      * @param bag the Bag_Tile object of the current game
-     * @return ArrayList<Cloud_Tile> the generated cloud tiles
+     * @return ArrayList Cloud_Tile the generated cloud tiles
      */
     public ArrayList<Cloud_Tile> genClouds(int num, int max, Bag_Tile bag) {
         ArrayList<Cloud_Tile> clouds=new ArrayList<>();
@@ -94,14 +94,18 @@ public class TileController {
      * @param islands list of the islands of this game
      * @param playerController the playerController of this game
      * @exception ExceededMaxMovesException when the player wants to move mother nature more than possible
+     * @exception MoveNotAllowedException if n is negative
      * @exception GameIsOverException when
      * @return boolean true if the operation succeeded, false otherwise
      */
 
-    public boolean moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException,GameIsOverException {
+    public boolean moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException,MoveNotAllowedException,GameIsOverException {
         int maxAmount=p.getSchoolBoard().getLastUsedCard().getMotherNatureValue();
         if (charCardController!=null && charCardController.getActiveStatus(CharID.MAGIC_POSTMAN,cards)) {
             maxAmount+=2;
+        }
+        if (n<0) {
+            throw new MoveNotAllowedException("Cannot move mother nature backwards");
         }
         if (n>maxAmount) {
             throw new ExceededMaxMovesException("Cannot move mother nature by "+n+" (Current max: "+maxAmount+")");
@@ -170,6 +174,17 @@ public class TileController {
             }
         }
     }
+
+    /**
+     * This method refills school board entrance from cloud
+     * @param p the player whose school board must be filled
+     * @param cloudID the id of the chosen cloud
+     * @param clouds the ArrayList of clouds in the game
+     * @throws TileNotFoundException if no cloud with the chosen id was found
+     * @throws TileEmptyException if chosen cloud has no disks
+     * @throws MoveNotAllowedException if trying to refill an entrance with less empty spots than disks on the cloud
+     */
+
     public void refillEntranceFromCloud(Player p, String cloudID, ArrayList<Cloud_Tile> clouds) throws TileNotFoundException,TileEmptyException,MoveNotAllowedException {
         Cloud_Tile refillCloud=null;
         for (Cloud_Tile cloud: clouds) {

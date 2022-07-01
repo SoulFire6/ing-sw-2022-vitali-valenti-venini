@@ -24,7 +24,7 @@ public class SchoolBoard_Tile extends Tile{
      * @param maxEntranceSlots int number that represents the maximum number of student disks that can be placed in the entrance
      * @param towers int number that represent the actual number of towers of the school board
      * @param maxTowers int number that represent the maximum number of towers that a school board can have
-     * @param hand ArrayList<AssistantCard> containing the assistant cards in the schoolBoard owner's hand
+     * @param hand ArrayList of AssistantCard containing the assistant cards in the schoolBoard owner's hand
      * @param coins int number of coins that the schoolBoard owner's has
      */
     public SchoolBoard_Tile(String playerName, int maxEntranceSlots, int towers, int maxTowers,ArrayList<AssistantCard> hand, int coins) {
@@ -78,21 +78,21 @@ public class SchoolBoard_Tile extends Tile{
     }
 
     /**
-     * @return EnumMap<Colour,Integer> containing the student disks stored in the dining room
+     * @return Colour EnumMap of Integer containing the student disks stored in the dining room
      */
     public EnumMap<Colour,Integer> getDiningRoom() {
         return this.diningRoom;
     }
 
     /**
-     * @param diningRoom new EnumMap<Colour,Integer> that will replace the current diningRoom
+     * @param diningRoom new  ColourEnumMap of Integer that will replace the current diningRoom
      */
     public void setDiningRoom(EnumMap<Colour,Integer> diningRoom) {
         this.diningRoom=diningRoom;
     }
 
     /**
-     * @return EnumMap<Colour,Boolean>, which contains every Colour defined in the enum associated with true if the schoolBoard possessor controls this professor, false otherwise
+     * @return Colour EnumMap of Boolean, which contains every Colour defined in the enum associated with true if the schoolBoard possessor controls this professor, false otherwise
      * @see Colour
      */
     public EnumMap<Colour,Boolean> getProfessorTable() {
@@ -157,7 +157,7 @@ public class SchoolBoard_Tile extends Tile{
     }
 
     /**
-     * @param num int number of towers to add (num can be <0 when we want to decrement tower number)
+     * @param num int number of towers to add (num can be below 0 when we want to decrement tower number)
      * @return true if the operation succeeded, false otherwise
      */
     //Alters tower number based on input, returns false if outside normal values
@@ -178,7 +178,7 @@ public class SchoolBoard_Tile extends Tile{
     }
 
     /**
-     * @return ArrayList<AssistantCard> the hand of the schoolBoard owner
+     * @return ArrayList AssistantCard the hand of the schoolBoard owner
      */
     public ArrayList<AssistantCard> getHand() {
         return this.hand;

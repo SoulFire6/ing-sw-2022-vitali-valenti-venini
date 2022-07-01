@@ -35,8 +35,8 @@ public class ReducedSchoolBoard implements Serializable {
     }
 
     /**
-     * @param hand ArrayList<AssistantCard> containing the assistant cards to set in this reduced school board's hand
-     * @return ArrayList<ReducedAssistantCard> containing the reduced assistant cards
+     * @param hand ArrayList of AssistantCard containing the assistant cards to set in this reduced school board's hand
+     * @return ArrayList of ReducedAssistantCard containing the reduced assistant cards
      */
     private ArrayList<ReducedAssistantCard> setHand(ArrayList<AssistantCard> hand) {
         ArrayList<ReducedAssistantCard> reducedHand=new ArrayList<>();
@@ -47,21 +47,21 @@ public class ReducedSchoolBoard implements Serializable {
     }
 
     /**
-     * @return EnumMap<Colour, Integer>, containing for each Colour the corresponding Integer number of student disks present in the entrance
+     * @return Colour EnumMap Colour of Integer, containing for each Colour the corresponding Integer number of student disks present in the entrance
      */
     public EnumMap<Colour, Integer> getEntrance() {
         return this.entrance.clone();
     }
 
     /**
-     * @return EnumMap<Colour, Integer>, containing for each Colour the corresponding Integer number of student disks present in the dining room
+     * @return Colour EnumMap of Integer, containing for each Colour the corresponding Integer number of student disks present in the dining room
      */
     public EnumMap<Colour, Integer> getDiningRoom() {
         return this.diningRoom.clone();
     }
 
     /**
-     * @return EnumMap<Colour, Boolean>, containing for each Colour a Boolean, true if the professor of this Colour is owned by this SchoolBoard's player, false otherwise
+     * @return Colour EnumMap Colour of Boolean, containing for each Colour a Boolean, true if the professor of this Colour is owned by this SchoolBoard's player, false otherwise
      */
     public EnumMap<Colour, Boolean> getProfessorTable() {
         return this.professorTable.clone();
@@ -75,7 +75,7 @@ public class ReducedSchoolBoard implements Serializable {
     }
 
     /**
-     * @return ArrayList<ReducedAssistantCard> the hand of assistant cards still available to be played
+     * @return ArrayList of ReducedAssistantCard, the hand of assistant cards still available to be played
      */
     public ArrayList<ReducedAssistantCard> getHand() {
         return this.hand;
