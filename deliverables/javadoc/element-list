@@ -2,11 +2,11 @@ it.polimi.softeng
 it.polimi.softeng.controller
 it.polimi.softeng.exceptions
 it.polimi.softeng.model
-it.polimi.softeng.model.ReducedModel
 it.polimi.softeng.network.client
 it.polimi.softeng.network.client.view
 it.polimi.softeng.network.client.view.FXML_Controllers
 it.polimi.softeng.network.message
 it.polimi.softeng.network.message.command
 it.polimi.softeng.network.message.load
+it.polimi.softeng.network.reducedModel
 it.polimi.softeng.network.server
