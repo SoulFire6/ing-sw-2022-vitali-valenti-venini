@@ -43,7 +43,7 @@ The final version will include:
 | Simplified rules         | :white_check_mark: | Normal mode only                              |
 | Complete rules           | :white_check_mark: | Expert mode with 8 character cards            |
 | CLI                      | :white_check_mark: | Command line input                            |
-| GUI                      |     :warning:      | Graphical user interface                      |
+| GUI                      | :white_check_mark: | Graphical user interface                      |
 | Socket                   | :white_check_mark: | Client-server architecture                    |
 | Character cards          | :white_check_mark: | All 12 cards instead of just 8                |
 | 4 Player mode            | :white_check_mark: | Allows 4 players to participate in teams of 2 |
