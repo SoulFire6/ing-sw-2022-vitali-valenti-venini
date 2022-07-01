@@ -22,6 +22,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import javax.tools.Tool;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -83,6 +84,7 @@ public class GamePane extends AnchorPane implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        Tooltip tooltip;
         for (Node node : tiles.getChildren()) {
             if (node.getId()!=null) {
                 if (node.getId().contains("Island")) {
@@ -91,7 +93,9 @@ public class GamePane extends AnchorPane implements Initializable {
                 if (node.getId().contains("Cloud")) {
                     visibleClouds.add((CloudPane) node);
                 }
-                Tooltip.install(node,new Tooltip(node.getId()));
+                tooltip=new Tooltip(node.getId());
+                tooltip.setStyle("-fx-font-size: 15");
+                Tooltip.install(node,tooltip);
             }
         }
         try {
@@ -253,12 +257,14 @@ public class GamePane extends AnchorPane implements Initializable {
             assistantCards.getContextMenu().getItems().clear();
         }
         for (ReducedAssistantCard card : cards) {
+            Tooltip tooltip=new Tooltip("Card id: "+card.getId()+"\nTurn value: "+card.getTurnValue()+"\nMother nature value: "+card.getMotherNatureValue());
+            tooltip.setStyle("-fx-font-size: 15");
             ImageView assistantCard=new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/Assets/GUI/Cards/Assistants/" + card.getId() + "_LQ.png")).toExternalForm()));
             assistantCard.fitHeightProperty().setValue(80);
             assistantCard.fitWidthProperty().setValue(60);
             assistantCard.preserveRatioProperty().setValue(true);
             assistantCard.addEventHandler(MouseEvent.MOUSE_PRESSED,event-> messageSender.sendMessage(MsgType.PLAYASSISTCARD,card.getId(),card.getId()));
-            Tooltip.install(assistantCard,new Tooltip("Card id: "+card.getId()+"\nTurn value: "+card.getTurnValue()+"\nMother nature value: "+card.getMotherNatureValue()));
+            Tooltip.install(assistantCard,tooltip);
             assistantCards.getItems().add(assistantCard);
         }
         assistantCards.setPrefWidth(assistantCards.getChildrenUnmodifiable().size()*62);
@@ -279,18 +285,13 @@ public class GamePane extends AnchorPane implements Initializable {
      */
     public void updateCharacterCards(ArrayList<ReducedCharacterCard> cards) {
         characterCards.getChildren().clear();
+        Tooltip tooltip;
         Button characterCard;
         for (ReducedCharacterCard card : cards) {
-            StringBuilder toolTip=new StringBuilder();
-            String string;
-            if ((string=characterInfo.getProperty(card.getCharID()+"_SETUP"))!=null) {
-                toolTip.append("SETUP: ").append(string).append("\n");
-            }
-            if ((string=characterInfo.getProperty(card.getCharID()+"_EFFECT"))!=null) {
-                toolTip.append("EFFECT: ").append(string).append("\n");
-            }
+            tooltip=new Tooltip(card.getId()+"\nCost: "+card.getCost()+characterInfo.getProperty(card.getCharID()+"_SETUP")+"\n"+characterInfo.getProperty(card.getCharID()+"_EFFECT"));
+            tooltip.setStyle("-fx-font-size: 15");
             characterCard = new Button();
-            Tooltip.install(characterCard,new Tooltip(toolTip.toString()));
+            Tooltip.install(characterCard,tooltip);
             characterCard.setStyle("-fx-background-image: url('Assets/GUI/Cards/Characters/" + card.getId().replace(" ", "").concat(".png") + "');-fx-background-size: cover");
             characterCard.setPrefWidth(50);
             characterCard.setPrefHeight(80);
@@ -304,17 +305,22 @@ public class GamePane extends AnchorPane implements Initializable {
      * @param num the current value of game coins
      */
     public void updateCoins(int num) {
-        Tooltip.install(coins,new Tooltip("Game coins: "+num));
+        Tooltip tooltip=new Tooltip("Game coins: "+num);
+        tooltip.setStyle("-fx-font-size: 15");
+        Tooltip.install(coins,tooltip);
     }
     /**
      * this method updates the bag
      * @param bag the bag to load
      */
     public void updateBag(ReducedBag bag) {
-        StringBuilder toolTip=new StringBuilder();
+
+        StringBuilder stringBuilder=new StringBuilder();
         for (Colour c : Colour.values()) {
-            toolTip.append(c.name()).append(": ").append(bag.getContents().get(c)).append("-");
+            stringBuilder.append(c.name()).append(": ").append(bag.getContents().get(c)).append("-");
         }
-        Tooltip.install(this.bag,new Tooltip(toolTip.substring(0,toolTip.length()-1).replace("-","\n")));
+        Tooltip tooltip=new Tooltip(stringBuilder.substring(0,stringBuilder.length()-1).replace("-","\n"));
+        tooltip.setStyle("-fx-font-size: 15");
+        Tooltip.install(this.bag,tooltip);
     }
 }
