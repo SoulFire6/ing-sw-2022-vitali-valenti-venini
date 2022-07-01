@@ -30,10 +30,10 @@ The project consists of a Java application for the board game [Eriantys](https:/
 The final version will include:
 - [x] initial high level UML diagram
 - [ ] final UML diagrams, automatically generated from the code
-- [ ] working implementation of the game, compliant to the rules and requirements specified for the project
+- [x] working implementation of the game, compliant to the rules and requirements specified for the project
 - [x] documentation for the communication protocol between client and server
 - [x] documentation for the peer reviews (2 total)
-- [ ] source code for the implementation
+- [x] source code for the implementation
 - [ ] source code for the JUnit tests
 
 ## Implemented features

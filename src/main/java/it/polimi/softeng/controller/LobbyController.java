@@ -421,6 +421,7 @@ public class LobbyController {
                             }
                             CharacterCard playedCard=charCardController.findAndCheckCard(currentPlayer,((CharCard_Cmd_Msg)inMessage).getCharID(),game.getCharacterCards());
                             charCardController.playCharacterCard(playedCard,currentPlayer,((CharCard_Cmd_Msg) inMessage).getOptions().split(" "),this);
+                            response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,currentPlayer.getName(),currentPlayer));
                             response.add(MessageCenter.genMessage(MsgType.CHARACTERCARDS,lobbyName,currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID(),game.getCharacterCards()));
                             actionMessage=currentPlayer.getName()+" played "+((CharCard_Cmd_Msg)inMessage).getCharID();
                             break;
