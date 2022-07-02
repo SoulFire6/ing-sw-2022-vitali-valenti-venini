@@ -302,6 +302,10 @@ public class CLI implements View {
             case DISCONNECT:
                 System.out.println(((Info_Message)message).getInfo());
                 System.exit(0);
+                break;
+            case WHISPER:
+                System.out.println(message.getSender()+": "+((Info_Message)message).getInfo());
+                break;
             default:
                 System.out.println(((Info_Message)message).getInfo());
                 break;

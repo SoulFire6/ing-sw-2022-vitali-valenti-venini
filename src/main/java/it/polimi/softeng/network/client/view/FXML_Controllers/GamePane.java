@@ -133,6 +133,9 @@ public class GamePane extends AnchorPane implements Initializable {
         }
         Label chatLabel=new Label(labelText);
         chatLabel.setStyle(labelStyle);
+        if (gameChat.getChildren().size()==10) {
+            gameChat.getChildren().remove(0);
+        }
         this.gameChat.getChildren().add(chatLabel);
     }
 
