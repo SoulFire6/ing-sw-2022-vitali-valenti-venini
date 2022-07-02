@@ -101,11 +101,8 @@ public class TileController {
 
     public void moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException,MoveNotAllowedException,GameIsOverException {
         int maxAmount=p.getSchoolBoard().getLastUsedCard().getMotherNatureValue();
-        if (charCardController!=null && charCardController.getActiveStatus(CharID.MAGIC_POSTMAN,cards)) {
-            maxAmount+=2;
-        }
-        if (n<0) {
-            throw new MoveNotAllowedException("Cannot move mother nature backwards");
+        if (n<1) {
+            throw new MoveNotAllowedException("Must move nature by at least one island");
         }
         if (n>maxAmount) {
             throw new ExceededMaxMovesException("Cannot move mother nature by "+n+" (Current max: "+maxAmount+")");
