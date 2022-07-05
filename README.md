@@ -13,6 +13,8 @@
 - [Daniele Valenti](https://github.com/danielevalenti)
 - [Callum Venini](https://github.com/Callum-Venini)
 
+<img src="Assets/Contributions.png" width="500" alt="Contributions">
+
 # Table of contents
 
 1. [Project specification](#project-specification)
