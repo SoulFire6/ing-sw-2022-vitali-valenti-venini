@@ -1,17 +1,14 @@
 # Software Engineering Project A.Y. 2021-2022
 
-## Simulation of the board game Eriantys 
-
-### [![Report](https://github.com/Callum-Venini/ing-sw-2022-vitali-valenti-venini/actions/workflows/report.yml/badge.svg)](https://github.com/Callum-Venini/ing-sw-2022-vitali-valenti-venini/actions/workflows/report.yml)
+## Simulation of the board game Eriantys
 
 <img src="https://www.craniocreations.it/wp-content/uploads/2021/06/Eriantys_scatolaFrontombra-300x300.png" alt="Eriantys' box cover">
 
 
-
 **Group GC33**:
+- [Callum Venini](https://github.com/Callum-Venini)
 - [Marco Vitali](https://github.com/MarcoVitali0)
 - [Daniele Valenti](https://github.com/danielevalenti)
-- [Callum Venini](https://github.com/Callum-Venini)
 
 <img src="Assets/Contributions.png" width="500" alt="Contributions">
 
