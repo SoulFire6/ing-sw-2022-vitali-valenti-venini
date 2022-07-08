@@ -4,6 +4,8 @@
 
 <img src="https://www.craniocreations.it/wp-content/uploads/2021/06/Eriantys_scatolaFrontombra-300x300.png" alt="Eriantys' box cover">
 
+Final Score: 30/30 cum laude
+
 
 **Group GC33**:
 - [Callum Venini](https://github.com/SoulFire6)
