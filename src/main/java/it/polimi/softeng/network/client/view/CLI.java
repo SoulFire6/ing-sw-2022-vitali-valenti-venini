@@ -647,11 +647,12 @@ public class CLI implements View {
                         "- refill [cloud id] - choose cloud to refill entrance from\n" +
                         "- msg | whisper [username] - send a message to another player\n" +
                         "- charinfo [char name] - prints character card info\n" +
-                        "- quit - save and quit game, therefore closing lobby (can only be performed by lobby master)"+
+                        "- quit - save and quit game, therefore closing lobby (can only be performed by lobby master)\n"+
                         "- disconnect - quit game, triggers game over for other players if there is one team left");
                 return null;
             default:
-                return MessageCenter.genMessage(MsgType.TEXT,username,"Basic response",input[0]);
+                System.out.println("Not a valid command, for a list of valid commands type help");
+                return null;
         }
     }
 }
