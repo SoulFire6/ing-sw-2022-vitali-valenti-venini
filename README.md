@@ -6,7 +6,7 @@
 
 
 **Group GC33**:
-- [Callum Venini](https://github.com/Callum-Venini)
+- [Callum Venini](https://github.com/SoulFire6)
 - [Marco Vitali](https://github.com/MarcoVitali0)
 - [Daniele Valenti](https://github.com/danielevalenti)
 
