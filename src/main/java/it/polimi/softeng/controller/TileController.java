@@ -293,12 +293,14 @@ public class TileController {
                 island.addStudents(island.getNext().getContents());
                 islands.remove(island.getNext());
                 island.setNext(island.getNext().getNext());
+                island.getNext().setPrev(island);
             }
             if (island.getTeam()==island.getPrev().getTeam()) {
                 island.setTowers(island.getTowers()+island.getPrev().getTowers());
                 island.addStudents(island.getPrev().getContents());
                 islands.remove(island.getPrev());
                 island.setPrev(island.getPrev().getPrev());
+                island.getPrev().setNext(island);
             }
         }
         if (islands.size()<4) {

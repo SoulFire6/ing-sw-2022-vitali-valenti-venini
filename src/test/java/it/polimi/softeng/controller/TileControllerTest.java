@@ -162,7 +162,7 @@ public class TileControllerTest {
         third.setTeam(Team.WHITE);
         third.setTowers(testThird);
         third.addColour(Colour.getRandomColour(),testThird);
-        tileController.checkAndMerge(islands,second);
+        assertDoesNotThrow(()->tileController.checkAndMerge(islands,second));
         assertEquals(testNum-2,islands.size());
         assertEquals(Team.WHITE,islands.get(0).getTeam());
         assertEquals(testFirst+testSecond+testThird,islands.get(0).getTowers());
