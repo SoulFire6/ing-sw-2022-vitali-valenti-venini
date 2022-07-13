@@ -216,12 +216,6 @@ public class GUI_ActionHandler implements PropertyChangeListener {
         try {
             messageSender.closeConnection();
             socket.close();
-            Alert alert=new Alert(Alert.AlertType.INFORMATION,"Connection closed");
-            alert.setOnCloseRequest(event->{
-                Platform.exit();
-                System.exit(0);
-            });
-            alert.showAndWait();
         }
         catch (IOException ignored) {
         }

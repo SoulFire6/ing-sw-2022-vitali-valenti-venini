@@ -374,20 +374,21 @@ public class Lobby implements Runnable {
                         } else {
                             clients.get(msg.getSender()).sendMessage(MsgType.ERROR,"Not lobby master","Only the current lobby master ("+lobbyMaster+") can decide to save and quit the game");
                         }
-                    }
-                    for (Message message : controller.parseMessage(msg)) {
-                        switch (message.getSubType()) {
-                            case WHISPER:
-                                clients.get(message.getContext()).sendMessage(message);
-                                break;
-                            case ERROR:
-                                clients.get(msg.getSender()).sendMessage(message);
-                                break;
-                            default:
-                                for (String client : clients.keySet()) {
-                                    clients.get(client).sendMessage(message);
-                                }
-                                break;
+                    } else {
+                        for (Message message : controller.parseMessage(msg)) {
+                            switch (message.getSubType()) {
+                                case WHISPER:
+                                    clients.get(message.getContext()).sendMessage(message);
+                                    break;
+                                case ERROR:
+                                    clients.get(msg.getSender()).sendMessage(message);
+                                    break;
+                                default:
+                                    for (String client : clients.keySet()) {
+                                        clients.get(client).sendMessage(message);
+                                    }
+                                    break;
+                            }
                         }
                     }
                     //Check print

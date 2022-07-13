@@ -16,11 +16,10 @@
         <ToolBar fx:id="assistantCards" minHeight="80" maxHeight="80" minWidth="65" maxWidth="605" nodeOrientation="LEFT_TO_RIGHT" style="-fx-background-color: BLACK;" />
     </VBox>
 
-    <VBox AnchorPane.bottomAnchor="50" AnchorPane.rightAnchor="50" prefHeight="200" prefWidth="200">
-        <VBox alignment="CENTER_LEFT" prefHeight="50" prefWidth="200">
-            <Label fx:id="currentPhase" text="Current phase:" prefHeight="20" style="-fx-background-color: white" />
-            <Label fx:id="currentPlayer" text="Current player:" prefHeight="20" style="-fx-background-color: white" />
-        </VBox>
+    <VBox AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0" prefHeight="320" prefWidth="200">
+        <HBox fx:id="characterCards" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0" prefHeight="80" prefWidth="200"/>
+        <Label fx:id="currentPhase" text="Current phase:" prefHeight="20" style="-fx-background-color: white" />
+        <Label fx:id="currentPlayer" text="Current player:" prefHeight="20" style="-fx-background-color: white" />
         <HBox alignment="CENTER">
             <ImageView fx:id="coins" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                 <Image url="/Assets/GUI/Icons/Coin.png"/>
@@ -29,9 +28,8 @@
                 <Image url="/Assets/GUI/Icons/Bag.png"/>
             </ImageView>
         </HBox>
+        <Button fx:id="quitButton" prefWidth="200" prefHeight="100" text="Save and Quit"/>
     </VBox>
-
-
 
     <VBox alignment="TOP_CENTER" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" minWidth="200.0" prefHeight="200.0" prefWidth="250.0">
         <ScrollPane minWidth="200.0" prefHeight="180.0" prefWidth="200.0">
@@ -44,8 +42,6 @@
             <TextField fx:id="chatField" minWidth="180" prefWidth="280"/>
         </HBox>
     </VBox>
-
-    <HBox fx:id="characterCards" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0" prefHeight="80" prefWidth="200"/>
 
     <GridPane fx:id="tiles" layoutX="400.0" layoutY="160.0" prefHeight="400.0" prefWidth="400.0" maxWidth="400" maxHeight="400">
         <columnConstraints>

@@ -44,9 +44,10 @@ public class GamePane extends AnchorPane implements Initializable {
     ToolBar assistantCards;
     @FXML
     Label currentPhase,currentPlayer;
-
     @FXML
     ImageView bag, coins;
+    @FXML
+    Button quitButton;
     private final ArrayList<IslandPane> visibleIslands=new ArrayList<>();
     private final ArrayList<CloudPane> visibleClouds=new ArrayList<>();
     private final HashMap<String,PlayerPane> playerPanes=new HashMap<>();
@@ -102,6 +103,7 @@ public class GamePane extends AnchorPane implements Initializable {
             messageSender.sendMessage(MsgType.WHISPER,chatPartners.getValue(),chatField.getText());
             chatField.clear();
         });
+        quitButton.setOnAction(event-> messageSender.sendMessage(MsgType.SAVE_AND_QUIT,"Save and quit",null));
     }
 
     /**
