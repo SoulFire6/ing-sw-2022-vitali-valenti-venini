@@ -367,7 +367,7 @@ public class LobbyController {
                             tileController.moveStudentsToIsland(currentPlayer,((DiskToIsland_Cmd_Msg)inMessage).getColour(),inMessage.getContext(),game.getIslands());
                             turnManager.nextAction();
                             response.add(MessageCenter.genMessage(MsgType.ISLANDS,lobbyName,inMessage.getContext(),game.getIslands()));
-                            response.add(MessageCenter.genMessage(MsgType.PLAYER,lobbyName,inMessage.getSender(),currentPlayer));
+                            response.add(MessageCenter.genMessage(MsgType.PLAYERS,lobbyName,inMessage.getSender(),getGame().getPlayers()));
                             actionMessage=currentPlayer.getName()+" has moved a "+((DiskToIsland_Cmd_Msg)inMessage).getColour().name().toLowerCase()+" student to island "+inMessage.getContext();
                             break;
                         case DISKTODININGROOM:

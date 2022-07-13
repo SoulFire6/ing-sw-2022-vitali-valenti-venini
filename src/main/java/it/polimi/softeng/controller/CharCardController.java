@@ -48,7 +48,7 @@ public class CharCardController {
      * @exception GameIsOverException when the game is already over
      * @exception MoveNotAllowedException when the action is requested in a not allowed state of the game
      */
-    public void playCharacterCard(CharacterCard card, Player player, String[] charArgs, LobbyController controller) throws GameIsOverException,MoveNotAllowedException {
+    public void playCharacterCard(CharacterCard card, Player player, String[] charArgs, LobbyController controller) throws GameIsOverException, MoveNotAllowedException, PlayerNotFoundException {
         card.getCharacter().activateCard(player,charArgs,controller);
         player.getSchoolBoard().setCoins(player.getSchoolBoard().getCoins()-card.getCost());
         card.setActive(true);

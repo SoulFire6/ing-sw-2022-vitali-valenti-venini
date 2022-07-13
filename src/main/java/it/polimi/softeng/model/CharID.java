@@ -3,6 +3,7 @@ package it.polimi.softeng.model;
 import it.polimi.softeng.controller.LobbyController;
 import it.polimi.softeng.exceptions.GameIsOverException;
 import it.polimi.softeng.exceptions.MoveNotAllowedException;
+import it.polimi.softeng.exceptions.PlayerNotFoundException;
 
 import java.util.EnumMap;
 import java.util.Optional;
@@ -61,7 +62,7 @@ public enum CharID {
          * @throws GameIsOverException when the game ends after this card is played
          */
         @Override
-        public void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException,GameIsOverException {
+        public void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException, GameIsOverException, PlayerNotFoundException {
             if (charArgs.length==0) {
                 throw new MoveNotAllowedException("Did not specify island tile");
             }
@@ -399,7 +400,7 @@ public enum CharID {
      * @throws MoveNotAllowedException for any problem that doesn't allow the player move to be performed
      * @throws GameIsOverException when the game ends
      */
-    public abstract void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException, GameIsOverException;
+    public abstract void activateCard(Player p, String[] charArgs, LobbyController controller) throws MoveNotAllowedException, GameIsOverException, PlayerNotFoundException;
 
     private final MemType memType;
 

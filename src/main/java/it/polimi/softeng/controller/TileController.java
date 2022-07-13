@@ -95,11 +95,10 @@ public class TileController {
      * @param playerController the playerController of this game
      * @exception ExceededMaxMovesException when the player wants to move mother nature more than possible
      * @exception MoveNotAllowedException if n is negative
-     * @exception GameIsOverException when
-     * @return boolean true if the operation succeeded, false otherwise
+     * @exception GameIsOverException when number of islands is equal or less than 3
      */
 
-    public void moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException,MoveNotAllowedException,GameIsOverException {
+    public void moveMotherNature(Player p, int n, CharCardController charCardController, ArrayList<Player> players, ArrayList<CharacterCard> cards, ArrayList<Island_Tile> islands,PlayerController playerController) throws ExceededMaxMovesException, MoveNotAllowedException, GameIsOverException, PlayerNotFoundException {
         int maxAmount=p.getSchoolBoard().getLastUsedCard().getMotherNatureValue();
         if (n<1) {
             throw new MoveNotAllowedException("Must move nature by at least one island");
@@ -126,6 +125,7 @@ public class TileController {
                         if (card.getCharacter().equals(CharID.GRANDMA_HERBS)) {
                             card.getCharacter().setMemory(card.getCharacter().getMemory()+1);
                         }
+                        break;
                     }
                 }
                 break;
@@ -206,10 +206,10 @@ public class TileController {
      * @param charController the character card controller of the current game
      * @param cards all the usable character cards of the current game
      * @param playerController the player controller of the current game
-     * @exception GameIsOverException when the game finishes
+     * @exception GameIsOverException when a team runs out of towers or the amount of remaining islands is less or equal to three
      */
 
-    public void calculateInfluence(Player conqueringPlayer, Island_Tile island, ArrayList<Player> players, CharCardController charController,  ArrayList<CharacterCard> cards, PlayerController playerController) throws GameIsOverException {
+    public void calculateInfluence(Player conqueringPlayer, Island_Tile island, ArrayList<Player> players, CharCardController charController,  ArrayList<CharacterCard> cards, PlayerController playerController) throws GameIsOverException, PlayerNotFoundException {
         Team conqueringTeam=conqueringPlayer.getTeam();
         Team currentTeam=island.getTeam();
         EnumMap<Team,Integer> teamInfluence=new EnumMap<>(Team.class);
@@ -259,6 +259,13 @@ public class TileController {
             }
         }
         if (island.getTeam()==null) {
+            if (!conqueringPlayer.getTeam().equals(maxTeam)) {
+                Optional<Player> newConqueringPlayer=playerController.getPlayersOnTeam(players,maxTeam).stream().max(Comparator.comparing(player -> player.getSchoolBoard().getTowers()));
+                if (newConqueringPlayer.isEmpty()) {
+                    throw new PlayerNotFoundException("Error finding player of team "+maxTeam);
+                }
+                conqueringPlayer=newConqueringPlayer.get();
+            }
             if (conqueringPlayer.getSchoolBoard().getTowers()>0) {
                 conqueringPlayer.getSchoolBoard().modifyTowers(-1);
             } else if (conqueringPlayer.getTeamMate()!=null && conqueringPlayer.getTeamMate().getSchoolBoard().getTowers()>0) {
@@ -277,8 +284,9 @@ public class TileController {
      * This method is used to check if an island needs to be unified to its adjacent islands
      * @param islands all the islands present in the game
      * @param island the island who needs to be checked
+     * @exception GameIsOverException when the amount of remaining islands is less or equal to three
      */
-    public void checkAndMerge(ArrayList<Island_Tile> islands, Island_Tile island) {
+    public void checkAndMerge(ArrayList<Island_Tile> islands, Island_Tile island) throws GameIsOverException {
         if (islands.contains(island) && islands.size()>3) {
             if (island.getTeam()==island.getNext().getTeam()) {
                 island.setTowers(island.getTowers()+island.getNext().getTowers());
@@ -292,6 +300,9 @@ public class TileController {
                 islands.remove(island.getPrev());
                 island.setPrev(island.getPrev().getPrev());
             }
+        }
+        if (islands.size()<4) {
+            throw new GameIsOverException("Islands less or equal to three");
         }
     }
 }
